@@ -1,3 +1,7 @@
+% Using the Horseshoe Prior for Structural Breaks
+% Jeffrey B. Arnold
+% 2013-3-1
+
 # Introduction
 
 This paper proposes modeling structural breaks within the same
@@ -38,7 +42,7 @@ heavy tails, this allows for more smoothly varying values of $\mu$.
 
 The solution is to use a distribution that shrinks noise towards 0,
 but does not shrink signals.
-The horseshoe prior, introduced in [@Carvalho2009] is a shrinkage
+The horseshoe prior, introduced in [@CarvalhoPolsonScott2010] is a shrinkage
 prior which has this property.
 It is defined as,
 $$
@@ -53,9 +57,9 @@ reals with scale $s$.
 Compared with other sparseness priors, e.g. Normal, Cauchy, Laplacian,
 Strawderman-Berger, and Normal-Exponential-Gamma, the Horseshoe
 exhibits: tail robustness, unboundedness at the origin, and global
-adaptivity to different sparseness patterns [@Carvalho2009, p. 7]. 
+adaptivity to different sparseness patterns [@CarvalhoPolsonScott2010].
 
-Moreover, [@Carvalho] shows that although the horseshoe prior is not a
+Moreover, [@CarvalhoPolsonScott2010] shows that although the horseshoe prior is not a
 two-group model, it performs similarly to a two-group model.
 
 # Comparison
@@ -64,4 +68,4 @@ two-group model, it performs similarly to a two-group model.
 
 # Extensions
 
-
+# References
