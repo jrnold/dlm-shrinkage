@@ -17,7 +17,7 @@ parameters {
   // measurement error
   real logsigma;
   // system error
-  real<lower=0.0> lambda[n_time - 1];
+  real<lower=0.0> lambda[n_time -1];
   real<lower=0.0> tau;
 }
 transformed parameters {
@@ -38,6 +38,6 @@ model {
   theta_innov ~ normal(0.0, 1.0);
   // half-cauchy since lambda > 0.
   lambda ~ cauchy(0.0, 1.0);
-  y ~ normal(yhat, sigma);
   tau ~ cauchy(0, sigma);
+  y ~ normal(yhat, sigma);
 }

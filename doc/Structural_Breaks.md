@@ -1,11 +1,8 @@
 % Using the Horseshoe Prior for Structural Breaks
 % Jeffrey B. Arnold
-% 2013-3-1
+% March 4, 2013
 
 # Introduction
-
-This paper proposes modeling structural breaks within the same
-modeling framework as shrinkage priors and variable selection. 
 
 Consider the following dynamic system,
 $$
@@ -22,26 +19,31 @@ reduces to $y_t = \mu + \epsilon_t$.
 Modeling structural breaks can be seen as a choice on the distribution
 on $\nu_t$.  
 
-The problem of finding structural breaks is similar to that of
-variable selection. For most times, $\nu_t \approx 0$, but in some
-cases can be $\nu \neq 0$.
-This can be thought of as a mixture distribution for $\eta$,
+The commonly used Gaussian linear dynamic system assumes a normal
+distribution for $\eta_t$. Since the normal distribution does not have
+heavy tails, this allows for more smoothly varying values of $\mu$.
+
+In the case of structural breaks, the values of $\eta_t$ are assumed
+to be sparse. Generally, it is believed that there are a small number
+of structural break. 
+One way to model this is as a a mixture distribution in which $p$ 
+$\eta \neq 0$ and are distributed $g(\eta_i)$ and $1 - p$ are equal to 0.
 $$
 \begin{aligned}
-\eta_t &\sim (1 - p) \delta_{\{0\}} + p N(0, \tau^2)
+\eta_t &\sim (1 - p) \delta_{0} + p g(\eta_i)
 \end{aligned}
 $$
 The number of structural breaks is controlled by the sparsity
 parameter $p$. Typically, the researcher is interested in very few
 structural breaks, $p \to 0$, and does not shrink the estimates of the
-change in the mean at all, $\tau \to \infty$. 
+change in the mean at all, $\tau \to \infty$.
 
-The commonly used Gaussian linear dynamic system assumes a normal
-distribution for $\eta_t$. Since the normal distribution does not have
-heavy tails, this allows for more smoothly varying values of $\mu$.
+The second approach is to use a sparsity inducing distribution on
+$\eta$, such that most values are shrunk towards 0, but a few large
+signals exist.  
+For this purpose, the distribution of $\eta$ should (1) have heavy
+tails and (2) should have a substantial mass near 0.
 
-The solution is to use a distribution that shrinks noise towards 0,
-but does not shrink signals.
 The horseshoe prior, introduced in [@CarvalhoPolsonScott2010] is a shrinkage
 prior which has this property.
 It is defined as,
@@ -54,18 +56,47 @@ $$
 where $C^+(0, 1)$ is a standard half-Cauchy distribution on the positive
 reals with scale $s$.
 
+This model produces shrinkage weights which act similarly to the
+posterior probability of inclusion in a two group model. 
+Let $\kappa_t \in [0, 1]$ be defined as
+$$
+\kappa_t = \frac{1}{1 + \lambda_t^2 \tau_t
+$$
+The shrinkage weight is 
+$$
+\omega_t = 1 - \kappa_t
+$$.
+When $\kappa_t \approx 0$, it identifies signal, and when $kappa_t
+\approx 1$, the 
+
+
 Compared with other sparseness priors, e.g. Normal, Cauchy, Laplacian,
 Strawderman-Berger, and Normal-Exponential-Gamma, the Horseshoe
 exhibits: tail robustness, unboundedness at the origin, and global
-adaptivity to different sparseness patterns [@CarvalhoPolsonScott2010].
+adaptivity to different sparseness patterns
+[@CarvalhoPolsonScott2010]. [@PolsonScott2012] note that the horseshoe
+prior is one of class of global-local scale mixtures of normals which
+can be used for Bayesian regularized regression.
 
-Moreover, [@CarvalhoPolsonScott2010] shows that although the horseshoe prior is not a
-two-group model, it performs similarly to a two-group model.
+This approach is flexible, easy to implement, and potentially fast.
 
-# Comparison
+- It is straight-forward to extend this to structural breaks in slops,
+  or regression coefficients.
+- For small problems, this can be easily estimated with general purpose 
+  Bayesian software, such as BUGS, JAGS, or Stan.
+- Since $\eta$ is distributed normal, if the observation errors are
+  distributed normal, then system can be efficiently sampled or
+  estimated with a Kalman Filter.
+- Since this is done on line, Sequential Monte Carlo methods may be
+  able to estimate this quickly and potentially identify structural
+  breaks in real time.
 
-# Examples
 
-# Extensions
+# Example
 
-# References
+West and Harrison example
+
+
+
+
+

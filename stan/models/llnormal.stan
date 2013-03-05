@@ -1,28 +1,39 @@
 data {
   // number of observations
-  int n;
+  int n_obs;
+  // number of states
+  int n_time;
   // observed data
-  real y[n];
+  real y[n_obs];
+  // times of observed data
+  int y_time[n_obs];
   // initial values
   real theta1_mean;
   real<lower=0.0> theta1_sd;
 }
 parameters {
   // latent states
-  real theta[n];
-  // measurement error
+  real theta_innov[n_time];
   real logsigma;
-  // system error
-  real<lower=0.0> tau;
+  real<lower=0.0> lambda;
 }
 transformed parameters {
   real<lower=0.0> sigma;
+  real theta[n_time];
+  real yhat[n_obs];
+
   sigma <- exp(logsigma);
+
+  theta[1] <- theta1_mean + theta1_sd * theta_innov[1];
+  for (i in 2:n_time) {
+    theta[i] <- theta[i-1] + sigma * lambda * theta_innov[i];
+  }
+  for (i in 1:n_obs) {
+    yhat[i] <- theta[y_time[i]];
+  }
 }
 model {
-  theta[1] ~ normal(theta1_mean, theta1_sd);
-  for (i in 2:n) {
-    theta[i] ~ normal(theta[i-1], sigma * tau);
-  }
-  y ~ normal(theta, sigma);
+  // half-cauchy since lambda > 0.
+  y ~ normal(yhat, sigma);
+  lambda ~ cauchy(0, 1);
 }
