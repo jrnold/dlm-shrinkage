@@ -9,8 +9,6 @@
 
 \begin{document}
 
-
-
 Consider a univariate dynamic linear model,
 $$
 \begin{aligned}
@@ -26,9 +24,74 @@ $\nu_t \sim N(0, \sigma_\nu)$.%
 
 The nature of the change in $\theta$ is determined by the distribution on $\nu_t$.  
 In a constant model, $\theta$ is not time-varying and thus, $\omega_{t} = \delta_{0}$, where $\delta_{0}$ is the degenerate distribution at zero.
-In a normal dynamic linear model, $\omega_{t}$ are distributed normal, $\omega_{t} \sim N(0, \sigmua_{omega})$.
-Since the normal distribution does not have thick tails, it smooths the evolution of $\theta$ over time. 
-This means that 
+In a normal dynamic linear model, $\omega_{t}$ are distributed normal, 
+\begin{equation}
+  \label{eq:2}
+  \omega_{t} \sim N(0, \sigmua_{omega})
+\end{equation}
+Since the normal distribution does not have thick tails, it smooths the evolution of $\theta$ over time.
+\footnote{
+  The model above is the local linear model. 
+  Further smoothing can be done by adding time-varying parameters for the slope, accelaration, etc.
+}
+
+A structural break model is a model which imposeses sparsity on $\omega_{t}$. 
+In other words, for most $t$, $\omega_{t} =0$, while for a small number of $t$, $\omega_{t} \neq 0$.
+This can be represented as a mixture distribution,
+\begin{equation}
+  \label{eq:1}
+  \omega_{t} \sim w_{t} g(t) + (1 - w_{t}) \delta_{0} \text{,}
+\end{equation}
+where $w_{t}$ is the probability that $\omega_{t} \neq 0$, i.e. there is a regime shift, and 
+$g(t)$ is a distribution determining the change. Most models do not constrain the difference $\theta_{t} - \theta_{t-1}$, so 
+$g(t)$ is usually a non-informative distribution.
+
+
+\section{The Horseshoe Prior}
+
+The horseshoe model introduced in Carvallo et al (2009) is given by 
+
+
+\begin{equation}
+  \label{eq:3}
+  \begin{aligned}[t]
+    y_{i} & \sim N(\theta, \sigma^{2)} \\
+    \theta_{i} | \lambda_{i}, \tau & \sim N(0, \sigma^{2) \lambda_{i}^{2} tau^{2}) \\
+    \lambda_{i} & \sim C^{+}(0, 1)
+  \end{aligned}
+\end{equation}
+where $C^{+}(0, 1)$ is a standard half-Cauchy distribution with support on the positive real numbers.
+
+This distribution has several characteristic that are useful.
+
+The posterior distribution of $\theta_{i}$ is normal with mean
+\begin{equation}
+  \label{eq:4}
+  E(\theta_{i} | y_{i}, \lambda_{i}, \tau, \sigma^{2}) = \left( 1 - \frac{1}{1 + \lambda_{i}^{2} \tau^{2}} \right) y_{i}
+\end{equation}
+Let $\kappa_{i} = \frac{1}{1 + \lambda_{i}^{2} \tau^{2}}$, the posterior mean of $\theta_{i}$ is $(1 - \kappa_{i}) y_{i}$. 
+By Fubini's theorem,
+\begin{equation}
+  \label{eq:4}
+  E(\theta_{i} | y_{i}, \tau, \sigma^{2}) = \left(1 - E(\kappa_{i} | y_{i}, \tau, \sigma^{2 })\right)y_{i}
+\end{equation}
+
+This means that the shrinkage weight $1 - \hat{\kappa}$ behaves similar to the probability of a change-point.
+Also $\kappa_{i}$ can be interpreted as random shrinkage coefficients; $\kappa \approx 0$ identifies signals which 
+are not shrunk, and $\kappa \approx 1$ identifies noise which are shrunk.
+
+Since the shrinkage weights $1 - \hat{\kappa_{i}}$ are similar to inclusion probabilities under a two group model, 
+a natural decision rule under a symmetric 0-1 loss function to identify structural breaks is 
+\begin{equation}
+  \label{eq:5}
+  \text{Reject} H_{0} \text{if $\omega_{i} = 1 - E(\kappa_{i} | y_{i}, \tau, \sigma^{2})$} > \frac{1}{2}
+\end{equation}
+
+The value of $\tau$ serves as a ``global shrinkage parameter''. 
+
+
+A key feature of the Horseshoe distribution is that it belongs to the class of distributions which are scale mixtures of normal distributions. 
+Once $\lambda_{i}$ is known, the system can be estimated using computationally efficient methods, such as the Forward-Filter Backward Sample.
 
 
 \end{document}
