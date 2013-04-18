@@ -1,4 +1,6 @@
-/doc/Structural_Breaks.pdf
+*.pdf
 *.cpp
 *.o
 *.stanx
+*.log
+auto

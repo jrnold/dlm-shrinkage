@@ -1,0 +1,39 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+\author{Jeffrey B. Arnold}
+\title{Time Varying Parameter Estimation Robust to Structural Breaks}
+\date{March 4, 2013}
+
+\begin{document}
+
+
+
+Consider a univariate dynamic linear model,
+$$
+\begin{aligned}
+y_t &= \theta_t + \nu_t \\
+\theta_t &= \theta_{t-1} + \omega_t
+\end{aligned}
+$$
+where $E(\nu_t) = 0$ and $E(\omega_t) = 0$. Since I am primarily
+concerned about structural breaks, for simplicity, I will assume
+$\nu_t \sim N(0, \sigma_\nu)$.%
+\footnote{However, the use of fat-tailed distributions could also be
+  applied to identify outliers.}
+
+The nature of the change in $\theta$ is determined by the distribution on $\nu_t$.  
+In a constant model, $\theta$ is not time-varying and thus, $\omega_{t} = \delta_{0}$, where $\delta_{0}$ is the degenerate distribution at zero.
+In a normal dynamic linear model, $\omega_{t}$ are distributed normal, $\omega_{t} \sim N(0, \sigmua_{omega})$.
+Since the normal distribution does not have thick tails, it smooths the evolution of $\theta$ over time. 
+This means that 
+
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

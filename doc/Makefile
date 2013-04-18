@@ -1,4 +1,4 @@
-PANDOC_OPTS = --bibliography $(HOME)/Dropbox/jabref.bib 
+LATEX = pdflatex
 
-Structural_Breaks.pdf: Structural_Breaks.md
-	pandoc $(PANDOC_OPTS) -o $@ $^
+Structural_Breaks.pdf: Structural_Breaks.tex
+	$(LATEX) $^
