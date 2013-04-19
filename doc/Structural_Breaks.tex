@@ -9,6 +9,26 @@
 
 \begin{document}
 
+
+When modeling time-varying parameters, researchers have to choose between approaches which model the change in the parameter as a smooth, continuous process, such as dynamic linear models, or those which model the changes in the parameter as discrete jumps, i.e. structural break, change-point, or regime-shift models (\textit{ed. what is the best name to use?})
+Change-point models are appealing because the change-points are often easy to substantively interpret, as they can be tied to events.
+Change-point models are problematic because they either require that the researcher specify the number of change-points, and methods to estimate the number of change-points are not straight-forward (\textit{ed. I need a better reason than this}).
+Another issue with change-point models is how they perform when the model is wrong; i.e. what if there are no change-points but a time-varying parameter.
+
+This paper proposes a novel approach to modeling change-points within the dynamic linear model framework.
+The problem of modeling the change in a parameter value is similar to that of estimating sparse parameters, when the number of parameters is large relative to the number of data points.
+That problem is relatively well studied, and there is a growing literature on Bayesian shrinkage priors.
+This paper adopts one of this distributions, the Horseshoe Prior (Carvallho) et al. 
+
+\section{Time Varying Parameter Models}
+\label{sec:time-vary-param}
+
+% Sparse estimation problems
+
+Time varying parameters are often modeled using state-space approaches, especially in the Bayesian approaches.
+Within the state-space approach, the time varying parameter can be modeled with either a continuous state-space, e.g. dynamic linear models, or a discrete state-space, e.g. Hidden Markov Models.
+One issue with Hidden Markov Models is that they often require that the number of discrete changes be known.
+
 Consider a univariate dynamic linear model,
 $$
 \begin{aligned}
@@ -16,9 +36,9 @@ y_t &= \theta_t + \nu_t \\
 \theta_t &= \theta_{t-1} + \omega_t
 \end{aligned}
 $$
-where $E(\nu_t) = 0$ and $E(\omega_t) = 0$. Since I am primarily
-concerned about structural breaks, for simplicity, I will assume
-$\nu_t \sim N(0, \sigma_\nu)$.%
+where $E(\nu_t) = 0$ and $E(\omega_t) = 0$.
+I am primarily concerned about structural breaks, which are changes in $\theta_{t}$.
+Thus for simplicity, I will assume that the $\nu_t \sim N(0, \sigma_\nu)$.%
 \footnote{However, the use of fat-tailed distributions could also be
   applied to identify outliers.}
 
@@ -27,7 +47,7 @@ In a constant model, $\theta$ is not time-varying and thus, $\omega_{t} = \delta
 In a normal dynamic linear model, $\omega_{t}$ are distributed normal, 
 \begin{equation}
   \label{eq:2}
-  \omega_{t} \sim N(0, \sigmua_{omega})
+  \omega_{t} \sim N(0, \sigma_{omega})
 \end{equation}
 Since the normal distribution does not have thick tails, it smooths the evolution of $\theta$ over time.
 \footnote{
@@ -35,34 +55,41 @@ Since the normal distribution does not have thick tails, it smooths the evolutio
   Further smoothing can be done by adding time-varying parameters for the slope, accelaration, etc.
 }
 
-A structural break model is a model which imposeses sparsity on $\omega_{t}$. 
-In other words, for most $t$, $\omega_{t} =0$, while for a small number of $t$, $\omega_{t} \neq 0$.
+A structural break model is a model which imposes sparsity on $\omega_{t}$. 
+In other words, for most $t$, $\omega_{t} = 0$, while for a small number of $t$, $\omega_{t} \neq 0$.
 This can be represented as a mixture distribution,
 \begin{equation}
   \label{eq:1}
-  \omega_{t} \sim w_{t} g(t) + (1 - w_{t}) \delta_{0} \text{,}
+  \omega_{t} \sim w_{t} g(\omega_{i}) + (1 - w_{t}) \delta_{0} \text{,}
 \end{equation}
 where $w_{t}$ is the probability that $\omega_{t} \neq 0$, i.e. there is a regime shift, and 
 $g(t)$ is a distribution determining the change. Most models do not constrain the difference $\theta_{t} - \theta_{t-1}$, so 
 $g(t)$ is usually a non-informative distribution.
 
+When viewed in this manner, the problem of selecting a distribution for $\omega$ is that of the general problem of modeling high dimensional, sparse parameter vectors.
+The Hidden Markov Model is a discrete mixture approach. 
+This approach is appealing because the direct modeling of sparsity is easy to interpret. 
+This approach is problematic due to difficulties estimating discrete mixtures, and in the case of HMMs, the choice of the number of categories.
 
-\section{The Horseshoe Prior}
+\begin{itemize}
+\item Alternative approaches. 
+\end{itemize}
+
+\section{The Horseshoe Distribution}
 
 The horseshoe model introduced in Carvallo et al (2009) is given by 
-
 
 \begin{equation}
   \label{eq:3}
   \begin{aligned}[t]
-    y_{i} & \sim N(\theta, \sigma^{2)} \\
-    \theta_{i} | \lambda_{i}, \tau & \sim N(0, \sigma^{2) \lambda_{i}^{2} tau^{2}) \\
+    y_{i} & \sim N(\theta, \sigma^{2}) \\
+    \theta_{i} | \lambda_{i}, \tau & \sim N(0, \sigma^{2} \lambda_{i}^{2} \tau^{2}) \\
     \lambda_{i} & \sim C^{+}(0, 1)
   \end{aligned}
 \end{equation}
 where $C^{+}(0, 1)$ is a standard half-Cauchy distribution with support on the positive real numbers.
 
-This distribution has several characteristic that are useful.
+This distribution has several characteristics that are useful.
 
 The posterior distribution of $\theta_{i}$ is normal with mean
 \begin{equation}
@@ -89,9 +116,18 @@ a natural decision rule under a symmetric 0-1 loss function to identify structur
 
 The value of $\tau$ serves as a ``global shrinkage parameter''. 
 
-
 A key feature of the Horseshoe distribution is that it belongs to the class of distributions which are scale mixtures of normal distributions. 
 Once $\lambda_{i}$ is known, the system can be estimated using computationally efficient methods, such as the Forward-Filter Backward Sample.
+
+\section{Examples}
+\label{sec:examples}
+
+\subsection{Nile Flow Data}
+\label{sec:nile}
+
+\subsection{Greenbacks and Graybacks}
+\label{sec:greenbacks-graybacks}
+
 
 
 \end{document}
