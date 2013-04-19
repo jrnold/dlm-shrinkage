@@ -2,6 +2,10 @@
 
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage[margin=1in]{geometry}
+
+\usepackage{setspace}
+\doublespace
 
 \author{Jeffrey B. Arnold}
 \title{Time Varying Parameter Estimation Robust to Structural Breaks}
@@ -43,7 +47,7 @@ Thus for simplicity, I will assume that the $\nu_t \sim N(0, \sigma_\nu)$.%
   applied to identify outliers.}
 
 The nature of the change in $\theta$ is determined by the distribution on $\nu_t$.  
-In a constant model, $\theta$ is not time-varying and thus, $\omega_{t} = \delta_{0}$, where $\delta_{0}$ is the degenerate distribution at zero.
+ In a constant model, $\theta$ is not time-varying and thus, $\omega_{t} = \delta_{0}$, where $\delta_{0}$ is the degenerate distribution at zero.
 In a normal dynamic linear model, $\omega_{t}$ are distributed normal, 
 \begin{equation}
   \label{eq:2}
@@ -54,6 +58,19 @@ Since the normal distribution does not have thick tails, it smooths the evolutio
   The model above is the local linear model. 
   Further smoothing can be done by adding time-varying parameters for the slope, accelaration, etc.
 }
+
+One approach is to replace $\omega$ with scale mixtures of normal distributions.
+\begin{equation}
+  \label{eq:6}
+  \begin{aligned}[t]
+    \omega_{t} | \tau^{2}, \lambda^{2} & \sim N(0, \tau^{2} \lambda_{t}^{2}) \\
+    \lambda_{t}^{2} & \sim p(\lambda^{2}_{t})
+  \end{aligned}
+\end{equation}
+where $\tau^{2}$ is a global shrinkage parameter, and $\lambda_{t}^{2}$ are global shrinkage parameters.
+Many Bayesian shrinkage priors can be expressed in this form. 
+
+I will focus on a particular shrinkage distribution, the Horseshoe Prior distribution.
 
 A structural break model is a model which imposes sparsity on $\omega_{t}$. 
 In other words, for most $t$, $\omega_{t} = 0$, while for a small number of $t$, $\omega_{t} \neq 0$.
@@ -99,7 +116,7 @@ The posterior distribution of $\theta_{i}$ is normal with mean
 Let $\kappa_{i} = \frac{1}{1 + \lambda_{i}^{2} \tau^{2}}$, the posterior mean of $\theta_{i}$ is $(1 - \kappa_{i}) y_{i}$. 
 By Fubini's theorem,
 \begin{equation}
-  \label{eq:4}
+  \label{eq:7}
   E(\theta_{i} | y_{i}, \tau, \sigma^{2}) = \left(1 - E(\kappa_{i} | y_{i}, \tau, \sigma^{2 })\right)y_{i}
 \end{equation}
 
