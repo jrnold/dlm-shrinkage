@@ -4,20 +4,32 @@
 \usepackage{amsfonts}
 \usepackage[margin=1in]{geometry}
 
+\usepackage[style=authoryear]{biblatex}
+
+\bibliography{local}
+
 \usepackage{setspace}
 \doublespace
 
 \author{Jeffrey B. Arnold}
 \title{Time Varying Parameter Estimation Robust to Structural Breaks}
-\date{March 4, 2013}
 
 \begin{document}
 
 \maketitle{}
 
-When modeling time-varying parameters, researchers have to choose between approaches which model the change in the parameter as a smooth, continuous process, such as dynamic linear models, or those which model the changes in the parameter as discrete jumps, i.e. structural break, change-point, or regime-shift models (\textit{ed. what is the best name to use?})
+% From Koop and Potter (2004)
+% here are two main
+% approaches: one can estimate a model with a small number of change-points
+% (usually one or two). Alternatively, one can estimate a time varying parameter (TVP) model where the parameters are allowed to change with each
+% new observation, usually according to a random walk. A TVP model can
+% be interpreted as having T − 1 breaks in a sample of size T.
+
+When modeling time-varying parameters, researchers have to choose between approaches which model the change in the parameter as a smooth, continuous process, such as dynamic linear models, or those which model the changes in the parameter as discrete jumps, i.e. structural break, change-point, or regime-shift models.
+This paper seeks to unify these approaches by using ...
+
 Change-point models are appealing because the change-points are often easy to substantively interpret, as they can be tied to events.
-Change-point models are problematic because they either require that the researcher specify the number of change-points, and methods to estimate the number of change-points are not straight-forward (\textit{ed. I need a better reason than this}).
+Change-point models are problematic because they either require that the researcher specify the number of change-points, and methods to estimate the number of change-points are not straight-forward.
 Another issue with change-point models is how they perform when the model is wrong; i.e. what if there are no change-points but a time-varying parameter.
 
 This paper proposes a novel approach to modeling change-points within the dynamic linear model framework.
@@ -28,7 +40,7 @@ This paper adopts one of this distributions, the Horseshoe Prior (Carvallho) et 
 \section{Time Varying Parameter Models}
 \label{sec:time-vary-param}
 
-A dynamic linear model (DLM) is defined by the following set of equations \parencites{WestHarrison1997}{CommandeurKoopman2007.pdf},
+A dynamic linear model (DLM) is defined by the following set of equations \parencites{WestHarrison1997}{CommandeurKoopman2007},
 \begin{equation}
   \label{eq:9}
   \begin{aligned}[t]
@@ -36,10 +48,11 @@ A dynamic linear model (DLM) is defined by the following set of equations \paren
     \theta_{t} &= G \theta_{t - 1} + \omega_{t} 
   \end{aligned}
 \end{equation}
-and an initial prior distribution for $\theta_{0}$.
+where $E(\nu_{t}) = 0$, $E(\omega_{t}) = 0$, and an initial prior distribution for $\theta_{0}$.
 This represents a general class of models that includes linear regression (with constant or time-varying parameters) as well as standard ARIMA time-series models.
+There are also computationally efficient methods to maximize (Kalman Filter) and sample from (Forward-Filter Backward Sample) DLMs if $\nu$ and $\omega$ are distributed normal.
 
-For the simplicity, in this section I only consider a special case of the DLM with a single parameter with a time-varying level. 
+For the simplicity, in this section, I only consider a special case of the DLM with a single parameter with a time-varying level. 
 However, an advantage of this method, and working with state-space models in general, is that these methods can be extend to multiple variables, and varying slopes, etc.
 A local-level model is a simple model describing parameter change over time,
 \begin{equation}
@@ -49,13 +62,12 @@ A local-level model is a simple model describing parameter change over time,
     \theta_t &= \theta_{t-1} + \omega_t
   \end{aligned}
 \end{equation}
-where $v_{t} \sim N(0, \sigma^{2})$ and $E(\omega_t) = 0$.  
+where $v_{t} \sim N(0, \sigma^{2})$ and $E(\omega_t) = 0$.
 
 From \eqref{eq:8}, it is clear that the change in $\theta$ is determined by the distribution of $\omega_{t}$.
 In a constant model, $\theta_{t} = \bar{\theta}$ for all $t$. 
-This occurs when is not time-varying and $\omega_{t} = \delta_{0}$, where $\delta_{0}$ is the degenerate distribution at zero.
+This can be represented in \eqref{eq:8} by setting $\omega_{t} = \delta_{0}$, where $\delta_{0}$ is the degenerate distribution at zero.
 
-The nature of the change in $\theta$, i.e. $\theta_{t} - \theta_{t-1}$ is determined by the distribution of $\omega_t$.  
 In the normal (Gaussian) linear dynamic model, $\omega_{t}$ are distributed i.i.d. normal,
 \begin{equation}
   \label{eq:2}
@@ -65,17 +77,23 @@ Since the normal distribution does not have thick tails, it smooths the evolutio
 The use of the normal distribution shrinks the values of $\omega_{t}$, making large jumps unlikely, 
 and also means that $\omega \neq 0$ with certainty.
 
-The problem of estimating innovations $\omega_{t}$ is similar to problems of variable selection and shrinkage.
-
-A ``structural break'' or ``change-point'' formulation can be incorporated into a dynamic linear model if $\omega_{t}$ is modeled as a spike-and-slab mixture distribution,
+A ``structural break'' or ``change-point'' formulation can be incorporated into a dynamic linear model if $\omega_{t}$ is modeled as a spike-and-slab mixture distribution \parencite{GiordaniKohn2008},
 \begin{equation}
   \label{eq:1}
   \omega_{t} \sim p g(\omega_{i}) + (1 - p) \delta_{0} \text{,}
 \end{equation}
 where $p$ is the prior probability that $\omega_{t} \neq 0$, i.e. there is a regime shift, and 
 $g(\omega_{t})$ is a distribution, usually non-information, over the change of the change in $\omega_{t}$ if there is a structural break.
+\footnote{If $p$ is constant over time, this replicates the geometric distribution in \textcite{Chib1998}.}
 
+The problem of estimating innovations $\omega_{t}$ is similar to problems of variable selection and shrinkage.
+The smoothing approaching of normal DLMs is an example of a shrinkage approach to estimating innovations.
+The structural break approach is 
 
+There are several reasons why structural break methods are used.
+The first is that the underlying data generating processes in political processes is often marked by large shifts.
+The second is that stuctural breaks are easy to intrepret substantively.
+The output of the methods provides a small number of breaks which can be interpreted with respect to the events occuring contemporaneously.
 
 A structural break model is a model which imposes sparsity on $\omega_{t}$. 
 In other words, for most $t$, $\omega_{t} = 0$, while for a small number of $t$, $\omega_{t} \neq 0$.
@@ -101,8 +119,6 @@ The Horseshoe prior distribution has several characteristics which make it parti
 
 This distribution has several characteristics that are useful.
 
-If the 
-
 \begin{equation}
   \label{eq:10}
   E(\omega_{t} | y_{t}, \theta_{t-1}, \lambda_{t}, \tau, \sigma^{2}) =
@@ -121,16 +137,15 @@ to identify signals, which in this case will be structural breaks,
   \text{Reject $H_{0t}$ if $p_{t} = 1 - E(\kappa_{t} | y_{t}, \theta_{t-1}, \tau, \omega^{2})$} > \frac{1}{2}
 \end{equation}
 
-
-
-
 \section{Examples}
 \label{sec:examples}
 
-I consider the performance of 
-
 \subsection{Nile Flow Data}
 \label{sec:nile}
+
+The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \textcite{Cobb1978}{Balke1993}{DurbinKoopman2012}
+The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970. 
+It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
 
 \subsection{Greenbacks}
 \label{sec:greenbacks-graybacks}
@@ -138,7 +153,12 @@ I consider the performance of
 \subsection{Election}
 \label{sec:election}
 
+Consider the ``Bush'' problem, estimating structural breaks in
+presidential approval data. This is the example used in
+\textcite{RatkovicEng2010}.
 
+
+\printbibliography{}
 
 \end{document}
 
