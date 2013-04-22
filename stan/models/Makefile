@@ -1,8 +1,8 @@
 # Directory of models
 DIR = .
-STAN_HOME = $(HOME)/remotes/stan/stan-src-1.1.1
+STAN_HOME = $(HOME)/local/stan/stan-src-1.3.0
 # Extension name for compiled objects
-EXE = .stanx
+EXE =
 
 # Compiler to use
 CC = g++
@@ -57,7 +57,7 @@ LDLIBS_STANC = -L$(STAN_BIN) -lstanc
 all: $(objects)
 	@echo $(objects)
 
-.SECONDARY:
+#.SECONDARY:
 
 clean:
 	-rm -f $(DIR)/*.cpp $(DIR)/*.stanx $(DIR)/*.o

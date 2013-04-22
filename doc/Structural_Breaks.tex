@@ -13,6 +13,7 @@
 
 \begin{document}
 
+\maketitle{}
 
 When modeling time-varying parameters, researchers have to choose between approaches which model the change in the parameter as a smooth, continuous process, such as dynamic linear models, or those which model the changes in the parameter as discrete jumps, i.e. structural break, change-point, or regime-shift models (\textit{ed. what is the best name to use?})
 Change-point models are appealing because the change-points are often easy to substantively interpret, as they can be tied to events.
@@ -27,39 +28,59 @@ This paper adopts one of this distributions, the Horseshoe Prior (Carvallho) et 
 \section{Time Varying Parameter Models}
 \label{sec:time-vary-param}
 
-% Sparse estimation problems
+A dynamic linear model (DLM) is defined by the following set of equations \parencites{WestHarrison1997}{CommandeurKoopman2007.pdf},
+\begin{equation}
+  \label{eq:9}
+  \begin{aligned}[t]
+    y_{t} &= F \theta_{t} + \nu_{t} \\
+    \theta_{t} &= G \theta_{t - 1} + \omega_{t} 
+  \end{aligned}
+\end{equation}
+and an initial prior distribution for $\theta_{0}$.
+This represents a general class of models that includes linear regression (with constant or time-varying parameters) as well as standard ARIMA time-series models.
 
-Time varying parameters are often modeled using state-space approaches, especially in the Bayesian approaches.
-Within the state-space approach, the time varying parameter can be modeled with either a continuous state-space, e.g. dynamic linear models, or a discrete state-space, e.g. Hidden Markov Models.
-One issue with Hidden Markov Models is that they often require that the number of discrete changes be known.
+For the simplicity, in this section I only consider a special case of the DLM with a single parameter with a time-varying level. 
+However, an advantage of this method, and working with state-space models in general, is that these methods can be extend to multiple variables, and varying slopes, etc.
+A local-level model is a simple model describing parameter change over time,
+\begin{equation}
+  \label{eq:8}
+  \begin{aligned}
+    y_t &= \theta_t + \nu_t \\
+    \theta_t &= \theta_{t-1} + \omega_t
+  \end{aligned}
+\end{equation}
+where $v_{t} \sim N(0, \sigma^{2})$ and $E(\omega_t) = 0$.  
 
-Consider a univariate dynamic linear model,
-$$
-\begin{aligned}
-y_t &= \theta_t + \nu_t \\
-\theta_t &= \theta_{t-1} + \omega_t
-\end{aligned}
-$$
-where $E(\nu_t) = 0$ and $E(\omega_t) = 0$.
-I am primarily concerned about structural breaks, which are changes in $\theta_{t}$.
-Thus for simplicity, I will assume that the $\nu_t \sim N(0, \sigma_\nu)$.%
-\footnote{However, the use of fat-tailed distributions could also be
-  applied to identify outliers.}
+From \eqref{eq:8}, it is clear that the change in $\theta$ is determined by the distribution of $\omega_{t}$.
+In a constant model, $\theta_{t} = \bar{\theta}$ for all $t$. 
+This occurs when is not time-varying and $\omega_{t} = \delta_{0}$, where $\delta_{0}$ is the degenerate distribution at zero.
 
-The nature of the change in $\theta$ is determined by the distribution on $\nu_t$.  
- In a constant model, $\theta$ is not time-varying and thus, $\omega_{t} = \delta_{0}$, where $\delta_{0}$ is the degenerate distribution at zero.
-In a normal dynamic linear model, $\omega_{t}$ are distributed normal, 
+The nature of the change in $\theta$, i.e. $\theta_{t} - \theta_{t-1}$ is determined by the distribution of $\omega_t$.  
+In the normal (Gaussian) linear dynamic model, $\omega_{t}$ are distributed i.i.d. normal,
 \begin{equation}
   \label{eq:2}
-  \omega_{t} \sim N(0, \sigma_{omega})
+  \omega_{t} \sim N(0, \tau^{2})
 \end{equation}
 Since the normal distribution does not have thick tails, it smooths the evolution of $\theta$ over time.
-\footnote{
-  The model above is the local linear model. 
-  Further smoothing can be done by adding time-varying parameters for the slope, accelaration, etc.
-}
+The use of the normal distribution shrinks the values of $\omega_{t}$, making large jumps unlikely, 
+and also means that $\omega \neq 0$ with certainty.
 
-One approach is to replace $\omega$ with scale mixtures of normal distributions.
+The problem of estimating innovations $\omega_{t}$ is similar to problems of variable selection and shrinkage.
+
+A ``structural break'' or ``change-point'' formulation can be incorporated into a dynamic linear model if $\omega_{t}$ is modeled as a spike-and-slab mixture distribution,
+\begin{equation}
+  \label{eq:1}
+  \omega_{t} \sim p g(\omega_{i}) + (1 - p) \delta_{0} \text{,}
+\end{equation}
+where $p$ is the prior probability that $\omega_{t} \neq 0$, i.e. there is a regime shift, and 
+$g(\omega_{t})$ is a distribution, usually non-information, over the change of the change in $\omega_{t}$ if there is a structural break.
+
+
+
+A structural break model is a model which imposes sparsity on $\omega_{t}$. 
+In other words, for most $t$, $\omega_{t} = 0$, while for a small number of $t$, $\omega_{t} \neq 0$.
+
+A alternative approach is to model $\omega$ with a scale mixture of normal distributions.
 \begin{equation}
   \label{eq:6}
   \begin{aligned}[t]
@@ -70,80 +91,52 @@ One approach is to replace $\omega$ with scale mixtures of normal distributions.
 where $\tau^{2}$ is a global shrinkage parameter, and $\lambda_{t}^{2}$ are global shrinkage parameters.
 Many Bayesian shrinkage priors can be expressed in this form. 
 
-I will focus on a particular shrinkage distribution, the Horseshoe Prior distribution.
+The class of scale-normal mixtures includes many of the suggested Bayesian shrinkage priors.
 
-A structural break model is a model which imposes sparsity on $\omega_{t}$. 
-In other words, for most $t$, $\omega_{t} = 0$, while for a small number of $t$, $\omega_{t} \neq 0$.
-This can be represented as a mixture distribution,
-\begin{equation}
-  \label{eq:1}
-  \omega_{t} \sim w_{t} g(\omega_{i}) + (1 - w_{t}) \delta_{0} \text{,}
-\end{equation}
-where $w_{t}$ is the probability that $\omega_{t} \neq 0$, i.e. there is a regime shift, and 
-$g(t)$ is a distribution determining the change. Most models do not constrain the difference $\theta_{t} - \theta_{t-1}$, so 
-$g(t)$ is usually a non-informative distribution.
+The $t$-distribution has suggested for dynamic linear model estimation that is robust to structural breaks.
 
-When viewed in this manner, the problem of selecting a distribution for $\omega$ is that of the general problem of modeling high dimensional, sparse parameter vectors.
-The Hidden Markov Model is a discrete mixture approach. 
-This approach is appealing because the direct modeling of sparsity is easy to interpret. 
-This approach is problematic due to difficulties estimating discrete mixtures, and in the case of HMMs, the choice of the number of categories.
+This paper will focus on one particular shrinkage prior, the Horseshoe Prior distribution.
 
-\begin{itemize}
-\item Alternative approaches. 
-\end{itemize}
-
-\section{The Horseshoe Distribution}
-
-The horseshoe model introduced in Carvallo et al (2009) is given by 
-
-\begin{equation}
-  \label{eq:3}
-  \begin{aligned}[t]
-    y_{i} & \sim N(\theta, \sigma^{2}) \\
-    \theta_{i} | \lambda_{i}, \tau & \sim N(0, \sigma^{2} \lambda_{i}^{2} \tau^{2}) \\
-    \lambda_{i} & \sim C^{+}(0, 1)
-  \end{aligned}
-\end{equation}
-where $C^{+}(0, 1)$ is a standard half-Cauchy distribution with support on the positive real numbers.
+The Horseshoe prior distribution has several characteristics which make it particularly appealing for this problem.
 
 This distribution has several characteristics that are useful.
 
-The posterior distribution of $\theta_{i}$ is normal with mean
-\begin{equation}
-  \label{eq:4}
-  E(\theta_{i} | y_{i}, \lambda_{i}, \tau, \sigma^{2}) = \left( 1 - \frac{1}{1 + \lambda_{i}^{2} \tau^{2}} \right) y_{i}
-\end{equation}
-Let $\kappa_{i} = \frac{1}{1 + \lambda_{i}^{2} \tau^{2}}$, the posterior mean of $\theta_{i}$ is $(1 - \kappa_{i}) y_{i}$. 
-By Fubini's theorem,
-\begin{equation}
-  \label{eq:7}
-  E(\theta_{i} | y_{i}, \tau, \sigma^{2}) = \left(1 - E(\kappa_{i} | y_{i}, \tau, \sigma^{2 })\right)y_{i}
-\end{equation}
+If the 
 
-This means that the shrinkage weight $1 - \hat{\kappa}$ behaves similar to the probability of a change-point.
-Also $\kappa_{i}$ can be interpreted as random shrinkage coefficients; $\kappa \approx 0$ identifies signals which 
-are not shrunk, and $\kappa \approx 1$ identifies noise which are shrunk.
-
-Since the shrinkage weights $1 - \hat{\kappa_{i}}$ are similar to inclusion probabilities under a two group model, 
-a natural decision rule under a symmetric 0-1 loss function to identify structural breaks is 
 \begin{equation}
-  \label{eq:5}
-  \text{Reject} H_{0} \text{if $\omega_{i} = 1 - E(\kappa_{i} | y_{i}, \tau, \sigma^{2})$} > \frac{1}{2}
+  \label{eq:10}
+  E(\omega_{t} | y_{t}, \theta_{t-1}, \lambda_{t}, \tau, \sigma^{2}) =
+  \left(
+    1 - \frac{1}{1 + \lambda_{t}^{2} \tau^{2}}
+  \right) (y_{t} - \theta_{t - 1})
+\end{equation}
+For large $\psi^{2}$, the posterior mean $\hat\omega_{t}$ under the mixture innovation model is 
+approximately $p_{t} (y_{t} - \theta_{t-1})$, where $p_{t}$ is the posterior probability that $\omega_{t} \neq 0$.
+In the horseshoe estimator the quantity $\hat \omega_{t} = (1 - \hat \kappa) (y_{i} - \theta_{t})$.
+The shrinkage weight behaves similarly to the posterior structural break probability $p_{t}$.
+Because of this similarity, Carvalho proposes a simple decision rule under a symmetric 0-1 loss function
+to identify signals, which in this case will be structural breaks,
+\begin{equation}
+  \label{eq:11}
+  \text{Reject $H_{0t}$ if $p_{t} = 1 - E(\kappa_{t} | y_{t}, \theta_{t-1}, \tau, \omega^{2})$} > \frac{1}{2}
 \end{equation}
 
-The value of $\tau$ serves as a ``global shrinkage parameter''. 
 
-A key feature of the Horseshoe distribution is that it belongs to the class of distributions which are scale mixtures of normal distributions. 
-Once $\lambda_{i}$ is known, the system can be estimated using computationally efficient methods, such as the Forward-Filter Backward Sample.
+
 
 \section{Examples}
 \label{sec:examples}
 
+I consider the performance of 
+
 \subsection{Nile Flow Data}
 \label{sec:nile}
 
-\subsection{Greenbacks and Graybacks}
+\subsection{Greenbacks}
 \label{sec:greenbacks-graybacks}
+
+\subsection{Election}
+\label{sec:election}
 
 
 
@@ -153,3 +146,5 @@ Once $\lambda_{i}$ is known, the system can be estimated using computationally e
 %%% mode: latex
 %%% TeX-master: t
 %%% End: 
+
+%  LocalWords:  Carvallho

@@ -4,3 +4,8 @@
 *.stanx
 *.log
 auto
+/stan/models/horseshoe
+/stan/models/horseshoe2
+/stan/models/horseshoe3
+/stan/models/normal
+/stan/models/normal2

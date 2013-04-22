@@ -1,60 +1,45 @@
-library(rstan)
-library(plyr)
-library(reshape2)
-library(ggplot2)
-
+library(stanmisc)
+library(mcmcdb)
 data(Nile)
 
-model_hs <- stan_model("../stan/models/llhorseshoe.stan")
-model_norm <- stan_model("../stan/models/llnormal.stan")
+model_hs <- "../stan/models/horseshoe"
+model_normal <- "../stan/models/normal"
 
-cp6 <- mutate(read.csv("../data/CP6.csv"),
-              ym = year + (month - 1) / 12)
-
-data <- list(n_obs = nrow(cp6),
-             n_time = nrow(cp6),
-             y = cp6$sales,
-             y_time = seq_len(nrow(cp6)),
-             theta1_mean = 620,
-             theta1_sd = 50)
-
-ret_hs <- sampling(model, data=data, iter=2000, chains=1)
-theta_hs <- apply(extract(ret_hs, "theta")[[1]], 2, mean)
-
-ret_norm <- sampling(model_norm, data=data, iter=2000, chains=1)
-theta_norm <- apply(extract(ret_norm, "theta")[[1]], 2, mean)
-
-(ggplot(mutate(cp6, horseshoe = theta_hs, normal=theta_norm), aes(x=ym)) + geom_point(aes(y=sales))
- + geom_line(aes(y=horseshoe), colour="blue")
- + geom_line(aes(y=normal), colour="red"))
-
-
+SEED <- c(64425843, 46927922, 69491313)
+ITER <- 2^14
+WARMUP <- 2^12
+NSAMPLES <- 2^10
+THIN <- (ITER - WARMUP) / NSAMPLES
+  
 nile <- as.numeric(Nile)
-
-data <- list(n_obs = length(nile),
-             n_time = length(nile),
-             y = nile,
-             y_time = seq_len(length(nile)),
-             theta1_mean = 919,
-             theta1_sd = 169 * 2)
-
-ret_hs <- sampling(model, data=data, iter=4000, chains=1)
-theta_hs <- apply(extract(ret_hs, "theta")[[1]], 2, mean)
-
-ret_norm <- sampling(model_norm, data=data, iter=2000, chains=1)
-theta_norm <- apply(extract(ret_norm, "theta")[[1]], 2, mean)
-
-lambda <- melt(extract(ret_hs, "lambda")[[1]])
-ggplot(lambda, aes(x=Var2, y=value)) + geom_point()
-ggplot(lambda, aes(x=Var2, y=1 - 1 / (1 + value^2))) + geom_point()
-
-tau <- extract(ret_hs, "tau")
+nile_data <- list(n_obs = length(nile),
+                  n_time = length(nile),
+                  y = nile,
+                  y_time = seq_len(length(nile)),
+                  theta1_mean = 919,
+                  theta1_sd = 169 * 2)
 
 
-(ggplot(data.frame(year = seq(1871, 1970, 1), y = nile,
-                   horseshoe = theta_hs, normal=theta_norm), aes(x=year))
- + geom_point(aes(y=y))
- + geom_line(aes(y=horseshoe), colour="blue")
- + geom_line(aes(y=normal), colour="red"))
+nile_samples <- run_stan_model(model_hs,
+                               data = nile_data, seed=SEED,
+                               iter = ITER, warmup = WARMUP, thin = THIN)
+mcmcdb_nile_hs <- mcmcdb_wide_from_stan(nile_samples)
+plot(as.numeric(mcmcdb_nile_hs[["deviance"]]))
+
+kappa <- do.call(rbind, mcmcdb_samples_iter(mcmcdb_nile_hs, FUN = function(x) {1 / (1 + as.numeric(x$lambda^2) * x$tau^2)}))
 
 
+nile_samples_2 <- run_stan_model(model_normal,
+                                 data = nile_data, seed=SEED,
+                                 iter = ITER, warmup = WARMUP, thin = THIN)
+mcmcdb_nile_normal <- mcmcdb_wide_from_stan(nile_samples_2)
+
+ests <- cbind(melt(data.frame(normal = summary(mcmcdb_nile_normal)$yhat,
+                              horseshoe = summary(mcmcdb_nile_hs)$yhat,
+                              n = seq_along(nile)), id.var = "n"),
+              y = nile)
+ggplot(ests, aes(x=n)) + geom_line(aes(y=value, colour=variable)) + geom_point(aes(y=y))
+
+plot(as.numeric(mcmcdb_nile_normal[["tau"]]))
+plot(as.numeric(mcmcdb_nile_normal[["sigma"]]))
+plot(as.numeric(mcmcdb_nile_normal[["deviance"]]))
