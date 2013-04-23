@@ -18,15 +18,24 @@
 
 \maketitle{}
 
-% From Koop and Potter (2004)
-% here are two main
-% approaches: one can estimate a model with a small number of change-points
-% (usually one or two). Alternatively, one can estimate a time varying parameter (TVP) model where the parameters are allowed to change with each
-% new observation, usually according to a random walk. A TVP model can
-% be interpreted as having T − 1 breaks in a sample of size T.
+When modeling time-varying parameters, researchers in political science have generally had to choose between two approaches. 
+The first is with change-point or structural breaks models, in which the changes in the parameter only occur in a few points, and the parameter is constant within those regions.
+The second is with time-varying parameter models in which the parameter changes in each period, but its changes are shrunk so that the change over time is smoothed.
 
-When modeling time-varying parameters, researchers have to choose between approaches which model the change in the parameter as a smooth, continuous process, such as dynamic linear models, or those which model the changes in the parameter as discrete jumps, i.e. structural break, change-point, or regime-shift models.
-This paper seeks to unify these approaches by using ...
+This paper makes two contributions.
+The first is that (some) structural break and time-varying parameters models are both cases of dynamic linear models, which differ in their assumptions on the distribution of the changes in the parameter (``innovations'').
+Structural break models assume innovations are drawn from a spike and slab distribution, i.e. a discrete mixture between 0 and another, usually diffuse, distribution.
+Time-varying parameter models assume a continuous, usually normal, distribution on the innovations.
+
+The second contribution is that structural breaks can be modeled without a spike and slab distribution, by using scale mixtures of normal distributions.
+There are two key features in parameter change in change-point models that the distribution of the innovation must capture.
+\begin{enumerate}
+\item \textit{sparsity}: Most innovations are expected to be approximately zero.
+\item \textit{large signals}: Some innovations can be very large
+\end{enumerate}
+This means that a distribution over the innovations must both shrink small distributions to zero in order to ignore ``noise'', while not shrinking the large ``true'' innovations.
+However, this is a similar problem to that in the $n > p$ literature, in which there has been a large amount of attention recently, e.g. the lasso.
+Conveniently, many of the proposed shrinkage prior distributions are scale mixtures of normal distributions.
 
 Change-point models are appealing because the change-points are often easy to substantively interpret, as they can be tied to events.
 Change-point models are problematic because they either require that the researcher specify the number of change-points, and methods to estimate the number of change-points are not straight-forward.
@@ -37,66 +46,73 @@ The problem of modeling the change in a parameter value is similar to that of es
 That problem is relatively well studied, and there is a growing literature on Bayesian shrinkage priors.
 This paper adopts one of this distributions, the Horseshoe Prior (Carvallho) et al. 
 
+\section{Sparse Dynamic Linear Model}
+
+Consider a simple local level model in which the mean of $y_{t}$ changes over time,
+\begin{align}
+  \label{eq:8}
+  y_t &= \alpha_t + \epsilon_t \\
+  \alpha_t &= \alpha_{t-1} + \eta_{t} \\
+  \epsilon_{t} &\sim N(0, h^{2}) \\
+  \eta_{t} &\sim N(0, q_{t}^{2})
+\end{align}
+The innovations $q_{t}$ are given a hierarchical prior,
+\begin{align}
+  \label{eq:4}
+  \lambda^{}
+\end{align}
+This is known as the horseshoe density \textcite{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{DattaGhosh2012}.
+
+
 \section{Time Varying Parameter Models}
 \label{sec:time-vary-param}
 
-A dynamic linear model (DLM) is defined by the following set of equations \parencites{WestHarrison1997}{CommandeurKoopman2007},
-\begin{equation}
-  \label{eq:9}
-  \begin{aligned}[t]
-    y_{t} &= F \theta_{t} + \nu_{t} \\
-    \theta_{t} &= G \theta_{t - 1} + \omega_{t} 
-  \end{aligned}
-\end{equation}
-where $E(\nu_{t}) = 0$, $E(\omega_{t}) = 0$, and an initial prior distribution for $\theta_{0}$.
-This represents a general class of models that includes linear regression (with constant or time-varying parameters) as well as standard ARIMA time-series models.
-There are also computationally efficient methods to maximize (Kalman Filter) and sample from (Forward-Filter Backward Sample) DLMs if $\nu$ and $\omega$ are distributed normal.
+% A dynamic linear model (DLM) is defined by the following set of equations \parencites{WestHarrison1997}{CommandeurKoopman2007},
+% \begin{equation}
+%   \label{eq:9}
+%   \begin{aligned}[t]
+%     y_{t} &= F \theta_{t} + \nu_{t} \\
+%     \theta_{t} &= G \theta_{t - 1} + \omega_{t} 
+%   \end{aligned}
+% \end{equation}
+% where $E(\nu_{t}) = 0$, $E(\omega_{t}) = 0$, and an initial prior distribution for $\theta_{0}$.
+% This represents a general class of models that includes linear regression (with constant or time-varying parameters) as well as standard ARIMA time-series models.
+% There are also computationally efficient methods to maximize (Kalman Filter) and sample from (Forward-Filter Backward Sample) DLMs if $\nu$ and $\omega$ are distributed normal.
 
-For the simplicity, in this section, I only consider a special case of the DLM with a single parameter with a time-varying level. 
-However, an advantage of this method, and working with state-space models in general, is that these methods can be extend to multiple variables, and varying slopes, etc.
-A local-level model is a simple model describing parameter change over time,
+Consider a simple local level model in which the mean of $y_{t}$ changes over time,
 \begin{equation}
   \label{eq:8}
-  \begin{aligned}
-    y_t &= \theta_t + \nu_t \\
-    \theta_t &= \theta_{t-1} + \omega_t
-  \end{aligned}
+    y_t &= \alpha_t + \epsilon_t \\
+    \alpha_t &= \alpha_{t-1} + \eta_{t}
 \end{equation}
-where $v_{t} \sim N(0, \sigma^{2})$ and $E(\omega_t) = 0$.
+where $\epsilon_{t} \sim N(0, h_{t}^{2})$ and $\eta_{t} \sim N(0, q_{t}^{2})$.
+This is a special case of a normal dynamic linear models (DLM) \parencite{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
+DLMs are flexible class of models that include linear regressions and ARIMA models.
+Moreover for the case in which $\epsilon$ and $\eta$ are normal, there are computationally efficient methods both to maximize the likelihood of (Kalman Filter) and to sample from (Forward-filter backward samples) \eqref{eq:8}.
 
-From \eqref{eq:8}, it is clear that the change in $\theta$ is determined by the distribution of $\omega_{t}$.
-In a constant model, $\theta_{t} = \bar{\theta}$ for all $t$. 
-This can be represented in \eqref{eq:8} by setting $\omega_{t} = \delta_{0}$, where $\delta_{0}$ is the degenerate distribution at zero.
-
-In the normal (Gaussian) linear dynamic model, $\omega_{t}$ are distributed i.i.d. normal,
+Commonly, $\eta_{t}$ are distributed i.i.d. normal,
 \begin{equation}
   \label{eq:2}
-  \omega_{t} \sim N(0, \tau^{2})
+  \eta_{t} \sim N(0, q^{2})
 \end{equation}
-Since the normal distribution does not have thick tails, it smooths the evolution of $\theta$ over time.
-The use of the normal distribution shrinks the values of $\omega_{t}$, making large jumps unlikely, 
-and also means that $\omega \neq 0$ with certainty.
+Since the normal distribution has thin tails, \eqref{eq:2} smooths changes in $\alpha$ over time by penalizing large values of $\alpha_{t} - \alpha_{t-1}$.
+Moreover, this means that $\alpha_{t} - \alpha_{t-1} \neq 0$ with certainty.
+This is useful for modeling parameters which vary slowly over time.
+However, many political processes are marked by sudden changes over time.
 
-A ``structural break'' or ``change-point'' formulation can be incorporated into a dynamic linear model if $\omega_{t}$ is modeled as a spike-and-slab mixture distribution \parencite{GiordaniKohn2008},
+A structural break or change-point model can be represented in \eqref{eq:8} if $\eta$ is given a spike-and-slab mixture distribution \parencite{GiordaniKohn2008},
 \begin{equation}
   \label{eq:1}
-  \omega_{t} \sim p g(\omega_{i}) + (1 - p) \delta_{0} \text{,}
+  \eta_{t} \sim p g(\eta_{t}) + (1 - p) \delta_{0} \text{,}
 \end{equation}
-where $p$ is the prior probability that $\omega_{t} \neq 0$, i.e. there is a regime shift, and 
-$g(\omega_{t})$ is a distribution, usually non-information, over the change of the change in $\omega_{t}$ if there is a structural break.
-\footnote{If $p$ is constant over time, this replicates the geometric distribution in \textcite{Chib1998}.}
-
-The problem of estimating innovations $\omega_{t}$ is similar to problems of variable selection and shrinkage.
-The smoothing approaching of normal DLMs is an example of a shrinkage approach to estimating innovations.
-The structural break approach is 
+where $p$ is the prior probability of a change, $g(\omega_{t})$ is the distribution of the change in $\alpha$ if there is a change-point.
 
 There are several reasons why structural break methods are used.
 The first is that the underlying data generating processes in political processes is often marked by large shifts.
 The second is that stuctural breaks are easy to intrepret substantively.
 The output of the methods provides a small number of breaks which can be interpreted with respect to the events occuring contemporaneously.
 
-A structural break model is a model which imposes sparsity on $\omega_{t}$. 
-In other words, for most $t$, $\omega_{t} = 0$, while for a small number of $t$, $\omega_{t} \neq 0$.
+The key aspect of the a change point model is the sparsity in $\eta$.
 
 A alternative approach is to model $\omega$ with a scale mixture of normal distributions.
 \begin{equation}
@@ -156,7 +172,6 @@ It is well known that there was a level shift in 1899, both due to the construct
 Consider the ``Bush'' problem, estimating structural breaks in
 presidential approval data. This is the example used in
 \textcite{RatkovicEng2010}.
-
 
 \printbibliography{}
 
