@@ -31,7 +31,7 @@ transformed parameters {
   sigma <- exp(logsigma);
 
   for (i in 1:2) {
-    theta[1, 1] <- theta1_mean[i] + theta1_sd[i] * theta_innov[i, 1];
+    theta[i, 1] <- theta1_mean[i] + theta1_sd[i] * theta_innov[i, 1];
   }
   for (t in 2:n_time) {
     theta[2, t] <- theta[2, t - 1] + tau[2] * theta_innov[2, t];
