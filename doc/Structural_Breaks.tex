@@ -34,7 +34,6 @@ This paper proposes using scale mixture of normal distributions for the innovati
 The insight is that the problem posed in estimating time-varying parameters shares many characteristics with the ``large-p'' literature.
 In the case of the a univariate time-series with $n$ obserservations and a time-varying mean, the number of innovation parameters to be estimated is $n - 1$.
 
-
 There are two key features in parameter change in change-point models that the distribution of the innovations must capture.
 \begin{enumerate}
 \item \textit{sparsity}: Most innovations are expected to be approximately zero.
@@ -45,7 +44,6 @@ However, this is a similar problem to that in the $n > p$ literature, in which t
 Conveniently, many of the proposed shrinkage prior distributions are scale mixtures of normal distributions.
 
 There are several reasons to use continuous distributions to model time-varying parameters possibly with structural breaks.
-
 In the case of truly sparse data, discrete mixtures are computationally inefficient. 
 And in the case of non-sparse change-points, the discrete mixture is unnecessary.
 
@@ -74,18 +72,6 @@ This is known as the horseshoe density \textcite{CarvalhoPolsonScott2009}{Carval
 \section{Time Varying Parameter Models}
 \label{sec:time-vary-param}
 
-% A dynamic linear model (DLM) is defined by the following set of equations \parencites{WestHarrison1997}{CommandeurKoopman2007},
-% \begin{equation}
-%   \label{eq:9}
-%   \begin{aligned}[t]
-%     y_{t} &= F \theta_{t} + \nu_{t} \\
-%     \theta_{t} &= G \theta_{t - 1} + \omega_{t} 
-%   \end{aligned}
-% \end{equation}
-% where $E(\nu_{t}) = 0$, $E(\omega_{t}) = 0$, and an initial prior distribution for $\theta_{0}$.
-% This represents a general class of models that includes linear regression (with constant or time-varying parameters) as well as standard ARIMA time-series models.
-% There are also computationally efficient methods to maximize (Kalman Filter) and sample from (Forward-Filter Backward Sample) DLMs if $\nu$ and $\omega$ are distributed normal.
-
 Consider a simple local level model in which the mean of $y_{t}$ changes over time,
 \begin{equation}
   \label{eq:8}
@@ -95,7 +81,7 @@ Consider a simple local level model in which the mean of $y_{t}$ changes over ti
   \end{aligned}
 \end{equation}
 where $\epsilon_{t} \sim N(0, h_{t}^{2})$ and $\eta_{t} \sim N(0, q_{t}^{2})$.
-This is a special case of a normal dynamic linear models (DLM) \parencite{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
+This is a special case of a normal dynamic linear models (DLM) \parencites{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
 DLMs are flexible class of models that include linear regressions and ARIMA models.
 Moreover for the case in which $\epsilon$ and $\eta$ are normal, there are computationally efficient methods both to maximize the likelihood of (Kalman Filter) and to sample from (Forward-filter backward samples) \eqref{eq:8}.
 
@@ -114,7 +100,7 @@ A structural break or change-point model can be represented in \eqref{eq:8} if $
   \label{eq:1}
   \eta_{t} \sim p g(\eta_{t}) + (1 - p) \delta_{0} \text{,}
 \end{equation}
-where $p$ is the prior probability of a change, $g(\omega_{t})$ is the distribution of the change in $\alpha$ if there is a change-point.
+where $p$ is the prior probability of a change, $g(\eta_{t})$ is the distribution of the change in $\alpha$ if there is a change-point.
 
 There are several reasons why structural break methods are used.
 The first is that the underlying data generating processes in political processes is often marked by large shifts.
@@ -127,7 +113,7 @@ A alternative approach is to model $\omega$ with a scale mixture of normal distr
 \begin{equation}
   \label{eq:6}
   \begin{aligned}[t]
-    \omega_{t} | \tau^{2}, \lambda^{2} & \sim N(0, \tau^{2} \lambda_{t}^{2}) \\
+    \eta_{t} | \tau^{2}, \lambda^{2} & \sim N(0, \tau^{2} \lambda_{t}^{2}) \\
     \lambda_{t}^{2} & \sim p(\lambda^{2}_{t})
   \end{aligned}
 \end{equation}
@@ -136,9 +122,7 @@ Many Bayesian shrinkage priors can be expressed in this form.
 
 The class of scale-normal mixtures includes many of the suggested Bayesian shrinkage priors.
 
-The $t$-distribution has suggested for dynamic linear model estimation that is robust to structural breaks.
-
-This paper will focus on one particular shrinkage prior, the Horseshoe Prior distribution.
+The $t$-distribution has suggested for dynamic linear model estimation that is robust to structural breaks \parencites{HarveyKoopman2000}{PetrisPetroneEtAl2009}.
 
 The Horseshoe prior distribution has several characteristics which make it particularly appealing for this problem.
 
@@ -157,10 +141,6 @@ In the horseshoe estimator the quantity $\hat \omega_{t} = (1 - \hat \kappa) (y_
 The shrinkage weight behaves similarly to the posterior structural break probability $p_{t}$.
 Because of this similarity, Carvalho proposes a simple decision rule under a symmetric 0-1 loss function
 to identify signals, which in this case will be structural breaks,
-\begin{equation}
-  \label{eq:11}
-  \text{Reject $H_{0t}$ if $p_{t} = 1 - E(\kappa_{t} | y_{t}, \theta_{t-1}, \tau, \omega^{2})$} > \frac{1}{2}
-\end{equation}
 
 \section{Examples}
 \label{sec:examples}
@@ -178,8 +158,6 @@ It is well known that there was a level shift in 1899, both due to the construct
 \subsection{Election}
 \label{sec:election}
 
-Consider the ``Bush'' problem, estimating structural breaks in
-presidential approval data. This is the example used in
 \textcite{RatkovicEng2010}.
 
 \printbibliography{}
