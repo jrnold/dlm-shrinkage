@@ -53,33 +53,27 @@
 
 @STRING{wpsr = {World Political Science Review}}
 
-@ARTICLE{Chib1998,
-  author = {Siddhartha Chib},
-  title = {Estimation and comparison of multiple change-point models},
-  year = {1998},
-  volume = {86},
-  number = {2},
-  pages = {221 - 241},
-  issn = {0304-4076},
-  doi = {DOI: 10.1016/S0304-4076(97)00115-2},
-  url = {http://www.sciencedirect.com/science/article/B6VC0-3VM1XM5-2/2/469ee3cba827365611dee3677f0babc6},
-  abstract = { This paper provides a new Bayesian approach for models with multiple
-	change points. The centerpiece of the approach is a formulation of
-	the change-point model in terms of a latent discrete state variable
-	that indicates the regime from which a particular observation has
-	been drawn. This state variable is specified to evolve according
-	to a discrete-time discrete-state Markov process with the transition
-	probabilities constrained so that the state variable can either stay
-	at the current value or jump to the next higher value. This parameterization
-	exactly reproduces the change point model. The model is estimated
-	by Markov chain Monte Carlo methods using an approach that is based
-	on Chib (1996). This methodology is quite valuable since it allows
-	for the fitting of more complex change point models than was possible
-	before. Methods for the computation of Bayes factors are also developed.
-	All the techniques are illustrated using simulated and real data
-	sets.},
-  journal = {Journal of Econometrics},
-  owner = {jrnold}
+@ARTICLE{CarvalhoPolsonScott2009,
+  author = {Carlos M. Carvalho and Nicholas G. Polson and James G. Scott},
+  title = {Handling Sparsity via the Horseshoe},
+  journaltitle = {Journal of Machine Learning and Research: Workshop and Conference
+	Proceedings},
+  year = {2009},
+  volume = {5},
+  pages = {73-80},
+  abstract = {This paper presents a general, fully Bayesian framework for sparse
+	supervised-learning problems based on the horseshoe prior. The horseshoe
+	prior is a member of the family of multivariate scale mixtures of
+	normals, and is therefore closely related to widely used approaches
+	for sparse Bayesian learning, including, among others, Laplacian
+	priors (e.g. the LASSO) and Student-t priors (e.g. the relevance
+	vector machine). The advantages of the horseshoe are its robustness
+	at handling unknown sparsity and large outlying signals. These properties
+	are justifed theoretically via a representation theorem and accompanied
+	by comprehensive empirical experiments that compare its performance
+	to benchmark alternatives.},
+  owner = {jrnold},
+  timestamp = {2013.03.01}
 }
 
 @ARTICLE{Cobb1978,
@@ -104,18 +98,6 @@
   journal = {Biometrika},
   owner = {jeff},
   timestamp = {2013.04.22}
-}
-
-@BOOK{CommandeurKoopman2007,
-  author = {Commandeur, Jacques J.F. and Koopman, Siem Jan},
-  title = {An Introduction to State Space Time Series Analysis},
-  year = {2007},
-  series = {Practical Econometrics Series},
-  publisher = {OUP Oxford},
-  isbn = {9780191607806},
-  url = {http://books.google.com/books?id=OCmljPYfgkUC},
-  file = {CommandeurKoopman2007.pdf:CommandeurKoopman2007.pdf:PDF},
-  owner = {jrnold}
 }
 
 @ARTICLE{GiordaniKohn2008,
@@ -148,6 +130,34 @@
   journal = {Journal of Business \& Economic Statistics},
   owner = {jeff},
   timestamp = {2013.04.22}
+}
+
+@ARTICLE{RatkovicEng2010,
+  author = {Ratkovic, Marc T. and Eng, Kevin H.},
+  title = {Finding Jumps in Otherwise Smooth Curves: Identifying Critical Events
+	in Political Processes},
+  year = {2010},
+  volume = {18},
+  number = {1},
+  pages = {57-77},
+  doi = {10.1093/pan/mpp032},
+  eprint = {http://pan.oxfordjournals.org/content/18/1/57.full.pdf+html},
+  url = {http://pan.oxfordjournals.org/content/18/1/57.abstract},
+  abstract = {Many social processes are stable and smooth in general, with discrete
+	jumps. We develop a sequential segmentation spline method that can
+	identify both the location and the number of discontinuities in a
+	series of observations with a time component, while fitting a smooth
+	spline between jumps, using a modified Bayesian Information Criterion
+	statistic as a stopping rule. We explore the method in a large-n,
+	unbalanced panel setting with George W. Bush's approval data, a small-n
+	time series with median DW-NOMINATE scores for each Congress over
+	time, and a series of simulations. We compare the method to several
+	extant smoothers, and the method performs favorably in terms of visual
+	inspection, residual properties, and event detection. Finally, we
+	discuss extensions of the method.},
+  journal = {Political Analysis},
+  owner = {jrnold},
+  timestamp = {2013.03.01}
 }
 
 @BOOK{WestHarrison1997,

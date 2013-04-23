@@ -18,17 +18,24 @@
 
 \maketitle{}
 
-When modeling time-varying parameters, researchers in political science have generally had to choose between two approaches. 
-The first is with change-point or structural breaks models, in which the changes in the parameter only occur in a few points, and the parameter is constant within those regions.
-The second is with time-varying parameter models in which the parameter changes in each period, but its changes are shrunk so that the change over time is smoothed.
+When modeling time-varying parameters, there exist two approaches. 
+The first approach is change-point or structural break models. 
+In these models, the change in the parameter only occur at a few points and is contant otherwise.
+In other words, the parameter is modeled with step function.
+The second approach is time-varying parameter models in which the parameter changes in all periods.
+This approach includes dynamic linear models and smoothing splines.
 
-This paper makes two contributions.
-The first is that (some) structural break and time-varying parameters models are both cases of dynamic linear models, which differ in their assumptions on the distribution of the changes in the parameter (``innovations'').
-Structural break models assume innovations are drawn from a spike and slab distribution, i.e. a discrete mixture between 0 and another, usually diffuse, distribution.
-Time-varying parameter models assume a continuous, usually normal, distribution on the innovations.
+However, both structural break and time-varying parameters model can be modeled with dynamic linear models.
+The difference between these approaches is in the distributions of the \textit{innovations}, the changes in the parameter values.
+In structural break models, the innovations have a spike and slab distribution, which is a discrete mixture between 0 and another, usually diffuse, distribution.
+In time-varying parameter models, the innovations are given a continuous distribution, usually the normal.
 
-The second contribution is that structural breaks can be modeled without a spike and slab distribution, by using scale mixtures of normal distributions.
-There are two key features in parameter change in change-point models that the distribution of the innovation must capture.
+This paper proposes using scale mixture of normal distributions for the innovation distributions in order to nest both structural break and time varying parameter models.
+The insight is that the problem posed in estimating time-varying parameters shares many characteristics with the ``large-p'' literature.
+In the case of the a univariate time-series with $n$ obserservations and a time-varying mean, the number of innovation parameters to be estimated is $n - 1$.
+
+
+There are two key features in parameter change in change-point models that the distribution of the innovations must capture.
 \begin{enumerate}
 \item \textit{sparsity}: Most innovations are expected to be approximately zero.
 \item \textit{large signals}: Some innovations can be very large
@@ -37,14 +44,14 @@ This means that a distribution over the innovations must both shrink small distr
 However, this is a similar problem to that in the $n > p$ literature, in which there has been a large amount of attention recently, e.g. the lasso.
 Conveniently, many of the proposed shrinkage prior distributions are scale mixtures of normal distributions.
 
+There are several reasons to use continuous distributions to model time-varying parameters possibly with structural breaks.
+
+In the case of truly sparse data, discrete mixtures are computationally inefficient. 
+And in the case of non-sparse change-points, the discrete mixture is unnecessary.
+
 Change-point models are appealing because the change-points are often easy to substantively interpret, as they can be tied to events.
 Change-point models are problematic because they either require that the researcher specify the number of change-points, and methods to estimate the number of change-points are not straight-forward.
 Another issue with change-point models is how they perform when the model is wrong; i.e. what if there are no change-points but a time-varying parameter.
-
-This paper proposes a novel approach to modeling change-points within the dynamic linear model framework.
-The problem of modeling the change in a parameter value is similar to that of estimating sparse parameters, when the number of parameters is large relative to the number of data points.
-That problem is relatively well studied, and there is a growing literature on Bayesian shrinkage priors.
-This paper adopts one of this distributions, the Horseshoe Prior (Carvallho) et al. 
 
 \section{Sparse Dynamic Linear Model}
 
@@ -82,8 +89,10 @@ This is known as the horseshoe density \textcite{CarvalhoPolsonScott2009}{Carval
 Consider a simple local level model in which the mean of $y_{t}$ changes over time,
 \begin{equation}
   \label{eq:8}
+  \begin{aligned}
     y_t &= \alpha_t + \epsilon_t \\
     \alpha_t &= \alpha_{t-1} + \eta_{t}
+  \end{aligned}
 \end{equation}
 where $\epsilon_{t} \sim N(0, h_{t}^{2})$ and $\eta_{t} \sim N(0, q_{t}^{2})$.
 This is a special case of a normal dynamic linear models (DLM) \parencite{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
