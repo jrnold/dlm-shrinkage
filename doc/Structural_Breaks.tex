@@ -56,39 +56,49 @@ Another issue with change-point models is how they perform when the model is wro
 Consider a simple local level model in which the mean of $y_{t}$ changes over time,
 \begin{align}
   \label{eq:8}
-  y_t &= \alpha_t + \epsilon_t \\
+  y_t &= \alpha_t + \epsilon_t & \epsilon_{t}  \\
+  \label{eq:14}
   \alpha_t &= \alpha_{t-1} + \eta_{t} \\
-  \epsilon_{t} &\sim N(0, h^{2}) \\
-  \eta_{t} &\sim N(0, q_{t}^{2})
+  \label{eq:15}
+  \epsilon_{t} & \sim N(0, \sigma^{2})
 \end{align}
-The innovations $q_{t}$ are given a hierarchical prior,
+The innovations $\eta_{t}$ are distributed with the horseshoe distribution, introduced in Carvalho et al.
+The horseshoe distribution does not have an analytical form, but is a scale-mixture of normal distributions,
 \begin{align}
-  \label{eq:4}
-  \lambda^{}
+  \label{eq:12}
+  \eta_{t} &\sim N(0, \lambda_{t}^{2} \tau^{2}) \\
+  \label{eq:13}
+  \lambda_{t} &\sim C^{+}(0, 1)
 \end{align}
-This is known as the horseshoe density \textcite{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{DattaGhosh2012}.
 
+I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ in Carvalho et al. (2010, 2009),
+\begin{align}
+  \label{eq:9}
+  p(\sigma^{2}) & \frac{1}{\sigma^{2}}  \\
+  \label{eq:11}
+  \tau &\sim C^{+}(0, \sigma) \text{.}
+\end{align}
 
-\section{Time Varying Parameter Models}
+\section{Innovation Selection and Shrinkage}
 \label{sec:time-vary-param}
 
 Consider a simple local level model in which the mean of $y_{t}$ changes over time,
 \begin{equation}
-  \label{eq:8}
+  \label{eq:16}
   \begin{aligned}
     y_t &= \alpha_t + \epsilon_t \\
     \alpha_t &= \alpha_{t-1} + \eta_{t}
   \end{aligned}
 \end{equation}
-where $\epsilon_{t} \sim N(0, h_{t}^{2})$ and $\eta_{t} \sim N(0, q_{t}^{2})$.
+where $\epsilon_{t} \sim N(0, \sigma_{t}^{2})$ and $\eta_{t} \sim N(0, q_{t}^{2})$.
 This is a special case of a normal dynamic linear models (DLM) \parencites{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
 DLMs are flexible class of models that include linear regressions and ARIMA models.
-Moreover for the case in which $\epsilon$ and $\eta$ are normal, there are computationally efficient methods both to maximize the likelihood of (Kalman Filter) and to sample from (Forward-filter backward samples) \eqref{eq:8}.
+Moreover for the case in which $\epsilon_{t}$ and $\eta_{t}$ are distributed normal, there are computationally efficient methods both to maximize the likelihood of (Kalman Filter) and to sample from (Forward-filter backward sample) \eqref{eq:8}.
 
 Commonly, $\eta_{t}$ are distributed i.i.d. normal,
 \begin{equation}
   \label{eq:2}
-  \eta_{t} \sim N(0, q^{2})
+  \eta_{t} \sim N(0, \tau^{2})
 \end{equation}
 Since the normal distribution has thin tails, \eqref{eq:2} smooths changes in $\alpha$ over time by penalizing large values of $\alpha_{t} - \alpha_{t-1}$.
 Moreover, this means that $\alpha_{t} - \alpha_{t-1} \neq 0$ with certainty.
@@ -98,17 +108,18 @@ However, many political processes are marked by sudden changes over time.
 A structural break or change-point model can be represented in \eqref{eq:8} if $\eta$ is given a spike-and-slab mixture distribution \parencite{GiordaniKohn2008},
 \begin{equation}
   \label{eq:1}
-  \eta_{t} \sim p g(\eta_{t}) + (1 - p) \delta_{0} \text{,}
+  \eta_{t} \sim p N(0, \tau^{2}) + (1 - p) \delta_{0} \text{,}
 \end{equation}
-where $p$ is the prior probability of a change, $g(\eta_{t})$ is the distribution of the change in $\alpha$ if there is a change-point.
+where $p$ is the prior probability of a change, and $N(0, \tau^{2})$ is the distribution of the change in $\alpha$ if there is a structural break.
 
-There are several reasons why structural break methods are used.
-The first is that the underlying data generating processes in political processes is often marked by large shifts.
-The second is that stuctural breaks are easy to intrepret substantively.
-The output of the methods provides a small number of breaks which can be interpreted with respect to the events occuring contemporaneously.
+% Structural breaks
+% There are several reasons why structural break methods are used.
+% The first is that the underlying data generating processes in political processes is often marked by large shifts.
+% The second is that stuctural breaks are easy to intrepret substantively.
+% The output of the methods provides a small number of breaks which can be interpreted with respect to the events occuring contemporaneously.
+% the key aspect of the a change point model is the sparsity in $\eta$.
 
-The key aspect of the a change point model is the sparsity in $\eta$.
-
+An alternative approach is to model $\nu$ with a continuous distribution, that shrinks the estimates of $\nu$ such that they behave similar to a discrete mixture.
 A alternative approach is to model $\omega$ with a scale mixture of normal distributions.
 \begin{equation}
   \label{eq:6}
@@ -119,28 +130,47 @@ A alternative approach is to model $\omega$ with a scale mixture of normal distr
 \end{equation}
 where $\tau^{2}$ is a global shrinkage parameter, and $\lambda_{t}^{2}$ are global shrinkage parameters.
 Many Bayesian shrinkage priors can be expressed in this form. 
+The class of scale-normal mixtures includes many Bayesian shrinkage priors, such as the student-\textit{t} (Tipping), double-exponential prior (Bayesian LASSO) (Park  and Casella 2008), normal-Jeffreys (Figueiredo 2003, Bae and Mallick 2004), Strawderman-Berger (Stawderman 1971, Berger 1980), and normal-exponential-gamma (Griffin and Grown, 2005).
+The $t$-distribution has suggested for dynamic linear model estimation that is robust to structural breaks \parencites{HarveyKoopman2000}{PetrisPetroneEtAl2009}. 
+This paper will make use of the horseshoe distribution 
 
-The class of scale-normal mixtures includes many of the suggested Bayesian shrinkage priors.
-
-The $t$-distribution has suggested for dynamic linear model estimation that is robust to structural breaks \parencites{HarveyKoopman2000}{PetrisPetroneEtAl2009}.
-
-The Horseshoe prior distribution has several characteristics which make it particularly appealing for this problem.
-
-This distribution has several characteristics that are useful.
+The Horseshoe distribution has several characteristics which make it particularly appealing for this application.
+Under the discrete mixture model in equation \eqref{eq:1}, the expected value of the posterior distribution of $\eta_{t}$ if $\tau^{2}$ is large is approximately $w_{i} (y_{t} - \alpha_{t-1}$ i
+\begin{equation}
+  \label{eq:18}
+  
+\end{equation}
 
 \begin{equation}
-  \label{eq:10}
-  E(\omega_{t} | y_{t}, \theta_{t-1}, \lambda_{t}, \tau, \sigma^{2}) =
-  \left(
-    1 - \frac{1}{1 + \lambda_{t}^{2} \tau^{2}}
-  \right) (y_{t} - \theta_{t - 1})
+  \label{eq:17}
+  
 \end{equation}
-For large $\psi^{2}$, the posterior mean $\hat\omega_{t}$ under the mixture innovation model is 
-approximately $p_{t} (y_{t} - \theta_{t-1})$, where $p_{t}$ is the posterior probability that $\omega_{t} \neq 0$.
-In the horseshoe estimator the quantity $\hat \omega_{t} = (1 - \hat \kappa) (y_{i} - \theta_{t})$.
-The shrinkage weight behaves similarly to the posterior structural break probability $p_{t}$.
-Because of this similarity, Carvalho proposes a simple decision rule under a symmetric 0-1 loss function
-to identify signals, which in this case will be structural breaks,
+
+
+Consider
+Let $\Delta \alpha_{t} = \alpha_{t} - \alpha_{t - 1}$
+\begin{equation}
+  \label{eq:10}
+  E(\Delta \alpha_{t} | \alpha_{t - 1}, \sigma, \tau, \lambda_{t}) = (y_{t} - \alpha_{t - 1})
+  \left(
+    1 - \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}}
+  \right)
+\end{equation}
+Let $\kappa_{t}$ be a shrinkage parameter, defined as
+\begin{equation}
+  \label{eq:3}
+  \kappa_{t} = \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}} \text{.}
+\end{equation}
+When $\kappa_{t} \approx 0$, the change in $\alpha$ is approximately $y_{t} - \alpha_{t-1}$.
+When $\kappa_{t} \approx 1$, the change in $\alpha \approx 0$.
+
+Interestingly, for the horseshoe prior distribution, the value $1 - \hat\kappa_{t}$, where $\hat\kappa_{t} = E(\kappa_{t})$, acts approximately like the posterior inclusion probability from a discrete mixture model (Carvallho et al).
+Thus, Carvallho \textit{et al.} recommend the following  decision rule under a 0-1 decision rule as to whether an observation is a signal,
+\begin{equation}
+  \label{eq:5}
+  \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
+\end{equation}
+
 
 \section{Examples}
 \label{sec:examples}
