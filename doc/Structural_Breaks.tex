@@ -49,7 +49,12 @@ In the case of the a univariate time-series with $n$ obserservations and a time-
   structural breaks.  In the case of truly sparse data, discrete
   mixtures are computationally inefficient.  And in the case of
   non-sparse change-points, the discrete mixture is unnecessary.
-\item This method is flexible.
+\item This method is flexible.  This is a special case of a normal
+  dynamic linear models
+  (DLM) \parencites{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
+  DLMs are flexible class of models that include linear regressions
+  and ARIMA models.
+\item Moreover for the case in which $\epsilon_{t}$ and $\eta_{t}$ are distributed normal, there are computationally efficient methods both to maximize the likelihood of (Kalman Filter) and to sample from (Forward-filter backward sample) \eqref{eq:8}.
 \end{itemize}
 
 \section{Dynamic Linear Model}
@@ -132,9 +137,10 @@ The horseshoe prior distribution does not have an analytical form, but is a scal
 \end{align}
 
 The horseshoe prior has two features that make it useful as a shrinkage prior that is robust to structural breaks.
-It has flat Cauchy-like tails which will not shrink structural breaks \textit{a posteriori}. 
+It has flat Cauchy-like tails which will not shrink structural breaks \textit{a posteriori}.
 It also has an infinitely tall spike that aggressively shrinks non-structural breaks.
 
+INSERT PLOT OF HORSESHOE
 
 
 Let $\Delta \alpha_{t} = \alpha_{t} - \alpha_{t - 1}$
@@ -159,17 +165,6 @@ Thus, Carvallho \textit{et al.} recommend the following  decision rule under a 0
   \label{eq:5}
   \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
 \end{equation}
-
-\textit{Dynamic Sparsity:} Unlike many discrete state space methods, the number of states does not need to be specified \textit{ex ante}.
-The ``number of structural breaks'' is estimated from the data, and determined by the sparsity of $\tau$. 
-And $\tau$ can be estimated from the data.
-
-\textit{Flexibility:} This is a special case of a normal dynamic linear models (DLM) \parencites{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
-DLMs are flexible class of models that include linear regressions and ARIMA models.
-
-\textit{Computation:} Moreover for the case in which $\epsilon_{t}$ and $\eta_{t}$ are distributed normal, there are computationally efficient methods both to maximize the likelihood of (Kalman Filter) and to sample from (Forward-filter backward sample) \eqref{eq:8}.
-
-\textit{Sparsity:} Although the objective is estimate sparse values of $\eta_{t}$. However, the 
 
 Commonly, $\eta_{t}$ are distributed i.i.d. normal,
 \begin{equation}
