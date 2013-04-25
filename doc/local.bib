@@ -53,6 +53,52 @@
 
 @STRING{wpsr = {World Political Science Review}}
 
+@ARTICLE{ArmaganDunsonLee2011,
+  author = {{Armagan}, A. and {Dunson}, D. and {Lee}, J.},
+  title = {Generalized double Pareto shrinkage},
+  year = {2011},
+  month = apr,
+  eprint = {1104.0861},
+  adsnote = {Provided by the SAO/NASA Astrophysics Data System},
+  adsurl = {http://adsabs.harvard.edu/abs/2011arXiv1104.0861A},
+  archiveprefix = {arXiv},
+  journal = {ArXiv e-prints},
+  keywords = {Statistics - Methodology, Mathematics - Statistics Theory, Statistics
+	- Machine Learning},
+  owner = {jrnold},
+  primaryclass = {stat.ME},
+  timestamp = {2013.04.24}
+}
+
+@ARTICLE{Berger1980,
+  author = {Berger, James},
+  title = {A Robust Generalized Bayes Estimator and Confidence Region for a
+	Multivariate Normal Mean},
+  year = {1980},
+  language = {English},
+  volume = {8},
+  number = {4},
+  pages = {pp. 716-761},
+  issn = {00905364},
+  url = {http://www.jstor.org/stable/2240763},
+  abstract = {It is observed that in selecting an alternative to the usual maximum
+	likelihood estimator, ?0, of a multivariate normal mean, it is important
+	to take into account prior information. Prior information in the
+	form of a prior mean and a prior covariance matrix is considered.
+	A generalized Bayes estimator is developed which is significantly
+	better than ?0 if this prior information is correct and yet is very
+	robust with respect to misspecification of the prior information.
+	An associated confidence region is also constructed, and is shown
+	to have very attractive size and probability of coverage.},
+  copyright = {Copyright © 1980 Institute of Mathematical Statistics},
+  journal = {The Annals of Statistics},
+  jstor_articletype = {research-article},
+  jstor_formatteddate = {Jul., 1980},
+  owner = {jrnold},
+  publisher = {Institute of Mathematical Statistics},
+  timestamp = {2013.04.24}
+}
+
 @ARTICLE{Cobb1978,
   author = {Cobb, George W.},
   title = {The problem of the Nile: Conditional solution to a changepoint problem},
@@ -102,6 +148,38 @@
   timestamp = {2013.04.22}
 }
 
+@ARTICLE{FigueiredoMember2003,
+  author = {Mario A.T. Figueiredo and Senior Member},
+  title = {Adaptive Sparseness for Supervised Learning},
+  year = {2003},
+  volume = {25},
+  pages = {1150--1159},
+  abstract = {The goal of supervised learning is to infer a functional mapping based
+	on a set of training examples. To achieve good generalization, it
+	is necessary to control the "complexity" of the learned function.
+	In Bayesian approaches, this is done by adopting a prior for the
+	parameters of the function being learned. We propose a Bayesian approach
+	to supervised learning, which leads to sparse solutions; that is,
+	in which irrelevant parameters are automatically set exactly to zero.
+	Other ways to obtain sparse classifiers (such as Laplacian priors,
+	support vector machines) involve (hyper)parameters which control
+	the degree of sparseness of the resulting classifiers; these parameters
+	have to be somehow adjusted/estimated from the training data. In
+	contrast, our approach does not involve any (hyper)parameters to
+	be adjusted or estimated. This is achieved by a hierarchical-Bayes
+	interpretation of the Laplacian prior, which is then modified by
+	the adoption of a Jeffreys' noninformative hyperprior. Implementation
+	is carried out by an expectationmaximization (EM) algorithm. Experiments
+	with several benchmark data sets show that the proposed approach
+	yields state-of-the-art performance. In particular, our method outperforms
+	SVMs and performs competitively with the best alternative techniques,
+	although it involves no tuning or adjustment of sparseness-controlling
+	hyperparameters.},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  owner = {jrnold},
+  timestamp = {2013.04.24}
+}
+
 @ARTICLE{GiordaniKohn2008,
   author = {Giordani, Paolo and Kohn, Robert},
   title = {Efficient Bayesian Inference for Multiple Change-Point and Mixture
@@ -132,6 +210,33 @@
   journal = {Journal of Business \& Economic Statistics},
   owner = {jeff},
   timestamp = {2013.04.22}
+}
+
+@ARTICLE{Hans2009,
+  author = {Hans, Chris},
+  title = {Bayesian lasso regression},
+  year = {2009},
+  volume = {96},
+  number = {4},
+  pages = {835-845},
+  doi = {10.1093/biomet/asp047},
+  eprint = {http://biomet.oxfordjournals.org/content/96/4/835.full.pdf+html},
+  url = {http://biomet.oxfordjournals.org/content/96/4/835.abstract},
+  abstract = {The lasso estimate for linear regression corresponds to a posterior
+	mode when independent, double-exponential prior distributions are
+	placed on the regression coefficients. This paper introduces new
+	aspects of the broader Bayesian treatment of lasso regression. A
+	direct characterization of the regression coefficients? posterior
+	distribution is provided, and computation and inference under this
+	characterization is shown to be straightforward. Emphasis is placed
+	on point estimation using the posterior mean, which facilitates prediction
+	of future observations via the posterior predictive distribution.
+	It is shown that the standard lasso prediction method does not necessarily
+	agree with model-based, Bayesian predictions. A new Gibbs sampler
+	for Bayesian lasso regression is introduced.},
+  journal = {Biometrika},
+  owner = {jrnold},
+  timestamp = {2013.04.24}
 }
 
 @ARTICLE{HarveyKoopman2000,
@@ -165,6 +270,58 @@
   owner = {jeff},
   publisher = {Blackwell Publishers Ltd},
   timestamp = {2013.04.22}
+}
+
+@ARTICLE{LiGoel2006,
+  author = {Bin Li and Prem K. Goel},
+  title = {Regularized Optimization in Statistical Learning: A Bayesian Perspective},
+  journaltitle = {Statistica Sinica},
+  year = {2006},
+  number = {2},
+  issue = {16},
+  pages = {411-424},
+  abstract = {Regularization plays a major role in modern data analysis, whenever
+	non-regularized fitting is likely to lead to over-fitted model. It
+	is known that most regularized optimization problems have Bayesian
+	interpretation in which the prior plays the role of the regularizer.
+	In this paper, we consider the issue of sensitivity of the regularized
+	solution to the prior specification within the Bayesian perspective.
+	We suggest a class of flat-tailed priors for a general likelihood
+	function for robust Bayesian solutions, in the same spirit as the
+	-distribution being suggested as a flat-tail prior for normal likelihood.
+	Results are applied to a family of regularized learning methods and
+	group LASSO. In addition, the consistency issue for LASSO is discussed
+	within this framework.},
+  owner = {jrnold},
+  timestamp = {2013.04.24}
+}
+
+@ARTICLE{ParkCasella2008,
+  author = {Park, Trevor and Casella, George},
+  title = {The Bayesian Lasso},
+  year = {2008},
+  volume = {103},
+  number = {482},
+  pages = {681-686},
+  doi = {10.1198/016214508000000337},
+  eprint = {http://amstat.tandfonline.com/doi/pdf/10.1198/016214508000000337},
+  url = {http://amstat.tandfonline.com/doi/abs/10.1198/016214508000000337},
+  abstract = { The Lasso estimate for linear regression parameters can be interpreted
+	as a Bayesian posterior mode estimate when the regression parameters
+	have independent Laplace (i.e., double-exponential) priors. Gibbs
+	sampling from this posterior is possible using an expanded hierarchy
+	with conjugate normal priors for the regression parameters and independent
+	exponential priors on their variances. A connection with the inverse-Gaussian
+	distribution provides tractable full conditional distributions. The
+	Bayesian Lasso provides interval estimates (Bayesian credible intervals)
+	that can guide variable selection. Moreover, the structure of the
+	hierarchical model provides both Bayesian and likelihood methods
+	for selecting the Lasso parameter. Slight modifications lead to Bayesian
+	versions of other Lasso-related estimation methods, including bridge
+	regression and a robust variant. },
+  journal = {Journal of the American Statistical Association},
+  owner = {jrnold},
+  timestamp = {2013.04.24}
 }
 
 @BOOK{PetrisPetroneEtAl2009,
@@ -219,6 +376,63 @@
   url = {http://books.google.com/books?id=NIhXa6UeF2cC},
   owner = {jrnold},
   timestamp = {2013.02.01}
+}
+
+@ARTICLE{Strawderman1971,
+  author = {Strawderman, William E.},
+  title = {Proper Bayes Minimax Estimators of the Multivariate Normal Mean},
+  year = {1971},
+  language = {English},
+  volume = {42},
+  number = {1},
+  pages = {pp. 385-388},
+  issn = {00034851},
+  url = {http://www.jstor.org/stable/2958496},
+  copyright = {Copyright © 1971 Institute of Mathematical Statistics},
+  journal = {The Annals of Mathematical Statistics},
+  jstor_articletype = {research-article},
+  jstor_formatteddate = {Feb., 1971},
+  owner = {jrnold},
+  publisher = {Institute of Mathematical Statistics},
+  timestamp = {2013.04.24}
+}
+
+@ARTICLE{Tipping2001,
+  author = {Tipping, Michael E.},
+  title = {Sparse bayesian learning and the relevance vector machine},
+  year = {2001},
+  volume = {1},
+  month = sep,
+  pages = {211--244},
+  issn = {1532-4435},
+  doi = {10.1162/15324430152748236},
+  url = {http://dx.doi.org/10.1162/15324430152748236},
+  abstract = {This paper introduces a general Bayesian framework for obtaining sparse
+	solutions to regression and classification tasks utilising models
+	linear in the parameters. Although this framework is fully general,
+	we illustrate our approach with a particular specialisation that
+	we denote the 'relevance vector machine' (RVM), a model of identical
+	functional form to the popular and state-of-the-art 'support vector
+	machine' (SVM). We demonstrate that by exploiting a probabilistic
+	Bayesian learning framework, we can derive accurate prediction models
+	which typically utilise dramatically fewer basis functions than a
+	comparable SVM while offering a number of additional advantages.
+	These include the benefits of probabilistic predictions, automatic
+	estimation of 'nuisance' parameters, and the facility to utilise
+	arbitrary basis functions (e.g. non-'Mercer' kernels). We detail
+	the Bayesian framework and associated learning algorithm for the
+	RVM, and give some illustrative examples of its application along
+	with some comparative benchmarks. We offer some explanation for the
+	exceptional degree of sparsity obtained, and discuss and demonstrate
+	some of the advantageous features, and potential extensions, of Bayesian
+	relevance learning.},
+  acmid = {944741},
+  issue_date = {9/1/2001},
+  journal = {J. Mach. Learn. Res.},
+  numpages = {34},
+  owner = {jrnold},
+  publisher = {JMLR.org},
+  timestamp = {2013.04.24}
 }
 
 @BOOK{WestHarrison1997,

@@ -12,13 +12,14 @@
 \doublespace
 
 \author{Jeffrey B. Arnold}
-\title{Time Varying Parameter Estimation Robust to Structural Breaks}
+\title{Scale Mixture of Normal Dynamic Linear Models:\\
+  A Multiple Change Point Models}
 
 \begin{document}
 
 \maketitle{}
 
-When estimating time-varying parameters, there exist primary two approaches. 
+When estimating time-varying parameters, there exist two primary approaches.
 The first approach is change-point or structural break models. 
 In these models, the change in the parameter only occur at a few points and is contant otherwise.
 In other words, the parameter is modeled with step function.
@@ -49,7 +50,14 @@ And in the case of non-sparse change-points, the discrete mixture is unnecessary
 
 Change-point models are appealing because the change-points are often easy to substantively interpret, as they can be tied to events.
 Change-point models are problematic because they either require that the researcher specify the number of change-points, and methods to estimate the number of change-points are not straight-forward.
-Another issue with change-point models is how they perform when the model is wrong; i.e. what if there are no change-points but a time-varying parameter.
+Another issue with change-point models is how they perform when the
+model is wrong; i.e. what if there are no change-points but a
+time-varying parameter.
+
+\section{Literature Review}
+\label{sec:literature-review}
+
+Political science: Western and Kleyman, Spirling, Park, Blackwell 2013.
 
 \section{Sparse Innovations Dynamic Linear Model}
 
@@ -61,7 +69,7 @@ This is simple local level model,
   y_t &= \alpha_t + \epsilon_t & \epsilon_{t}  \\
   \label{eq:14}
   \alpha_t &= \alpha_{t-1} + \eta_{t} & \text{for $t > 1$} \\
-  \label{eq:14}
+  \label{eq:19}
   \alpha_1 &= \alpha_{1} + \eta_{1}
 \end{align}
 where $\epsilon_{t} \sim N(0, \sigma^{2})$ and $E(\eta_{t}) = 0$.
@@ -99,7 +107,7 @@ where $p$ is the prior probability of a structural break (change-point), and $N(
 
 To overcome many of the problems with discrete mixture distribution estimation, it is useful to use the shrinkage approach with a continuous distribution on $\eta$ that can account for the sparsity and large jumps that may be seen in the data.
 However, as noted before, the problem of estimating $\eta$ is an example of a large-p problem and there are many proposed distributions for shrinkage parameters.
-The class of scale-normal mixtures includes many Bayesian shrinkage priors, such as the student-\textit{t} (Tipping), double-exponential prior (Bayesian LASSO) (Park  and Casella 2008), normal-Jeffreys (Figueiredo 2003, Bae and Mallick 2004), Strawderman-Berger (Stawderman 1971, Berger 1980), and normal-exponential-gamma (Griffin and Grown, 2005).
+The class of scale-normal mixtures includes many Bayesian shrinkage priors, such as the student-\textit{t} \parencite{Tipping2001}, double-exponential prior (Bayesian LASSO) \parencites{LiGoel2006}{ParkCasella2008}{Hans2009}, normal-Jeffreys \parencite{FigueiredoMember2003}{BaeMallick2004}, Strawderman-Berger \parencites{Strawderman1971}{Berger1980}, double Pareto \parencite{ArmaganDunsonLee2011},  and normal-exponential-gamma \parencite{BrownGriffin2005}, normal/gamma and normal/inverse-gamma \parencite{CaronDoucet2008}{BrownGriffin2010}.
 Since many computationally efficient forms of maximization and sampling of the dynamic linear model require the errors and innovations be distributed normal, I will focus on a class of shrinkage distributions that are scale mixtures of normal distributions, i.e. each $\eta_{t}$ will be distributed normal, but the variances of these normal distribtions are drawn from a hiearchical distribution.
 \begin{equation}
   \label{eq:6}
@@ -198,11 +206,6 @@ It is well known that there was a level shift in 1899, both due to the construct
 
 \subsection{Greenbacks}
 \label{sec:greenbacks-graybacks}
-
-\subsection{Election}
-\label{sec:election}
-
-\textcite{RatkovicEng2010}.
 
 \printbibliography{}
 
