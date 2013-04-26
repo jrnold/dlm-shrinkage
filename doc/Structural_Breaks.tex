@@ -63,7 +63,7 @@ In the case of the a univariate time-series with $n$ obserservations and a time-
 \section{Dynamic Linear Model}
 
 Consider a univariate vector of data $y$, indexed by $t = 1:T$.
-Each $y_{t}$ is drawn from a normal distribution with a mean, $\alpha_{t}$, that is varying over time,
+Each $y_{t}$ is drawn from a normal distribution with a time-varying mean, $\alpha_{t}$.
 \begin{align}
   \label{eq:8}
   y_t &= \alpha_t + \epsilon_t \\
@@ -73,20 +73,23 @@ Each $y_{t}$ is drawn from a normal distribution with a mean, $\alpha_{t}$, that
   \alpha_1 &= \alpha_{1} + \eta_{1}
 \end{align}
 where $\epsilon_{t} \sim N(0, \sigma^{2})$ and $E(\eta_{t}) = 0$.
-This is a local level model, which is a special case of dynamic linear models.
-Equation \eqref{eq:8} is the observation equation, 
-equation \eqref{eq:14} is the system equation,
+The model described by equations \eqref{eq:8}, \eqref{eq:14}, and \eqref{eq:19} is 
+is a special case of dynamic linear models called the local level model.
+Equation \eqref{eq:8} is called the observation equation, 
+equation \eqref{eq:14} is called the system equation,
 and \eqref{eq:4} is the prior distribution.
-$\alpha$ are the latent states, and $\eta$ are called the \textit{innovations}.
+The parameters $\alpha_{t}$ are the latent states, which in this case are the means of $y_{t}$.
+The parameters $\eta_{t}$ are called the \textit{innovations}.
 
 The inference problem in \eqref{eq:8} is to estimate the values of $\alpha_{t}$ for all time periods.
-These values of $\alpha_{t}$ are determined by the initial values $\alpha_{0}$ and the sum of the innovations $\sum_{t=1}^{2} \eta_{t}$.
+These values of $\alpha_{t}$ are determined by the initial values $\alpha_{1}$ and the sum of the innovations $\sum_{s=1}^{t} \eta_{s}$.
 Thus, estimating $\alpha_{t}$ is equivalent to the problem of estimating $\eta_{t}$.
-Since there are $T$ $\eta$ parameters and $T$ data points, this problem can be seen as a case of the ``large-p'' problem, and some sort of dimension reduction or regularization is needed to estimate the values of and $\eta$ ($\alpha$).
+Since the number of $\eta$ parameters is equal to the number of data points ($y$), this problem can be seen as a case of the ``large-p'' problem, and some sort of dimension reduction or regularization is needed to estimate the values of and $\eta$, and thus $\alpha$.
 
-The time-varying parameters problem has a few other characteristics. 
-First, $\eta_{t}$ is likely sparse; in most time periods the change in $\alpha$ is zero or approximately zero.
-Second, $\eta_{t}$ may be very large; there are occasionally quite large jumps in $\alpha$.
+Assumptions about this regularization through the choice of the prior distribution of $\eta$.
+There are two features for which any prior of $\eta$ must account.
+First, $\eta_{t}$ is likely sparse; in most time periods, the change in $\alpha$ is (close-to) zero.
+Second, $\eta_{t}$ may be large; there are occasionally quite large jumps in $\alpha$.
 In other words, processes (at least those encountered in political science) are likely to be stable or slowly varying for most periods, but with occasionally dramatic changes at key events \parencite{RatkovicEng2010}.
 
 In the Bayesian literature, there are two main approaches to esimating time-varying parameters: discrete mixtures (Hidden Markov Models for change-points), and shrinkage (dynamic linear models).
@@ -99,7 +102,7 @@ However, this approach can also be represented within the continuous state-space
   \label{eq:1}
   \eta_{t} \sim p g(\eta_{t}) + (1 - p) \delta_{0} \text{,}
 \end{equation}
-where $p$ is the prior probability of a structural break (change-point), and $N(0, \tau^{2})$ is the distribution of the change in $\alpha$ if there is a structural break.
+where $p$ is the prior probability of a structural break (change-point), and $g(\eta_{t})$ is the distribution of the change in $\alpha$ if there is a structural break.
 
 The shrinkage approach in estimating time-varying approach is to penalize large values of $\eta_{t}$. 
 The predominant example of this approach is the normal dynamic linear model, in which the $\eta_{t}$ are distributed i.i.d. normal,
@@ -130,13 +133,16 @@ The $t$-distribution is an example of a scale mixture of normal distributions, a
 The $t$-distribution in its most extreme form (Cauchy), has very flat tails, which allows for structural breaks.
 However, it does not have a large spike at zero, and thus may not shrink noise enough.
 
-The distribution of $\eta$ which will be used in this paper is the horseshoe prior distribution, introduced in \textcites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{Scott2011}{PolsonScott2012}.
+The distribution of $\eta$ which will be used in this paper is the horseshoe prior distribution, introduced in \textcites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}.
 The horseshoe prior distribution does not have an analytical form, but is formed when the $\lambda_{t}$ in equation \eqref{eq:6} are independently distributed half-Cauchy,
 \begin{align}
   \label{eq:13}
   \lambda_{t} &\sim C^{+}(0, 1)
 \end{align}
-where $C^{+}(0, 1)$ is a half-Cauchy distribution.
+where $C^{+}(0, \gamma)$ is the standard half-Cauchy distribution with support on the positive real numbers, and scale $\gamma$.%
+\footnote{
+  This implies that $p(\lambda^{2})$ is distributed inverse-beta, $IB(a, b)$ where $a = b = \frac{1}{2}$ \parencite[4]{PolsonScott2010}. 
+}
 
 The horseshoe prior has two features that make it useful as a shrinkage prior that is robust to structural breaks.
 It has flat Cauchy-like tails and an infinitely tall spike.
@@ -158,7 +164,6 @@ Figure \ref{fig:horseshoe} plots the density of the horseshoe prior distribution
   \caption{The densities of the horseshoe prior, normal, Cauchy, and Laplacian distribution.}
   \label{fig:horseshoe}
 \end{figure}
-
 
 I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ as in Carvalho et al. (2010, 2009),
 \begin{align}
@@ -194,15 +199,14 @@ and let $\Delta \alpha_{t} = \alpha_{t} - \alpha_{t - 1}$ and $e_{t} = y_{t} - \
 When $\kappa_{t} \approx 0$, the change in $\alpha$ is approximately $y_{t} - \alpha_{t-1}$.
 When $\kappa_{t} \approx 1$, the change in $\alpha \approx 0$.
 
-
 Thus the quantity $1 - \hat \kappa_{t}$ behaves similarly to $p_{t}$ in the discrete mixture.
-And in the case of the horseshoe prior distribution, $1 - \hat \kappa_{t} \approx p_{t}$ \parencite[474]{CarvallhoPolsonScott2010}.
+And in the case of the horseshoe prior distribution, $1 - \hat \kappa_{t} \approx p_{t}$ \parencite[474]{CarvalhoPolsonScott2010}.
 Thus, Carvallho \textit{et al.} recommend the following  decision rule under a 0-1 decision rule as to whether an observation is a signal,
 \begin{equation}
   \label{eq:5}
   \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
 \end{equation}
-Thus to 
+If a strict decision rule is needed to determine whether an obervation is a structural break is needed, equation \eqref{eq:5} can be used.
 
 \section{Examples}
 \label{sec:examples}
@@ -213,6 +217,11 @@ Thus to
 The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \textcite{Cobb1978}{Balke1993}{DurbinKoopman2012}
 The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970. 
 It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
+
+\subsection{CP6 Data}
+\label{sec:cp6-data}
+
+
 
 \subsection{Coal Mine Data}
 \label{sec:coal-mine-data}
