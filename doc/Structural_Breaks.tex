@@ -12,12 +12,15 @@
 \doublespace
 
 \author{Jeffrey B. Arnold}
-\title{Scale Mixture of Normal Dynamic Linear Models:\\
-  A Multiple Change Point Models}
+\title{Scale Mixture of Normal Dynamic Linear Models: \\
+  A Unified Model of Time-Varying Parameters and Change-Points}
 
 \begin{document}
 
 \maketitle{}
+
+\section{Introduction}
+\label{sec:introduction}
 
 When estimating time-varying parameters, there exist two primary approaches.
 The first approach is change-point or structural break models. 
@@ -35,51 +38,65 @@ This paper proposes using scale mixture of normal distributions for the innovati
 The insight is that the problem posed in estimating time-varying parameters shares many characteristics with the ``large-p'' literature.
 In the case of the a univariate time-series with $n$ obserservations and a time-varying mean, the number of innovation parameters to be estimated is $n - 1$.
 
-There are two key features in parameter change in change-point models that the distribution of the innovations must capture.
-\begin{enumerate}
-\item \textit{sparsity}: Most innovations are expected to be approximately zero.
-\item \textit{large signals}: Some innovations can be very large
-\end{enumerate}
-This means that a distribution over the innovations must both shrink small distributions to zero in order to ignore ``noise'', while not shrinking the large ``true'' innovations.
-However, this is a similar problem to that in the $n > p$ literature, in which there has been a large amount of attention recently, e.g. the lasso.
-Conveniently, many of the proposed shrinkage prior distributions are scale mixtures of normal distributions.
+\begin{itemize}
+\item This paper does not require an \textit{ex ante} specification of
+  the number of structural breaks. 
+  The number of structural breaks can be estimated from the data.
+  And unlike some structural break methods which estimate the number of change points, is is comparatively straight forward.
+\item This method nests both smoothly time-varying parameters and
+  structural break models.There are several reasons to use continuous
+  distributions to model time-varying parameters possibly with
+  structural breaks.  In the case of truly sparse data, discrete
+  mixtures are computationally inefficient.  And in the case of
+  non-sparse change-points, the discrete mixture is unnecessary.
+\item This method is flexible.  This is a special case of a normal
+  dynamic linear models
+  (DLM) \parencites{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
+  DLMs are flexible class of models that include linear regressions
+  and ARIMA models.
+\item Moreover for the case in which $\epsilon_{t}$ and $\eta_{t}$ are distributed normal, there are computationally efficient methods both to maximize the likelihood of (Kalman Filter) and to sample from (Forward-filter backward sample) \eqref{eq:8}.
+\end{itemize}
 
-There are several reasons to use continuous distributions to model time-varying parameters possibly with structural breaks.
-In the case of truly sparse data, discrete mixtures are computationally inefficient. 
-And in the case of non-sparse change-points, the discrete mixture is unnecessary.
-
-Change-point models are appealing because the change-points are often easy to substantively interpret, as they can be tied to events.
-Change-point models are problematic because they either require that the researcher specify the number of change-points, and methods to estimate the number of change-points are not straight-forward.
-Another issue with change-point models is how they perform when the
-model is wrong; i.e. what if there are no change-points but a
-time-varying parameter.
-
-\section{Literature Review}
-\label{sec:literature-review}
-
-Political science: Western and Kleyman, Spirling, Park, Blackwell 2013.
-
-\section{Sparse Innovations Dynamic Linear Model}
+\section{Dynamic Linear Model}
 
 Consider a univariate vector of data $y$, indexed by $t = 1:T$.
-Each $y_{t}$ is drawn from a normal distribution with a mean, $\alpha_{t}$, that is varying over time.
-This is simple local level model,
+Each $y_{t}$ is drawn from a normal distribution with a mean, $\alpha_{t}$, that is varying over time,
 \begin{align}
   \label{eq:8}
-  y_t &= \alpha_t + \epsilon_t & \epsilon_{t}  \\
+  y_t &= \alpha_t + \epsilon_t \\
   \label{eq:14}
   \alpha_t &= \alpha_{t-1} + \eta_{t} & \text{for $t > 1$} \\
   \label{eq:19}
   \alpha_1 &= \alpha_{1} + \eta_{1}
 \end{align}
 where $\epsilon_{t} \sim N(0, \sigma^{2})$ and $E(\eta_{t}) = 0$.
+This is a local level model, which is a special case of dynamic linear models.
+Equation \eqref{eq:8} is the observation equation, 
+equation \eqref{eq:14} is the system equation,
+and \eqref{eq:4} is the prior distribution.
+$\alpha$ are the latent states, and $\eta$ are called the \textit{innovations}.
 
 The inference problem in \eqref{eq:8} is to estimate the values of $\alpha_{t}$ for all time periods.
 These values of $\alpha_{t}$ are determined by the initial values $\alpha_{0}$ and the sum of the innovations $\sum_{t=1}^{2} \eta_{t}$.
-Thus, estimating $\alpha_{t}$ can be recast as a problem of estimating $\eta_{t}$.
-Since there are $T$ $\eta$ parameters and $T$ data points, this problem can be seen as a case of the large-p problem.
+Thus, estimating $\alpha_{t}$ is equivalent to the problem of estimating $\eta_{t}$.
+Since there are $T$ $\eta$ parameters and $T$ data points, this problem can be seen as a case of the ``large-p'' problem, and some sort of dimension reduction or regularization is needed to estimate the values of and $\eta$ ($\alpha$).
 
-The two classes of approaches to estimating time-varying parameters correspond to the two major approaches in the large-p literature: shrinkage and selection.
+The time-varying parameters problem has a few other characteristics. 
+First, $\eta_{t}$ is likely sparse; in most time periods the change in $\alpha$ is zero or approximately zero.
+Second, $\eta_{t}$ may be very large; there are occasionally quite large jumps in $\alpha$.
+In other words, processes (at least those encountered in political science) are likely to be stable or slowly varying for most periods, but with occasionally dramatic changes at key events \parencite{RatkovicEng2010}.
+
+In the Bayesian literature, there are two main approaches to esimating time-varying parameters: discrete mixtures (Hidden Markov Models for change-points), and shrinkage (dynamic linear models).
+The approach in this paper is to use a shrinkage approach with scale-mixtures of normal distributions that are able to handle both sparsity and jumps.
+
+The first approach are selection approaches, in which the estimation technique selects which $\eta_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
+Models within this approach are usually formulated and estimated as discrete state-space Hidden Markov Models, as in Chib 1998 and extensions thereof (Spirling Park, Koop).
+However, this approach can also be represented within the continuous state-space approach by giving $\eta_{t}$ spike-and-slab mixture distributions \parencite{GiordaniKohn2008},
+\begin{equation}
+  \label{eq:1}
+  \eta_{t} \sim p N(0, \tau^{2}) + (1 - p) \delta_{0} \text{,}
+\end{equation}
+where $p$ is the prior probability of a structural break (change-point), and $N(0, \tau^{2})$ is the distribution of the change in $\alpha$ if there is a structural break.
 
 The shrinkage approach in estimating time-varying approach is to penalize large values of $\eta_{t}$. 
 The predominant example of this are normal dynamic linear models, in which the $\eta_{t}$ are distributed i.i.d. normal,
@@ -94,18 +111,7 @@ However, many political processes are marked by periods of stability and points 
 A data generating process with structural breaks poses problems for the normal dynamic linear model.
 In order to accomodate large structural breaks, the posterior estimate of $\tau$ must increase. 
 This results in undersmoothing (overfitting) in periods of relative stability, while still oversmoothing (underfitting) structural breaks.
-The solution to this, which will be adopted in this paper, is to use distributions with fat-tails formed from scale mixtures of normal distributions.
 
-The first approach are selection approaches, in which the estimation technique selects which $\eta_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
-Models within this approach are usually formulated and estimated as discrete state-space Hidden Markov Models, as in Chib 1998 and extensions thereof (Spirling Park, Koop).
-However, this approach can also be represented within the continuous state-space approach by giving $\eta_{t}$ spike-and-slab mixture distributions \parencite{GiordaniKohn2008},
-\begin{equation}
-  \label{eq:1}
-  \eta_{t} \sim p N(0, \tau^{2}) + (1 - p) \delta_{0} \text{,}
-\end{equation}
-where $p$ is the prior probability of a structural break (change-point), and $N(0, \tau^{2})$ is the distribution of the change in $\alpha$ if there is a structural break.
-
-To overcome many of the problems with discrete mixture distribution estimation, it is useful to use the shrinkage approach with a continuous distribution on $\eta$ that can account for the sparsity and large jumps that may be seen in the data.
 However, as noted before, the problem of estimating $\eta$ is an example of a large-p problem and there are many proposed distributions for shrinkage parameters.
 The class of scale-normal mixtures includes many Bayesian shrinkage priors, such as the student-\textit{t} \parencite{Tipping2001}, double-exponential prior (Bayesian LASSO) \parencites{LiGoel2006}{ParkCasella2008}{Hans2009}, normal-Jeffreys \parencite{FigueiredoMember2003}{BaeMallick2004}, Strawderman-Berger \parencites{Strawderman1971}{Berger1980}, double Pareto \parencite{ArmaganDunsonLee2011},  and normal-exponential-gamma \parencite{BrownGriffin2005}, normal/gamma and normal/inverse-gamma \parencite{CaronDoucet2008}{BrownGriffin2010}.
 Since many computationally efficient forms of maximization and sampling of the dynamic linear model require the errors and innovations be distributed normal, I will focus on a class of shrinkage distributions that are scale mixtures of normal distributions, i.e. each $\eta_{t}$ will be distributed normal, but the variances of these normal distribtions are drawn from a hiearchical distribution.
@@ -118,16 +124,24 @@ Since many computationally efficient forms of maximization and sampling of the d
 \end{equation}
 where $\tau^{2}$ is a global shrinkage parameter, and $\lambda_{t}^{2}$ are global shrinkage parameters.
 The $t$-distribution is an example of a scale mixture of normal distributions, and has been suggested for dynamic linear model estimation that is robust to structural breaks \parencites{HarveyKoopman2000}{PetrisPetroneEtAl2009}.
-However, while the $t$-distribution in its most extreme form (Cauchy), has very fat tails, it does not aggressively shrink noise observations to zero.
+The $t$-distribution in its most extreme form (Cauchy), has very flat tails, which allows for structural breaks.
+However, it does not have a large spike at zero, and thus may not shrink noise enough.
 
-The innovations $\eta_{t}$ are distributed with the horseshoe distribution, introduced in Carvalho et al.
-The horseshoe distribution does not have an analytical form, but is a scale-mixture of normal distributions,
+The innovations $\eta_{t}$ are distributed with the horseshoe prior distribution, introduced in Carvalho et al.
+The horseshoe prior distribution does not have an analytical form, but is a scale-mixture of normal distributions,
 \begin{align}
   \label{eq:12}
   \eta_{t} &\sim N(0, \lambda_{t}^{2} \tau^{2}) \\
   \label{eq:13}
   \lambda_{t} &\sim C^{+}(0, 1)
 \end{align}
+
+The horseshoe prior has two features that make it useful as a shrinkage prior that is robust to structural breaks.
+It has flat Cauchy-like tails which will not shrink structural breaks \textit{a posteriori}.
+It also has an infinitely tall spike that aggressively shrinks non-structural breaks.
+
+INSERT PLOT OF HORSESHOE
+
 
 Let $\Delta \alpha_{t} = \alpha_{t} - \alpha_{t - 1}$
 \begin{equation}
@@ -152,17 +166,6 @@ Thus, Carvallho \textit{et al.} recommend the following  decision rule under a 0
   \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
 \end{equation}
 
-\textit{Dynamic Sparsity:} Unlike many discrete state space methods, the number of states does not need to be specified \textit{ex ante}.
-The ``number of structural breaks'' is estimated from the data, and determined by the sparsity of $\tau$. 
-And $\tau$ can be estimated from the data.
-
-\textit{Flexibility:} This is a special case of a normal dynamic linear models (DLM) \parencites{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
-DLMs are flexible class of models that include linear regressions and ARIMA models.
-
-\textit{Computation:} Moreover for the case in which $\epsilon_{t}$ and $\eta_{t}$ are distributed normal, there are computationally efficient methods both to maximize the likelihood of (Kalman Filter) and to sample from (Forward-filter backward sample) \eqref{eq:8}.
-
-\textit{Sparsity:} Although the objective is estimate sparse values of $\eta_{t}$. However, the 
-
 Commonly, $\eta_{t}$ are distributed i.i.d. normal,
 \begin{equation}
   \label{eq:2}
@@ -180,7 +183,7 @@ However, many political processes are marked by sudden changes over time.
 % The output of the methods provides a small number of breaks which can be interpreted with respect to the events occuring contemporaneously.
 % the key aspect of the a change point model is the sparsity in $\eta$.
 
-The Horseshoe distribution has several characteristics which make it particularly appealing for this application.
+The Horseshoe prior distribution has several characteristics which make it particularly appealing for this application.
 Under the discrete mixture model in equation \eqref{eq:1}, the expected value of the posterior distribution of $\eta_{t}$ if $\tau^{2}$ is large is approximately $w_{i} (y_{t} - \alpha_{t-1}$ i
 \begin{equation}
   \label{eq:18}
@@ -204,8 +207,10 @@ The first example of change-point detection is a classic datset in the state-spa
 The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970. 
 It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
 
-\subsection{Greenbacks}
-\label{sec:greenbacks-graybacks}
+\subsection{Coal Mine Data}
+\label{sec:coal-mine-data}
+
+
 
 \printbibliography{}
 
