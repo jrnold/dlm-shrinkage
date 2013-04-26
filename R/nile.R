@@ -1,10 +1,10 @@
 library(stanmisc)
 library(mcmcdb)
+data(Nile)
 
 model_hs <- "../stan/models/horseshoe"
-model_hs2 <- "../stan/models/horseshoe2"
-model_hs3 <- "../stan/models/horseshoe3"
 model_normal <- "../stan/models/normal"
+model_normal3 <- "../stan/models/normal3"
 
 SEED <- c(64425843)
 ITER <- 2^14
@@ -12,45 +12,38 @@ WARMUP <- 2^13
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
 
-cp6 <- read.csv("../data/CP6.csv")
-cp6[["date"]] <- as.Date(sprintf("%d-%d-1", cp6[["year"]], cp6[["month"]]))
+nile <- as.numeric(Nile)
 
-cp6_data <- list(n_obs = nrow(cp6),
-                 n_time = nrow(cp6),
-                 y = cp6[["sales"]],
-                 y_time = seq_len(nrow(cp6)),
-                 theta1_mean = 610,
-                 theta1_sd = 50)
-cp6_data2 <- list(n_obs = nrow(cp6),
-                  n_time = nrow(cp6),
-                  y = cp6[["sales"]],
-                  y_time = seq_len(nrow(cp6)),
-                  theta1_mean = c(610, 0),
-                  theta1_sd = c(50, 100))
+nile_data <- list(n_obs = length(nile),
+                  n_time = length(nile),
+                  y = nile,
+                  y_time = seq_along(nile),
+                  theta1_mean = nile[1],
+                  theta1_sd = sd(nile))
 
-cp6_samples2 <- run_stan_model(model_normal,
-                              data = cp6_data, seed=SEED,
-                              iter = ITER, warmup = WARMUP, thin = THIN)
-mcmcdb_cp6_normal <- mcmcdb_wide_from_stan(cp6_samples2)
+nile_smpl_output_normal <-
+  run_stan_model(model_normal,
+                 data = nile_data, seed=SEED,
+                 iter = ITER, warmup = WARMUP, thin = THIN)
+RDATA[["nile_normal"]] <-
+  mcmcdb_wide_from_stan(nile_smpl_output_normal)
 
-cp6_samples1 <- run_stan_model(model_hs,
-                              data = cp6_data, seed=SEED,
-                              iter = ITER, warmup = WARMUP, thin = THIN)
-mcmcdb_cp6_hs <- mcmcdb_wide_from_stan(cp6_samples1)
+nile_smpl_output_hs <-
+  run_stan_model(model_hs,
+                 data = nile_data, seed=SEED,
+                 iter = ITER, warmup = WARMUP, thin = THIN)
+RDATA[["nile_hs"]] <-
+  mcmcdb_wide_from_stan(nile_smpl_output_hs)
 
-cp6_samples3 <- run_stan_model(model_hs2,
-                              data = cp6_data2, seed=SEED,
-                              iter = ITER, warmup = WARMUP, thin = THIN)
-mcmcdb_cp6_hs2 <- mcmcdb_wide_from_stan(cp6_samples3)
+nile_data2 <- nile_data
+nile_data2[["theta1_mean"]] <-
+  c(nile_data[["theta1_mean"]], rep(0, nile_data[["n_time"]] - 1))
+nile_data2[["theta1_sd"]] <-
+  c(nile_data[["theta1_sd"]], rep(0, nile_data[["n_time"]] - 1))
+nile_data2[["theta1_sd"]][27] <- 1e8
 
-cp6_samples4 <- run_stan_model(model_hs3,
-                              data = cp6_data2, seed=SEED,
-                              iter = ITER, warmup = WARMUP, thin = THIN)
-mcmcdb_cp6_hs3 <- mcmcdb_wide_from_stan(cp6_samples4)
-
-
-hs <- summary(mcmcdb_cp6_hs, pararrays = "yhat")[[1]]
-hs2 <- summary(mcmcdb_cp6_hs3, pararrays = "yhat")[[1]]
-normal <- summary(mcmcdb_cp6_normal, pararrays = "yhat")[[1]]
-foo <- data.frame(date = cp6[["date"]], y = cp6[["sales"]], normal = normal, hs = hs, hs2 = hs2)
-
+nile_smpl_output_normal2 <-
+  run_stan_model(model_normal3,
+                 data = nile_data2, seed=SEED,
+                 iter = ITER, warmup = WARMUP, thin = THIN)
+RDATA[["nile_normal2"]] <- nile_smpl_output_normal2

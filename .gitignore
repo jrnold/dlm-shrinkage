@@ -12,3 +12,8 @@ auto
 /doc/Structural_Breaks-blx.bib
 /doc/Structural_Breaks.run.xml
 /doc/local.bib.bak
+/rdata/nile_hs
+/rdata/nile_normal
+/rdata/nile_normal2
+/stan/models/normal3
+/stan/models/poisson_hp
