@@ -21,7 +21,6 @@ cp6_data <- list(n_obs = nrow(cp6),
                  y_time = seq_len(nrow(cp6)),
                  theta1_mean = 610,
                  theta1_sd = 50)
-
 cp6_data2 <- list(n_obs = nrow(cp6),
                   n_time = nrow(cp6),
                   y = cp6[["sales"]],
@@ -54,13 +53,4 @@ hs <- summary(mcmcdb_cp6_hs, pararrays = "yhat")[[1]]
 hs2 <- summary(mcmcdb_cp6_hs3, pararrays = "yhat")[[1]]
 normal <- summary(mcmcdb_cp6_normal, pararrays = "yhat")[[1]]
 foo <- data.frame(date = cp6[["date"]], y = cp6[["sales"]], normal = normal, hs = hs, hs2 = hs2)
-(ggplot(foo, aes(x = date))
- + geom_line(aes(y = normal), colour = "red")
- + geom_line(aes(y = hs), colour = "blue")
- + geom_line(aes(y = hs2), colour = "green")
- + geom_point(aes(y = y)))
 
-ggplot(ests, aes(x=n)) + geom_line(aes(y=value, colour=variable)) + geom_point(aes(y=y))
-plot(as.numeric(mcmcdb_nile_normal[["tau"]]))
-plot(as.numeric(mcmcdb_nile_normal[["sigma"]]))
-plot(as.numeric(mcmcdb_nile_normal[["deviance"]]))

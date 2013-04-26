@@ -6,6 +6,9 @@
 
 \usepackage[style=authoryear]{biblatex}
 
+\usepackage{graphicx}
+\usepackage{subcaption}
+
 \bibliography{local}
 
 \usepackage{setspace}
@@ -94,12 +97,12 @@ Models within this approach are usually formulated and estimated as discrete sta
 However, this approach can also be represented within the continuous state-space approach by giving $\eta_{t}$ spike-and-slab mixture distributions \parencite{GiordaniKohn2008},
 \begin{equation}
   \label{eq:1}
-  \eta_{t} \sim p N(0, \tau^{2}) + (1 - p) \delta_{0} \text{,}
+  \eta_{t} \sim p g(\eta_{t}) + (1 - p) \delta_{0} \text{,}
 \end{equation}
 where $p$ is the prior probability of a structural break (change-point), and $N(0, \tau^{2})$ is the distribution of the change in $\alpha$ if there is a structural break.
 
 The shrinkage approach in estimating time-varying approach is to penalize large values of $\eta_{t}$. 
-The predominant example of this are normal dynamic linear models, in which the $\eta_{t}$ are distributed i.i.d. normal,
+The predominant example of this approach is the normal dynamic linear model, in which the $\eta_{t}$ are distributed i.i.d. normal,
 \begin{equation}
   \label{eq:4}
   \eta_{t} \sim N(0, \tau^{2})
@@ -113,7 +116,7 @@ In order to accomodate large structural breaks, the posterior estimate of $\tau$
 This results in undersmoothing (overfitting) in periods of relative stability, while still oversmoothing (underfitting) structural breaks.
 
 However, as noted before, the problem of estimating $\eta$ is an example of a large-p problem and there are many proposed distributions for shrinkage parameters.
-The class of scale-normal mixtures includes many Bayesian shrinkage priors, such as the student-\textit{t} \parencite{Tipping2001}, double-exponential prior (Bayesian LASSO) \parencites{LiGoel2006}{ParkCasella2008}{Hans2009}, normal-Jeffreys \parencite{FigueiredoMember2003}{BaeMallick2004}, Strawderman-Berger \parencites{Strawderman1971}{Berger1980}, double Pareto \parencite{ArmaganDunsonLee2011},  and normal-exponential-gamma \parencite{BrownGriffin2005}, normal/gamma and normal/inverse-gamma \parencite{CaronDoucet2008}{BrownGriffin2010}.
+The class of scale-normal mixtures includes many Bayesian shrinkage priors, such as the student-\textit{t} \parencite{Tipping2001}, double-exponential prior (Bayesian LASSO) \parencites{LiGoel2006}{ParkCasella2008}{Hans2009}, normal-Jeffreys \parencites{FigueiredoMember2003}{BaeMallick2004}, Strawderman-Berger \parencites{Strawderman1971}{Berger1980}, double Pareto \parencite{ArmaganDunsonLee2011},  and normal-exponential-gamma \parencite{BrownGriffin2005}, normal/gamma and normal/inverse-gamma \parencite{CaronDoucet2008}{BrownGriffin2010}.
 Since many computationally efficient forms of maximization and sampling of the dynamic linear model require the errors and innovations be distributed normal, I will focus on a class of shrinkage distributions that are scale mixtures of normal distributions, i.e. each $\eta_{t}$ will be distributed normal, but the variances of these normal distribtions are drawn from a hiearchical distribution.
 \begin{equation}
   \label{eq:6}
@@ -122,73 +125,84 @@ Since many computationally efficient forms of maximization and sampling of the d
     \lambda_{t}^{2} & \sim p(\lambda^{2}_{t})
   \end{aligned}
 \end{equation}
-where $\tau^{2}$ is a global shrinkage parameter, and $\lambda_{t}^{2}$ are global shrinkage parameters.
+where $\tau^{2}$ is called the global shrinkage parameter, and $\lambda_{t}^{2}$ are called the local shrinkage parameters.
 The $t$-distribution is an example of a scale mixture of normal distributions, and has been suggested for dynamic linear model estimation that is robust to structural breaks \parencites{HarveyKoopman2000}{PetrisPetroneEtAl2009}.
 The $t$-distribution in its most extreme form (Cauchy), has very flat tails, which allows for structural breaks.
 However, it does not have a large spike at zero, and thus may not shrink noise enough.
 
-The innovations $\eta_{t}$ are distributed with the horseshoe prior distribution, introduced in Carvalho et al.
-The horseshoe prior distribution does not have an analytical form, but is a scale-mixture of normal distributions,
+The distribution of $\eta$ which will be used in this paper is the horseshoe prior distribution, introduced in \textcites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{Scott2011}{PolsonScott2012}.
+The horseshoe prior distribution does not have an analytical form, but is formed when the $\lambda_{t}$ in equation \eqref{eq:6} are independently distributed half-Cauchy,
 \begin{align}
-  \label{eq:12}
-  \eta_{t} &\sim N(0, \lambda_{t}^{2} \tau^{2}) \\
   \label{eq:13}
   \lambda_{t} &\sim C^{+}(0, 1)
 \end{align}
+where $C^{+}(0, 1)$ is a half-Cauchy distribution.
 
 The horseshoe prior has two features that make it useful as a shrinkage prior that is robust to structural breaks.
-It has flat Cauchy-like tails which will not shrink structural breaks \textit{a posteriori}.
-It also has an infinitely tall spike that aggressively shrinks non-structural breaks.
+It has flat Cauchy-like tails and an infinitely tall spike.
+The flat tails mean that the structural breaks are not shrunk \textit{a posteriori} and the spike around zero aggressively shrinks non-structural breaks.
+Figure \ref{fig:horseshoe} plots the density of the horseshoe prior distribution against the normal, Cauchy, and Laplacian (Baysian LASSO) distributions.%
+\footnote{
+  Although the horseshoe prior distribution's density does not have analytic form, \textcite{CarvalhoPolsonScott2010}, Theorem 1, provides tight bounds on it.
+  The density has the same behavior as $\log (1 + \frac{2}{\alpha_{t}^{2}})$.
+}
 
-INSERT PLOT OF HORSESHOE
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics{plots/horseshoe1.pdf}
+  \end{subfigure}%
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics{plots/horseshoe2.pdf}
+  \end{subfigure}
+  \caption{The densities of the horseshoe prior, normal, Cauchy, and Laplacian distribution.}
+  \label{fig:horseshoe}
+\end{figure}
 
 
-Let $\Delta \alpha_{t} = \alpha_{t} - \alpha_{t - 1}$
-\begin{equation}
-  \label{eq:10}
-  E(\Delta \alpha_{t} | \alpha_{t - 1}, \sigma, \tau, \lambda_{t}) = (y_{t} - \alpha_{t - 1})
-  \left(
-    1 - \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}}
-  \right)
-\end{equation}
-Let $\kappa_{t}$ be a shrinkage parameter, defined as
-\begin{equation}
-  \label{eq:3}
-  \kappa_{t} = \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}} \text{.}
-\end{equation}
-When $\kappa_{t} \approx 0$, the change in $\alpha$ is approximately $y_{t} - \alpha_{t-1}$.
-When $\kappa_{t} \approx 1$, the change in $\alpha \approx 0$.
-
-Interestingly, for the horseshoe prior distribution, the value $1 - \hat\kappa_{t}$, where $\hat\kappa_{t} = E(\kappa_{t})$, acts approximately like the posterior inclusion probability from a discrete mixture model (Carvallho et al).
-Thus, Carvallho \textit{et al.} recommend the following  decision rule under a 0-1 decision rule as to whether an observation is a signal,
-\begin{equation}
-  \label{eq:5}
-  \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
-\end{equation}
-
-Commonly, $\eta_{t}$ are distributed i.i.d. normal,
-\begin{equation}
-  \label{eq:2}
-  \eta_{t} \sim N(0, \tau^{2})
-\end{equation}
-Since the normal distribution has thin tails, \eqref{eq:2} smooths changes in $\alpha$ over time by penalizing large values of $\alpha_{t} - \alpha_{t-1}$.
-Moreover, this means that $\alpha_{t} - \alpha_{t-1} \neq 0$ with certainty.
-This is useful for modeling parameters which vary slowly over time.
-However, many political processes are marked by sudden changes over time.
-
-The Horseshoe prior distribution has several characteristics which make it particularly appealing for this application.
-Under the discrete mixture model in equation \eqref{eq:1}, the expected value of the posterior distribution of $\eta_{t}$ if $\tau^{2}$ is large is approximately $w_{i} (y_{t} - \alpha_{t-1}$ i
-\begin{equation}
-  \label{eq:18}
-\end{equation}
-
-I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ in Carvalho et al. (2010, 2009),
+I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ as in Carvalho et al. (2010, 2009),
 \begin{align}
   \label{eq:9}
   p(\sigma^{2}) & \frac{1}{\sigma^{2}}  \\
   \label{eq:11}
   \tau &\sim C^{+}(0, \sigma) \text{.}
 \end{align}
+
+\subsection{Identifying Structural Breaks}
+\label{sec:ident-struct-breaks}
+
+One of the advantages of the horseshoe prior distribution over other shrinkage distributions is that there is a simple thresholding rule that can be used to identify signals, which in this application are structural breaks.
+
+For the discrete mixture model in equation \eqref{eq:1}, the posterior mean is $E(\eta_{t} | y, \alpha_{t-1}) = p_{t} E(g(\eta_{t}))$, where $p_{t}$ is the posterior inclusion probability of $\eta_{t}$.
+For a sufficiently heavy tailed $g$, that posterior mean is approximately $p_{i} e_{i}$.
+Note that not only do $p_{t}$ determine whether $\eta_{t}$ should be classified as a signal or noise, they also determine how much $e_{t}$ should be shrunk to 0 when estimating $\eta_{t}$.
+
+A quantity similar to $p_{t}$ can be defined for scale-normal mixture distributions.
+Let $\kappa_{t}$ be a shrinkage parameter, defined as
+\begin{equation}
+  \label{eq:3}
+  \kappa_{t} = \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}} \text{.}
+\end{equation}
+and let $\Delta \alpha_{t} = \alpha_{t} - \alpha_{t - 1}$ and $e_{t} = y_{t} - \alpha_{t - 1}$, 
+\begin{equation}
+  \label{eq:10}
+  E(\eta_{t} | \alpha_{t - 1}, \sigma, \tau, \lambda_{t}) = e_{t}
+  \left(
+    1 - \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}}
+  \right)  = 1 - E(\kappa_{i} | .) e_{i}
+\end{equation}
+When $\kappa_{t} \approx 0$, the change in $\alpha$ is approximately $y_{t} - \alpha_{t-1}$.
+When $\kappa_{t} \approx 1$, the change in $\alpha \approx 0$.
+
+
+Thus the quantity $1 - \hat \kappa_{t}$ behaves similarly to $p_{t}$ in the discrete mixture.
+And in the case of the horseshoe prior distribution, $1 - \hat \kappa_{t} \approx p_{t}$ \parencite[474]{CarvallhoPolsonScott2010}.
+Thus, Carvallho \textit{et al.} recommend the following  decision rule under a 0-1 decision rule as to whether an observation is a signal,
+\begin{equation}
+  \label{eq:5}
+  \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
+\end{equation}
+Thus to 
 
 \section{Examples}
 \label{sec:examples}
