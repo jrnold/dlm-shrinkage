@@ -9,7 +9,7 @@
 \usepackage{graphicx}
 \usepackage{subcaption}
 
-\bibliography{local}
+\addbibresource{local}
 
 \usepackage{setspace}
 \doublespace
@@ -25,39 +25,46 @@
 \section{Introduction}
 \label{sec:introduction}
 
-When estimating time-varying parameters, there exist two primary approaches.
-The first approach is change-point or structural break models. 
-In these models, the change in the parameter only occur at a few points and is contant otherwise.
-In other words, the parameter is modeled with step function.
-The second approach is time-varying parameter models in which the parameter changes in all periods.
-This approach includes dynamic linear models and smoothing splines.
+Political processes are rarely constant over time, so there often a need for political science researchers to estimate time-varying parameters. 
+In practice, there exist two broad approaches to this problem.
+The first approach is to smooth parameter change over time.
+Examples of this approach are dynamic linear models, polynomial, and splines.
+The second approach is to restrict changes in the parameter to distinct times, and keep it constant. 
+In other words, the parameter over time is modeled as a step function. 
+This approach includes structural break, regime-shift, change-point, and even including time-period indicator variables.
 
-However, both structural break and time-varying parameters model can be modeled with dynamic linear models.
-The difference between these approaches is in the distributions of the \textit{innovations}, the changes in the parameter values.
-In structural break models, the innovations have a spike and slab distribution, which is a discrete mixture between 0 and another, usually diffuse, distribution.
-In time-varying parameter models, the innovations are given a continuous distribution, usually the normal.
+The underlying problem of time-varying parameters is to estimate $\alpha_{t}$ for $t = 1:T$ time periods. 
+One way to model this, that nests most models is as 
+\begin{equation}
+  \label{eq:7}
+  \alpha_{t} - \alpha_{t-1}  = \eta_{t}
+\end{equation}
+Since the number of parameters is almost certainly going to be greater than or equal to the number of data points this is a case of a ``large-p'' problem.
+The smoothing approach corresponds to shrinkage.
+The $\eta_{t}$ are estimated by penalizing large values, normally through the use of the normal distribution, as in dynamic linear models.
+The structural break approach corresponds to selection models in the ``large-p'' framework.
+The $\eta_{t}$ are modeled as a discrete mixture over a point mass at 0, and another distribution (the distribution of the structural breaks); in other words, a spike-and-slab distribution.
+Note that if all time periods are structural breaks, the structural break approach is equivalent to the shrinkage approach.
 
-This paper proposes using scale mixture of normal distributions for the innovation distributions in order to nest both structural break and time varying parameter models.
-The insight is that the problem posed in estimating time-varying parameters shares many characteristics with the ``large-p'' literature.
-In the case of the a univariate time-series with $n$ obserservations and a time-varying mean, the number of innovation parameters to be estimated is $n - 1$.
+The purpose of this paper is to show that Bayesian shrinkage priors developed for regression regularization can be used to model time-varying.
+Traditionally, shrinkage approaches have had a difficult time in sparse signals.
+However, recent advances in the Bayesian shrinkage and variable selection literature has introduced new prior distributions that can effectively estimate sparse parameters. 
+This paper will focus on one of these distributions, the horseshoe prior distribution.
+The horseshoe prior distribution is a scale-mixture of normal distributions that can approximate a discrete mixture in sparse situations, as well as adapt to the level of sparsity.
 
+Modeling time-varying parameters with structural breaks with scale-mixtures of normals is an approach that has favorable properties both in terms of its flexibility, ease of implementation, and computational efficiency.
 \begin{itemize}
-\item This paper does not require an \textit{ex ante} specification of
-  the number of structural breaks. 
-  The number of structural breaks can be estimated from the data.
-  And unlike some structural break methods which estimate the number of change points, is is comparatively straight forward.
-\item This method nests both smoothly time-varying parameters and
-  structural break models.There are several reasons to use continuous
-  distributions to model time-varying parameters possibly with
-  structural breaks.  In the case of truly sparse data, discrete
-  mixtures are computationally inefficient.  And in the case of
-  non-sparse change-points, the discrete mixture is unnecessary.
-\item This method is flexible.  This is a special case of a normal
-  dynamic linear models
-  (DLM) \parencites{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
-  DLMs are flexible class of models that include linear regressions
-  and ARIMA models.
-\item Moreover for the case in which $\epsilon_{t}$ and $\eta_{t}$ are distributed normal, there are computationally efficient methods both to maximize the likelihood of (Kalman Filter) and to sample from (Forward-filter backward sample) \eqref{eq:8}.
+\item The researcher to \textit{ex ante} specification the number of structural breaks. 
+  The number of structural breaks, which is implied by the sparsity of the $\eta$ parameters, can be estimated from the data.
+\item 
+\item This method is flexible.
+  This is a special case of a conditional gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
+  DLMs are a class of models that include regression, stochastic volatility, and ARIMA models.
+  The structural break method presented here can easily be adapted to model changes in multiple parameters, seasonal effects, slopes, and variance.
+\item It is convenient to independently model changes in multiple parameters, a situation which would cause an explosion in the number of states in discrete state space framework (Hidden Markov).
+\item Since the horseshoe prior distribution is hierarchical distribution formed from normal and Cauchy distributions, this model can easily be specified in general purpose Bayesian software (BUGS, Stan, etc.), even though that is not the most efficient method of estimating it.
+\item Since this model is a CGDLM, there exist computionally  efficient methods of maximizing (Kalman Filter), and sampling (Forward-filter backward sample) from it.
+  Additionally, as a CGDLM there are even methods for estimating it online (sequential importance sampling methods).
 \end{itemize}
 
 \section{Dynamic Linear Model}
@@ -92,7 +99,7 @@ First, $\eta_{t}$ is likely sparse; in most time periods, the change in $\alpha$
 Second, $\eta_{t}$ may be large; there are occasionally quite large jumps in $\alpha$.
 In other words, processes (at least those encountered in political science) are likely to be stable or slowly varying for most periods, but with occasionally dramatic changes at key events \parencite{RatkovicEng2010}.
 
-In the Bayesian literature, there are two main approaches to esimating time-varying parameters: discrete mixtures (Hidden Markov Models for change-points), and shrinkage (dynamic linear models).
+In the Bayesian literature, there are two main approaches to estimating time-varying parameters: discrete mixtures (Hidden Markov Models for change-points), and shrinkage (dynamic linear models).
 The approach in this paper is to use a shrinkage approach with scale-mixtures of normal distributions that are able to handle both sparsity and jumps.
 
 The first approach are selection approaches, in which the estimation technique selects which $\eta_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
