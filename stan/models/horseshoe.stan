@@ -9,22 +9,22 @@ data {
 }
 parameters {
   // latent states
-  real theta_innov[n_time];
+  real theta_innov[n_obs];
   // measurement error
   real logsigma;
   // system error
-  real<lower=0.0> lambda[n_time -1];
+  real<lower=0.0> lambda[n_obs -1];
   real<lower=0.0> tau;
 }
 transformed parameters {
   real<lower=0.0> sigma;
-  real theta[n_time];
+  real theta[n_obs];
   real yhat[n_obs];
 
   sigma <- exp(logsigma);
 
   theta[1] <- theta1_mean + theta1_sd * theta_innov[1];
-  for (i in 2:n_nobs) {
+  for (i in 2:n_obs) {
     theta[i] <- theta[i-1] + lambda[i-1] * tau * sigma * theta_innov[i];
   }
 }
@@ -45,9 +45,11 @@ generated quantities {
   }
   deviance <- -2 * sum(llik);
   {
+    real sigma2;
+    sigma2 <- pow(sigma, 2.0);
     kappa[1] <- sigma2 / (sigma2 + pow(theta1_sd, 2));
     for (i in 2:n_obs) {
-      kappa[i] <- sigma2 / (sigma2 + pow(lambda[i - 1], 2) * pow(tau, 2));
+      kappa[i] <- 1 / (1 + pow(lambda[i - 1], 2) * pow(tau, 2));
     }
   }
 }
