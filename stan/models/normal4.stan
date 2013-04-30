@@ -1,3 +1,4 @@
+// normal dlm. local level + 
 data {
   // number of observations
   int n_obs;
@@ -10,42 +11,39 @@ data {
   // initial values
   real theta1_mean;
   real<lower=0.0> theta1_sd;
+  // interventions
+  real x[n_obs];
 }
 parameters {
   // latent states
   real theta_innov[n_time];
-  // measurement error
   real logsigma;
-  // system error
-  real<lower=0.0> lambda[n_time -1];
   real<lower=0.0> tau;
+  real beta;
 }
 transformed parameters {
   real<lower=0.0> sigma;
   real theta[n_time];
   real yhat[n_obs];
-
   sigma <- exp(logsigma);
 
   theta[1] <- theta1_mean + theta1_sd * theta_innov[1];
   for (i in 2:n_time) {
-    theta[i] <- theta[i-1] + lambda[i-1] * tau * theta_innov[i];
+    theta[i] <- theta[i-1] + tau * theta_innov[i];
   }
   for (i in 1:n_obs) {
-    yhat[i] <- theta[y_time[i]];
+    yhat[i] <- theta[y_time[i]] + beta * x[i];
   }
 }
 model {
   theta_innov ~ normal(0.0, 1.0);
-  // half-cauchy since lambda > 0.
-  lambda ~ cauchy(0.0, 1.0);
   tau ~ cauchy(0.0, sigma);
   y ~ normal(yhat, sigma);
 }
 generated quantities {
   real llik[n_obs];
   real deviance;
-
+  
   for (i in 1:n_obs) {
     llik[i] <- normal_log(y[i], yhat[i], sigma);
   }

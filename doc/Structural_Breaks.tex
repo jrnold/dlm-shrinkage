@@ -183,9 +183,10 @@ I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ a
 \subsection{Identifying Structural Breaks}
 \label{sec:ident-struct-breaks}
 
-One of the advantages of the horseshoe prior distribution over other shrinkage distributions is that there is a simple thresholding rule that can be used to identify signals, which in this application are structural breaks.
+One of the advantages of the horseshoe prior distribution over other shrinkage distributions is that there is a simple thresholding rule that can be used to identify structural breaks.
 
-For the discrete mixture model in equation \eqref{eq:1}, the posterior mean is $E(\eta_{t} | y, \alpha_{t-1}) = p_{t} E(g(\eta_{t}))$, where $p_{t}$ is the posterior inclusion probability of $\eta_{t}$.
+Let $\Delta \alpha_{t} = \alpha_{t} - \alpha_{t - 1}$ and $e_{t} = y_{t} - \alpha_{t - 1}$, 
+For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean is $E(\Delta \alpha_{t}) \approx p_{t} e_{t} $, where $p_{t}$ is the posterior inclusion probability of $\eta_{t}$.
 For a sufficiently heavy tailed $g$, that posterior mean is approximately $p_{i} e_{i}$.
 Note that not only do $p_{t}$ determine whether $\eta_{t}$ should be classified as a signal or noise, they also determine how much $e_{t}$ should be shrunk to 0 when estimating $\eta_{t}$.
 
@@ -195,25 +196,31 @@ Let $\kappa_{t}$ be a shrinkage parameter, defined as
   \label{eq:3}
   \kappa_{t} = \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}} \text{.}
 \end{equation}
-and let $\Delta \alpha_{t} = \alpha_{t} - \alpha_{t - 1}$ and $e_{t} = y_{t} - \alpha_{t - 1}$, 
+When $\kappa_{t} \approx 0$, the change in $\alpha$ is approximately $y_{t} - \alpha_{t-1}$.
+When $\kappa_{t} \approx 1$, the change in $\alpha \approx 0$.
+
+The expected value of $\eta_{t}$ is,
 \begin{equation}
   \label{eq:10}
   E(\eta_{t} | \alpha_{t - 1}, \sigma, \tau, \lambda_{t}) = e_{t}
   \left(
     1 - \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}}
-  \right)  = 1 - E(\kappa_{i} | .) e_{i}
+  \right)  = \hat \kappa_{t} e_{i}
 \end{equation}
-When $\kappa_{t} \approx 0$, the change in $\alpha$ is approximately $y_{t} - \alpha_{t-1}$.
-When $\kappa_{t} \approx 1$, the change in $\alpha \approx 0$.
-
 Thus the quantity $1 - \hat \kappa_{t}$ behaves similarly to $p_{t}$ in the discrete mixture.
+
 And in the case of the horseshoe prior distribution, $1 - \hat \kappa_{t} \approx p_{t}$ \parencite[474]{CarvalhoPolsonScott2010}.
-Thus, Carvallho \textit{et al.} recommend the following  decision rule under a 0-1 decision rule as to whether an observation is a signal,
+Thus, \textcite{CarvalhoPolsonScott2010} recommend the following  decision rule under a 0-1 decision rule as to whether an observation is a signal,
 \begin{equation}
   \label{eq:5}
   \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
 \end{equation}
 If a strict decision rule is needed to determine whether an obervation is a structural break is needed, equation \eqref{eq:5} can be used.
+
+\section{Monte Carlo}
+\label{sec:monte-carlo}
+
+This paper probably needs a monte carlo.
 
 \section{Examples}
 \label{sec:examples}
@@ -225,13 +232,6 @@ The first example of change-point detection is a classic datset in the state-spa
 The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970. 
 It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
 
-\subsection{CP6 Data}
-\label{sec:cp6-data}
-
-
-
-\subsection{Coal Mine Data}
-\label{sec:coal-mine-data}
 
 
 

@@ -17,3 +17,11 @@ auto
 /rdata/nile_normal2
 /stan/models/normal3
 /stan/models/poisson_hp
+/rdata/mcmcdb_coal
+/rdata/mcmcdb_coal2
+/rdata/mcmcdb_nile_hs
+/rdata/mcmcdb_nile_normal
+/rdata/mcmcdb_nile_normal2
+/stan/models/horseshoe_poisson
+/stan/models/normal4
+/stan/models/normal_poisson
