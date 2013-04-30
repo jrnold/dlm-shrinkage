@@ -1,3 +1,11 @@
+.. Scale Mixture Normal DLMs documentation master file, created by
+   sphinx-quickstart on Tue Apr 30 19:12:31 2013.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Scale Mixture Normal DLMs's documentation!
+=====================================================
+
 Classic Data Sets
 ==================
 
@@ -16,7 +24,6 @@ Classic data sets from the state space and time series literature.
 
 Comparison
 =============
-
 
 Ratkovic
 
@@ -71,4 +78,12 @@ the observation and the prior. Let :math:`\lambda = \frac{\psi^{-2}}{\psi^{-2} +
 
    E(\Delta \mu_t | y, .) &= e_t + \lambda(0 - e_t) \\
    &= (1 - \lambda) e_t
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 

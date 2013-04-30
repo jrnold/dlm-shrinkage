@@ -2,7 +2,7 @@
 DIR = .
 STAN_HOME = $(HOME)/local/stan/stan-src-1.3.0
 # Extension name for compiled objects
-EXE =
+EXE = .stanx
 
 # Compiler to use
 CC = g++
