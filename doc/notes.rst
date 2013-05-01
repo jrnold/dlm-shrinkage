@@ -62,6 +62,7 @@ In the special case :math:`\mu_0 = 0, \bar y = y, n = 1`,
 
    \mu | y \sim N \left( \frac{1}{\sigma_0^{-2} + 1} y, \frac{1}{\sigma_0^{-2} + 1}\sigma^2 \right)
 
+
 Scale-Mixture of Normal Distributions
 =======================================
 
