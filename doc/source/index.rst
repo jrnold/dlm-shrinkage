@@ -87,6 +87,26 @@ In the case that :math:`\mu_0 = 0` (shrinkage prior),
 
 Thus :math:`\lambda` is a shrinkage parameter. When :math:`\lambda \to 1`, :math:`E(\mu|y) \to 0` and when :math:`\lambda \to 0`, :math:`E(\mu|y) \to \bar{y}`.
 
+Identifying Structural Breaks
+==============================
+
+Structural breaks / outliers can be identified in three ways.
+
+Given that the parameter is 
+
+.. math::
+   
+   \eta_t \sim N(0, \tau \lambda_t)
+
+1. With respect to the mixture model, e.g. as in Carvalho et. al. This 
+   is problematic in hiearchical parameters.
+2. As in Petris et al., if :math:`\lambda_t = 1` then :math:`\eta_t` is 
+   distributed normal. when :math:`\lambda_t > 1` then the parameter is 
+   over-distributed. i.e. an outlier. However, Petris et al do not consider 
+   under distributed values.
+3. Similar to Petris / Petrone. However, calculate the probability of the 
+   parameter if it were distributed normal, without the mixture term.
+   :math:`N(0, \tau)`.
 
 Indices and tables
 ==================
