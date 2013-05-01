@@ -9,3 +9,4 @@ auto
 /rdata/*
 *.stanx
 /doc/build/
+*-blx.bib
