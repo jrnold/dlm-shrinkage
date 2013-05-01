@@ -28,7 +28,7 @@ transformed parameters {
 
   theta[1] <- theta1_mean + theta1_sd * theta_innov[1];
   for (t in 2:n_obs) {
-    theta[t] <- theta[t - 1] + tau * theta_innov[t];
+    theta[t] <- theta[t - 1] + sigma * tau * theta_innov[t];
   }
   for (t in 1:n_obs) {
     yhat[t] <- theta[t] + beta * x[t];
