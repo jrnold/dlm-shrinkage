@@ -1,60 +1,55 @@
-// local trend model with indepdent HP on level and trend
 data {
   // number of observations
   int n_obs;
-  // number of states
-  int n_time;
   // observed data
   real y[n_obs];
-  // times of observed data
-  int y_time[n_obs];
   // initial values
-  real theta1_mean[2];
-  real<lower=0.0> theta1_sd[2];
+  real theta1_mean;
+  real<lower=0.0> theta1_sd;
+  real<lower=0.0> nu;
 }
 parameters {
   // latent states
-  vector[n_time] theta_innov[2];
+  real theta_innov[n_obs];
   // measurement error
   real logsigma;
   // system error
-  vector<lower=0.0>[n_time - 1] lambda[2];
-  real<lower=0.0> tau[2];
+  real<lower=0.0> lambda[n_obs -1];
+  real<lower=0.0> tau;
 }
 transformed parameters {
   real<lower=0.0> sigma;
-  vector[n_time] theta[2];
-  real yhat[n_obs];
+  real theta[n_obs];
 
   sigma <- exp(logsigma);
 
-  for (i in 1:2) {
-    theta[i, 1] <- theta1_mean[i] + theta1_sd[i] * theta_innov[i, 1];
-  }
-  for (t in 2:n_time) {
-    theta[2, t] <- theta[2, t - 1] + lambda[2, t - 1] * tau[2] * theta_innov[2, t];
-    theta[1, t] <- (theta[1, t - 1] 
-                    + theta[2, t - 1]
-                    + lambda[1, t - 1] * tau[1] * theta_innov[1, t]);
-  }
-  for (i in 1:n_obs) {
-    yhat[i] <- theta[1, y_time[i]];
+  theta[1] <- theta1_mean + theta1_sd * theta_innov[1];
+  for (i in 2:n_obs) {
+    theta[i] <- theta[i-1] + lambda[i-1] * tau * sigma * theta_innov[i];
   }
 }
 model {
-  for (i in 1:2) {
-    theta_innov[i] ~ normal(0.0, 1.0);
-    lambda[i] ~ cauchy(0.0, 1.0);
-  }
-  tau ~ cauchy(0.0, sigma);
-  y ~ normal(yhat, sigma);
+  theta_innov ~ normal(0.0, 1.0);
+  // half-cauchy since lambda > 0.
+  lambda ~ cauchy(0.0, 1.0);
+  tau ~ cauchy(0.0, 1.0);
+  y ~ student_t(nu, theta, sigma);
 }
 generated quantities {
   real llik[n_obs];
   real deviance;
+  real kappa[n_obs];
 
   for (i in 1:n_obs) {
-    llik[i] <- normal_log(y[i], yhat[i], sigma);
+    llik[i] <- student_t_log(y[i], nu, theta[i], sigma);
   }
   deviance <- -2 * sum(llik);
+  {
+    real sigma2;
+    sigma2 <- pow(sigma, 2.0);
+    kappa[1] <- sigma2 / (sigma2 + pow(theta1_sd, 2));
+    for (i in 2:n_obs) {
+      kappa[i] <- 1 / (1 + pow(lambda[i - 1], 2) * pow(tau, 2));
+    }
+  }
 }

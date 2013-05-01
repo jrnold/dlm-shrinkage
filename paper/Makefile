@@ -1,0 +1,17 @@
+SRC = Structural_Breaks.tex
+BIBFILE = $(HOME)/texmf/bibtex/bib/default.bib
+JABREF = jabref
+BIBTEX = bibtex8
+LATEX = pdflatex
+
+obj = $(SRC:%.tex=%.pdf)
+auxfile = $(SRC:%.tex=%.aux)
+plots = $(wildcard plots/*.pdf)
+
+$(obj): $(SRC) $(plots) $(BIBFILE)
+	$(LATEX) $^
+	$(JABREF) -n -a $(auxfile),local.bib $(BIBFILE)
+	$(BIBTEX) $(auxfile)
+	$(LATEX) $^
+	$(LATEX) $^
+

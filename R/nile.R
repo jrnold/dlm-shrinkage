@@ -2,9 +2,9 @@ library(stanmisc)
 library(mcmcdb)
 data(Nile)
 
-model_hs <- "../stan/models/horseshoe"
-model_normal <- "../stan/models/normal"
-model_normal4 <- "../stan/models/normal4"
+model_hs <- "../stan/models/horseshoe.stanx"
+model_normal <- "../stan/models/normal.stanx"
+model_normal4 <- "../stan/models/normal4.stanx"
 
 SEED <- c(64425843)
 ITER <- 2^16
@@ -14,9 +14,7 @@ THIN <- (ITER - WARMUP) / NSAMPLES
 
 nile <- as.numeric(Nile)
 nile_data <- list(n_obs = length(nile),
-                  n_time = length(nile),
                   y = nile,
-                  y_time = seq_along(nile),
                   x = c(rep(0, 27), rep(1, length(nile) - 27)),
                   theta1_mean = nile[1],
                   theta1_sd = sd(nile))
