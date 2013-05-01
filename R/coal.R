@@ -1,6 +1,3 @@
-library(plyr)
-library(boot)
-
 model_hs <- "../stan/models/horseshoe_poisson"
 
 SEED <- c(64425843)

@@ -1,5 +1,4 @@
 # Summaries of the Nile models
-
 modelk <- c("normal", "normal2", "hs")
 models <- sprintf("mcmcdb_nile_%s", modelk)
                   
@@ -66,7 +65,7 @@ summary_mcmcdb_nile_hs <- function(object, y) {
 }
 
 summaries <- 
-j  llply(models,
+  llply(models,
         function(k, y) {
           get(sprintf("summary_%s", k))(RDATA[[k]], y)
         }, y = nile$flow)

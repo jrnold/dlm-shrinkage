@@ -1,5 +1,3 @@
-library(stanmisc)
-library(mcmcdb)
 data(Nile)
 
 model_hs <- "../stan/models/horseshoe.stanx"

@@ -1,6 +1,3 @@
-library(stanmisc)
-library(mcmcdb)
-
 model_hs <- "../stan/models/horseshoe.stanx"
 model_hs2 <- "../stan/models/horseshoe2.stanx"
 model_hs3 <- "../stan/models/horseshoe3.stanx"
