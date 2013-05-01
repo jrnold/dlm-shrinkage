@@ -6,6 +6,7 @@ data {
   // initial values
   real theta1_mean;
   real<lower=0.0> theta1_sd;
+  real<lower=0.0> nu_mean;
 }
 parameters {
   // latent states
@@ -15,6 +16,7 @@ parameters {
   // system error
   real<lower=0.0> lambda[n_obs -1];
   real<lower=0.0> tau;
+  real<lower=0.0> nu;
 }
 transformed parameters {
   real<lower=0.0> sigma;
@@ -32,7 +34,8 @@ model {
   // half-cauchy since lambda > 0.
   lambda ~ cauchy(0.0, 1.0);
   tau ~ cauchy(0.0, 1.0);
-  y ~ normal(theta, sigma);
+  nu ~ exponential(1 / nu_mean);
+  y ~ student_t(nu, theta, sigma);
 }
 generated quantities {
   real llik[n_obs];
@@ -40,7 +43,7 @@ generated quantities {
   real kappa[n_obs];
 
   for (i in 1:n_obs) {
-    llik[i] <- normal_log(y[i], theta[i], sigma);
+    llik[i] <- student_t_log(y[i], nu, theta[i], sigma);
   }
   deviance <- -2 * sum(llik);
   {

@@ -88,16 +88,19 @@ and \eqref{eq:4} is the prior distribution.
 The parameters $\theta_{t}$ are the latent states, which in this case are the means of $y_{t}$.
 The parameters $\eta_{t}$ are called the \textit{innovations}.
 
-The inference problem in \eqref{eq:8} is to estimate the values of $\theta_{t}$ for all time periods.
-These values of $\theta_{t}$ are determined by the initial values $\theta_{1}$ and the sum of the innovations $\sum_{s=1}^{t} \eta_{s}$.
-Thus, estimating $\theta_{t}$ is equivalent to the problem of estimating $\eta_{t}$.
-Since the number of $\eta$ parameters is equal to the number of data points ($y$), this problem can be seen as a case of the ``large-p'' problem, and some sort of dimension reduction or regularization is needed to estimate the values of and $\eta$, and thus $\theta$.
-
 Assumptions about this regularization through the choice of the prior distribution of $\eta$.
 There are two features for which any prior of $\eta$ must account.
 First, $\eta_{t}$ is likely sparse; in most time periods, the change in $\theta$ is (close-to) zero.
 Second, $\eta_{t}$ may be large; there are occasionally quite large jumps in $\theta$.
 In other words, processes (at least those encountered in political science) are likely to be stable or slowly varying for most periods, but with occasionally dramatic changes at key events \parencite{RatkovicEng2010}.
+
+\subsection{Discrete Mixture Distribution}
+\label{sec:discr-mixt-distr}
+
+The inference problem in \eqref{eq:8} is to estimate the values of $\theta_{t}$ for all time periods.
+These values of $\theta_{t}$ are determined by the initial values $\theta_{1}$ and the sum of the innovations $\sum_{s=1}^{t} \eta_{s}$.
+Thus, estimating $\theta_{t}$ is equivalent to the problem of estimating $\eta_{t}$.
+Since the number of $\eta$ parameters is equal to the number of data points ($y$), this problem can be seen as a case of the ``large-p'' problem, and some sort of dimension reduction or regularization is needed to estimate the values of and $\eta$, and thus $\theta$.
 
 In the Bayesian literature, there are two main approaches to estimating time-varying parameters: discrete mixtures (Hidden Markov Models for change-points), and shrinkage (dynamic linear models).
 The approach in this paper is to use a shrinkage approach with scale-mixtures of normal distributions that are able to handle both sparsity and jumps.
@@ -110,6 +113,9 @@ However, this approach can also be represented within the continuous state-space
   \eta_{t} \sim p g(\eta_{t}) + (1 - p) \delta_{0} \text{,}
 \end{equation}
 where $p$ is the prior probability of a structural break (change-point), and $g(\eta_{t})$ is the distribution of the change in $\theta$ if there is a structural break.
+
+\subsection{Shrinkage}
+\label{sec:shrinkage}
 
 The shrinkage approach in estimating time-varying approach is to penalize large values of $\eta_{t}$. 
 The predominant example of this approach is the normal dynamic linear model, in which the $\eta_{t}$ are distributed i.i.d. normal,
@@ -131,7 +137,7 @@ Since many computationally efficient forms of maximization and sampling of the d
 \begin{equation}
   \label{eq:6}
   \begin{aligned}[t]
-    \eta_{t} | \tau^{2}, \lambda^{2} & \sim N(0, \tau^{2} \lambda_{t}^{2}) \\
+    \eta_{t} | \tau^{2}, \lambda^{2} & \sim N(0, \sigma^{2} \lambda^{2}) \\
     \lambda_{t}^{2} & \sim p(\lambda^{2}_{t})
   \end{aligned}
 \end{equation}
@@ -177,7 +183,7 @@ I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ a
   \label{eq:9}
   p(\sigma^{2}) & \frac{1}{\sigma^{2}}  \\
   \label{eq:11}
-  \tau &\sim C^{+}(0, \sigma) \text{.}
+  \tau &\sim C^{+}(0, 1) \text{.}
 \end{align}
 
 \subsection{Identifying Structural Breaks}
@@ -231,6 +237,9 @@ This paper probably needs a monte carlo.
 The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \textcite{Cobb1978}{Balke1993}{DurbinKoopman2012}
 The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970. 
 It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
+
+\subsection{CP6 Sales Data}
+\label{sec:cp6-sales-data}
 
 
 
