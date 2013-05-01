@@ -8,7 +8,12 @@ obj = $(SRC:%.tex=%.pdf)
 auxfile = $(SRC:%.tex=%.aux)
 plots = $(wildcard plots/*.pdf)
 
-$(obj): $(SRC) $(plots) $(BIBFILE)
+all: $(obj)
+
+makeplots:
+	cd plots; make
+
+$(obj): $(SRC) $(BIBFILE) makeplots
 	$(LATEX) $^
 	$(JABREF) -n -a $(auxfile),local.bib $(BIBFILE)
 	$(BIBTEX) $(auxfile)
