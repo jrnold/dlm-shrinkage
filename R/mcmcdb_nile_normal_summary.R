@@ -1,5 +1,12 @@
+# Summaries of the Nile models
+modelk <- c("normal", "normal2", "hs")
+models <- sprintf("mcmcdb_nile_%s", modelk)
+                  
 data(Nile)
-mcmcdb_nile_normal <- RDATA[["mcmcdb_nile_normal2"]]
+
+nile <-
+  data.frame(year = tsp(Nile)[1]:tsp(Nile)[2],
+             flow = as.numeric(Nile))
 
 disc_mse <- function(y, yrep) {
   ey <- apply(yrep, 1, mean)
@@ -12,24 +19,56 @@ disc_chisq <- function(y, yrep) {
   sum((y - ey)^2 / vy)
 }
 
+summary_mcmcdb_nile_normal <- function(object, y) {
+  f <- function(x) rnorm(length(x$theta), x$theta, x$sigma)
+  yrep <- simplify2array(mcmcdb_samples_iter(object, FUN = f))
+  yhat <- apply(yrep, 1, mean)
+  llik <- object[["llik"]]
+  lppd <- log(apply(exp(object[["llik"]]), 1, mean))
+  waic <- waic(llik)
+  mse <- disc_mse(y, yrep)
+  chisq <- disc_chisq(y, yrep)
+  w <- 1 - mean(1 / (1 + object[["tau"]]))
 
-nile <-
-  data.frame(year = tsp(Nile)[1]:tsp(Nile)[2],
-             flow = as.numeric(Nile))
+  list(yrep = yrep, yhat = yhat, lppd = lppd, waic = waic,
+       chisq = chisq, mse = mse, w = w)
+}
 
-f <- function(x) rnorm(length(x$yhat), x$yhat, x$sigma)
-yrep <- simplify2array(mcmcdb_samples_iter(mcmcdb_nile_normal, FUN = f))
-yhat <- apply(yrep, 1, mean)
+summary_mcmcdb_nile_normal2 <- function(object, y) {
+  f <- function(x) rnorm(length(x$yhat), x$yhat, x$sigma)
+  yrep <- simplify2array(mcmcdb_samples_iter(object, FUN = f))
+  yhat <- apply(yrep, 1, mean)
+  llik <- object[["llik"]]
+  lppd <- log(apply(exp(object[["llik"]]), 1, mean))
+  waic <- waic(llik)
+  mse <- disc_mse(y, yrep)
+  chisq <- disc_chisq(y, yrep)
+  w <- 1 - mean(1 / (1 + object[["tau"]]))
 
-llik <- mcmcdb_nile_normal[["llik"]]
-lppd <- log(apply(exp(mcmcdb_nile_normal[["llik"]]), 1, mean))
-waic <- waic(llik)
-dic <- dic(as.numeric(mcmcdb_nile_normal[["deviance"]]))
+  list(yrep = yrep, yhat = yhat, lppd = lppd, waic = waic,
+       chisq = chisq, mse = mse, w = w)
+}
 
-ggplot(mutate(nile, ymean = yhat), aes(x=year)) + geom_point(aes(y = flow)) + geom_line(aes(y = ymean))
 
-waic(llik)
+summary_mcmcdb_nile_hs <- function(object, y) {
+  f <- function(x) rnorm(length(x$theta), x$theta, x$sigma)
+  yrep <- simplify2array(mcmcdb_samples_iter(object, FUN = f))
+  yhat <- apply(yrep, 1, mean)
+  llik <- object[["llik"]]
+  lppd <- log(apply(exp(object[["llik"]]), 1, mean))
+  waic <- waic(llik)
+  mse <- disc_mse(y, yrep)
+  chisq <- disc_chisq(y, yrep)
+  w <- 1 - apply(object[["kappa"]], 1, mean)
+  list(yrep = yrep, yhat = yhat, lppd = lppd, waic = waic,
+       chisq = chisq, mse = mse, w = w)
+}
 
-mcmcdb_nile_hs <- RDATA[["mcmcdb_nile_hs"]]
+summaries <- 
+  llply(models,
+        function(k, y) {
+          get(sprintf("summary_%s", k))(RDATA[[k]], y)
+        }, y = nile$flow)
+names(summaries) <- modelk
 
-w <- 1 - apply(mcmcdb_nile_hs[["kappa"]], 1, mean)
+RDATA[["summary_nile"]] <- summaries

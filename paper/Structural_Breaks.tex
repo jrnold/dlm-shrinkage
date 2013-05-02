@@ -133,7 +133,7 @@ This results in undersmoothing (overfitting) in periods of relative stability, w
 
 However, as noted before, the problem of estimating $\eta$ is an example of a large-p problem and there are many proposed distributions for shrinkage parameters.
 The class of scale-normal mixtures includes many Bayesian shrinkage priors, such as the student-\textit{t} \parencite{Tipping2001}, double-exponential prior (Bayesian LASSO) \parencites{LiGoel2006}{ParkCasella2008}{Hans2009}, normal-Jeffreys \parencites{FigueiredoMember2003}{BaeMallick2004}, Strawderman-Berger \parencites{Strawderman1971}{Berger1980}, double Pareto \parencite{ArmaganDunsonLee2011},  and normal-exponential-gamma \parencite{BrownGriffin2005}, normal/gamma and normal/inverse-gamma \parencite{CaronDoucet2008}{BrownGriffin2010}.
-Since many computationally efficient forms of maximization and sampling of the dynamic linear model require the errors and innovations be distributed normal, I will focus on a class of shrinkage distributions that are scale mixtures of normal distributions, i.e. each $\eta_{t}$ will be distributed normal, but the variances of these normal distribtions are drawn from a hiearchical distribution.
+Since many computationally efficient forms of maximization and sampling of the dynamic linear model require the errors and innovations be distributed normal, I will focus on a class of shrinkage distributions that are scale mixtures of normal distributions, i.e. each $\eta_{t}$ will be distributed normal, but the variances of these normal distributions are drawn from a hierarchical distribution.
 \begin{equation}
   \label{eq:6}
   \begin{aligned}[t]
@@ -158,7 +158,7 @@ where $C^{+}(0, \gamma)$ is the standard half-Cauchy distribution with support o
 }
 
 The horseshoe prior has two features that make it useful as a shrinkage prior that is robust to structural breaks.
-It has flat Cauchy-like tails and an infinitely tall spike.
+It has flat Cauchy-like tails and an infinitely tall spike at zero.
 The flat tails mean that the structural breaks are not shrunk \textit{a posteriori} and the spike around zero aggressively shrinks non-structural breaks.
 Figure \ref{fig:horseshoe} plots the density of the horseshoe prior distribution against the normal, Cauchy, and Laplacian (Baysian LASSO) distributions.%
 \footnote{
@@ -169,10 +169,10 @@ Figure \ref{fig:horseshoe} plots the density of the horseshoe prior distribution
 \begin{figure}
   \centering
   \begin{subfigure}[b]{0.5\textwidth}
-    \includegraphics{plots/horseshoe1.pdf}
+    \includegraphics{plots/fig-horseshoe1.pdf}
   \end{subfigure}%
   \begin{subfigure}[b]{0.5\textwidth}
-    \includegraphics{plots/horseshoe2.pdf}
+    \includegraphics{plots/fig-horseshoe2.pdf}
   \end{subfigure}
   \caption{The densities of the horseshoe prior, normal, Cauchy, and Laplacian distribution.}
   \label{fig:horseshoe}
@@ -234,9 +234,46 @@ This paper probably needs a monte carlo.
 \subsection{Nile Flow Data}
 \label{sec:nile}
 
-The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \textcite{Cobb1978}{Balke1993}{DurbinKoopman2012}
-The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970. 
+The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \textcite{Cobb1978}{Balke1993}{DurbinKoopman2001}{DurbinKoopman2012}
+The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970.
 It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
+
+I compare the estimates of the horseshoe prior model with that of a normal distribution, and a normal distribution with an intervention in 1899.
+
+Figure \ref{fig:nile1} plots the original data, and the mean of the posterior predicted data of the horseshoe prior model and the dynamic linear model.
+The horseshoe prior model shows a clear break and stability in the mean before and after the break.
+The normal model also adjusts to the structural break, but smooths over the break showing a lower mean in the years leading up to it, and higher mean in the years after it.
+The necessity of including local shrinkage parameters in addition to a global shrinkage parameter is apparent in the estimated mean of the normal model.
+In order to incorporate the structural break, the variance parameter had to be increased.
+However, increasing the variance does not shrink the other estimates as much, and thus estimates of the mean in the normal model are more variable than those of the horseshoe prior before and after the structural break.
+
+Figure \ref{fig:nile2} plots the horseshoe prior model and a normal distribution model with an intervention in 1899.
+The horseshoe prior model's posterior mean estimates closely match those of the intervention model, without any \textit{ex ante} knowledge of the presence of the structural break.
+The Nile model is an easy case in that the series (although it has a fairly low signal to  noise ratio) is simple to interpret, with a clear break, and the event is apparent, so it is fairly obvious that an intervention should be included.
+However, in many applications, the presence of the structural break will not be known, and in fact estimating the presence and location of the structural breaks will be the purpose of the application.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-nile1.pdf}  
+  \caption{Nile Graph}
+  \label{fig:nile1}
+
+  \includegraphics{plots/fig-nile2.pdf}
+  \caption{Nile Graph}
+  \label{fig:nile2}
+\end{figure}
+
+Figure \ref{fig:nile_w} plots the value of the probability of the structural break, as described in section ???.
+As expected, only the year 1899 has a structural break probability greater than 0.5.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-nile_w.pdf}
+  \caption{Plot of estimated probability of a structural break, calculated as $w_{i} = 1 - E(\hat{\kappa})$}
+  \label{fig:nile_w}
+\end{figure}
+
+
 
 \subsection{CP6 Sales Data}
 \label{sec:cp6-sales-data}
