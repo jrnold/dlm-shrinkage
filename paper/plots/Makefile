@@ -1,9 +1,8 @@
-SRC = horseshoe1.pdf horseshoe2.pdf
-PDF = $(SRC:%.R=%.pdf)
+PLOTS = $(patsubst %.R,%.pdf,$(wildcard fig-*.R))
 RSCRIPT = Rscript
 
-all: $(SRC)
+all: $(PLOTS)
 
-%.pdf: %.R
-	$(RSCRIPT) $^
+fig-%.pdf: fig-%.R conf.R
+	$(RSCRIPT) $< $@
 
