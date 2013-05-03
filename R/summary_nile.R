@@ -26,9 +26,7 @@ summary_mcmcdb_nile_normal <- function(object, y) {
   mse <- disc_mse(y, yrep)
   chisq <- disc_chisq(y, yrep)
   w <- 1 - mean(1 / (1 + object[["tau"]]))
-  errors <-
-    simplify2array(mcmcdb_samples_iter(object,
-                                       FUN = function(x) y - x$theta))
+  errors <- apply(object[["theta"]], 2, `-`, y = y)
   innovations <- apply(object[["theta"]], 2, diff)
   list(yrep = yrep, yhat = yhat, lppd = lppd, waic = waic,
        chisq = chisq, mse = mse, w = w,
@@ -45,9 +43,7 @@ summary_mcmcdb_nile_normal2 <- function(object, y) {
   mse <- disc_mse(y, yrep)
   chisq <- disc_chisq(y, yrep)
   w <- 1 - mean(1 / (1 + object[["tau"]]))
-  errors <-
-    simplify2array(mcmcdb_samples_iter(object,
-                                       FUN = function(x) y - x$theta))
+  errors <- apply(object[["yhat"]], 2, `-`, y = y)
   innovations <- apply(object[["theta"]], 2, diff)
   list(yrep = yrep, yhat = yhat, lppd = lppd, waic = waic,
        chisq = chisq, mse = mse, w = w,
@@ -65,9 +61,7 @@ summary_mcmcdb_nile_hs <- function(object, y) {
   mse <- disc_mse(y, yrep)
   chisq <- disc_chisq(y, yrep)
   w <- 1 - apply(object[["kappa"]], 1, mean)
-  errors <-
-    simplify2array(mcmcdb_samples_iter(object,
-                                       FUN = function(x) y - x$theta))
+  errors <- apply(object[["theta"]], 2, `-`, y = y)
   innovations <- apply(object[["theta"]], 2, diff)
   list(yrep = yrep, yhat = yhat, lppd = lppd, waic = waic,
        chisq = chisq, mse = mse, w = w,

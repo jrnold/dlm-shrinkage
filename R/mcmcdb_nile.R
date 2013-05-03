@@ -1,4 +1,5 @@
 data(Nile)
+nile <- RDATA[["nile"]]
 
 model_hs <- "../stan/models/horseshoe.stanx"
 model_normal <- "../stan/models/normal.stanx"
@@ -10,7 +11,6 @@ WARMUP <- 2^14
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
 
-nile <- as.numeric(Nile)
 nile_data <- list(n_obs = length(nile),
                   y = nile,
                   x = c(rep(0, 28), rep(1, length(nile) - 28)),
