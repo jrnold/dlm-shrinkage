@@ -11,3 +11,4 @@ auto
 /doc/build/
 *-blx.bib
 R/library/
+R/*.tar.gz
