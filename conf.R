@@ -1,3 +1,5 @@
+.libPaths("./R/library")
+
 suppressPackageStartupMessages({
   library("filehash")
   library("plyr")
