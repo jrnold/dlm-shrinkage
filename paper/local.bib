@@ -74,6 +74,27 @@
   timestamp = {2013.04.24}
 }
 
+@UNPUBLISHED{Blackwell2012,
+  author = {Matthew Blackwell},
+  title = {Game-changers: Detecting shifts in the Flow of campaign contributions},
+  year = {2012},
+  date = {2012-10-23},
+  url = {http://www.mattblackwell.org/files/papers/gamechangers.pdf},
+  abstract = {In this paper, I introduce a Bayesian model for detecting changepoints
+	in a time-series of contributions to candidates over the course of
+	a campaign. this game-changers model is ideal for campaign contributions
+	data because it allows for overdispersion, a key feature of contributions
+	data. Furthermore, while many extant changepoint models force researchers
+	to choose the number of changepoint ex ante, the game-changers model
+	incorporates a Dirichlet process prior in order to estimate the number
+	of changepoints along with their location. I demonstrate the usefulness
+	of the model in data from the the Republican primary and the U.S.
+	Senate elections.},
+  owner = {jeff},
+  quality = {1},
+  timestamp = {2013.05.03}
+}
+
 @REPORT{BrownGriffin2005,
   author = {Philip J. Brown and Jim E. Griffin},
   title = {Alternative Prior Distributions for Variable Selection with Very
@@ -179,6 +200,35 @@
   timestamp = {2013.03.01}
 }
 
+@ARTICLE{Chib1998,
+  author = {Siddhartha Chib},
+  title = {Estimation and comparison of multiple change-point models},
+  year = {1998},
+  volume = {86},
+  number = {2},
+  pages = {221 - 241},
+  issn = {0304-4076},
+  doi = {DOI: 10.1016/S0304-4076(97)00115-2},
+  url = {http://www.sciencedirect.com/science/article/B6VC0-3VM1XM5-2/2/469ee3cba827365611dee3677f0babc6},
+  abstract = { This paper provides a new Bayesian approach for models with multiple
+	change points. The centerpiece of the approach is a formulation of
+	the change-point model in terms of a latent discrete state variable
+	that indicates the regime from which a particular observation has
+	been drawn. This state variable is specified to evolve according
+	to a discrete-time discrete-state Markov process with the transition
+	probabilities constrained so that the state variable can either stay
+	at the current value or jump to the next higher value. This parameterization
+	exactly reproduces the change point model. The model is estimated
+	by Markov chain Monte Carlo methods using an approach that is based
+	on Chib (1996). This methodology is quite valuable since it allows
+	for the fitting of more complex change point models than was possible
+	before. Methods for the computation of Bayes factors are also developed.
+	All the techniques are illustrated using simulated and real data
+	sets.},
+  journal = {Journal of Econometrics},
+  owner = {jrnold}
+}
+
 @ARTICLE{Cobb1978,
   author = {Cobb, George W.},
   title = {The problem of the Nile: Conditional solution to a changepoint problem},
@@ -215,16 +265,58 @@
   owner = {jrnold}
 }
 
-@BOOK{DurbinKoopman2012,
-  author = {Durbin, J. and Koopman, S.J.},
-  title = {Time Series Analysis by State Space Methods: Second Edition},
-  year = {2012},
-  series = {Oxford Statistical Science Series},
-  publisher = {OUP Oxford},
-  isbn = {9780199641178},
-  url = {http://books.google.com/books?id=fOq39Zh0olQC},
-  lccn = {2011945385},
+@ARTICLE{CommandeurKoopmanOoms2011,
+  author = {Jacques J. F. Commandeur and Siem Jan Koopman and Marius Ooms},
+  title = {Statistical Software for State Space Methods},
+  year = {2011},
+  volume = {41},
+  number = {1},
+  month = {5},
+  pages = {1--18},
+  issn = {1548-7660},
+  url = {http://www.jstatsoft.org/v41/i01},
+  abstract = {In this paper we review the state space approach to time series analysis
+	and establish the notation that is adopted in this special volume
+	of the Journal of Statistical Software. We first provide some background
+	on the history of state space methods for the analysis of time series.
+	This is followed by a concise overview of linear Gaussian state space
+	analysis including the modelling framework and appropriate estimation
+	methods. We discuss the important class of unobserved component models
+	which incorporate a trend, a seasonal, a cycle, and fixed explanatory
+	and intervention variables for the univariate and multivariate analysis
+	of time series. We continue the discussion by presenting methods
+	for the computation of different estimates for the unobserved state
+	vector: filtering, prediction, and smoothing. Estimation approaches
+	for the other parameters in the model are also considered. Next,
+	we discuss how the estimation procedures can be used for constructing
+	confidence intervals, detecting outlier observations and structural
+	breaks, and testing model assumptions of residual independence, homoscedasticity,
+	and normality. We then show how ARIMA and ARIMA components models
+	fit in the state space framework to time series analysis. We also
+	provide a basic introduction for non-Gaussian state space models.
+	Finally, we present an overview of the software tools currently available
+	for the analysis of time series with state space methods as they
+	are discussed in the other contributions to this special volume.},
+  accepted = {2010-12-20},
+  bibdate = {2010-12-20},
+  coden = {JSSOBK},
+  day = {12},
+  journal = {Journal of Statistical Software},
   owner = {jrnold},
+  submitted = {2009-08-22},
+  timestamp = {2013.01.21}
+}
+
+@BOOK{DurbinKoopman2001,
+  author = {Durbin, J. and Koopman, S.S.J.},
+  title = {Time Series Analysis by State Space Methods},
+  year = {2001},
+  series = {Oxford statistical sciences series},
+  publisher = {Oxford University Press, Incorporated},
+  isbn = {9780198523543},
+  url = {http://books.google.com/books?id=XRCu5iSz\_HwC},
+  lccn = {00054845},
+  owner = {jeff},
   timestamp = {2013.04.22}
 }
 
@@ -258,6 +350,23 @@
   journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
   owner = {jrnold},
   timestamp = {2013.04.24}
+}
+
+@ARTICLE{Gelman2013,
+  author = {Gelman, Andrew},
+  title = {Commentary: P Values and Statistical Practice},
+  year = {2013},
+  volume = {24},
+  number = {1},
+  pages = {69--72
+	
+	10.1097/EDE.0b013e31827886f7},
+  url = {http://journals.lww.com/epidem/Fulltext/2013/01000/Commentary___P_Values_and_Statistical_Practice.10.aspx},
+  __markedentry = {[jeff:6]},
+  journal = {Epidemiology},
+  keywords = {00001648-201301000-00010},
+  owner = {jeff},
+  timestamp = {2013.05.03}
 }
 
 @ARTICLE{GiordaniKohn2008,
@@ -376,6 +485,61 @@
   timestamp = {2013.04.24}
 }
 
+@ARTICLE{Park2011,
+  author = {Park, Jong Hee},
+  title = {Changepoint Analysis of Binary and Ordinal Probit Models: An Application
+	to Bank Rate Policy Under the Interwar Gold Standard},
+  year = {2011},
+  doi = {10.1093/pan/mpr007},
+  eprint = {http://pan.oxfordjournals.org/content/early/2011/03/22/pan.mpr007.full.pdf+html},
+  url = {http://pan.oxfordjournals.org/content/early/2011/03/22/pan.mpr007.abstract},
+  abstract = {In this paper, I introduce changepoint models for binary and ordered
+	time series data based on Chib's hidden Markov model. The extension
+	of the changepoint model to a binary probit model is straightforward
+	in a Bayesian setting. However, detecting parameter breaks from ordered
+	regression models is difficult because ordered time series data often
+	have clustering along the break points. To address this issue, I
+	propose an estimation method that uses the linear regression likelihood
+	function for the sampling of hidden states of the ordinal probit
+	changepoint model. The marginal likelihood method is used to detect
+	the number of hidden regimes. I evaluate the performance of the introduced
+	methods using simulated data and apply the ordinal probit changepoint
+	model to the study of Eichengreen, Watson, and Grossman on violations
+	of the “rules of the game” of the gold standard by the Bank of
+	England during the interwar period.},
+  journal = {Political Analysis},
+  owner = {jrnold}
+}
+
+@ARTICLE{Park2010,
+  author = {Park, Jong Hee},
+  title = {Structural Change in U.S. Presidents' Use of Force},
+  year = {2010},
+  volume = {54},
+  number = {3},
+  pages = {766--782},
+  issn = {1540-5907},
+  doi = {10.1111/j.1540-5907.2010.00459.x},
+  url = {http://dx.doi.org/10.1111/j.1540-5907.2010.00459.x},
+  abstract = {Has there been a structural change in the way U.S. presidents use
+	force abroad since the nineteenth century? In this article, I investigate
+	historical changes in the use of force by U.S. presidents using Bayesian
+	changepoint analysis. In doing so, I present an integrated Bayesian
+	approach for analyzing changepoint problems in a Poisson regression
+	model. To find the nature of the breaks, I estimate parameters of
+	the Poisson regression changepoint model using Chib's (1998) hidden
+	Markov model algorithm and Frühwirth-Schnatter and Wagner's (2006)
+	data augmentation method. Then, I utilize transdimensional Markov
+	chain Monte Carlo methods to detect the number of breaks. Analyzing
+	yearly use of force data from 1890 to 1995, I find that, controlling
+	for the effects of the Great Depression and the two world wars, the
+	relationship between domestic conditions and the frequency of the
+	use of force abroad fundamentally shifted in the 1940s.},
+  journal = {American Journal of Political Science},
+  owner = {jrnold},
+  publisher = {Blackwell Publishing Inc}
+}
+
 @ARTICLE{ParkCasella2008,
   author = {Park, Trevor and Casella, George},
   title = {The Bayesian Lasso},
@@ -487,6 +651,29 @@
   url = {http://books.google.com/books?id=NIhXa6UeF2cC},
   owner = {jrnold},
   timestamp = {2013.02.01}
+}
+
+@ARTICLE{spirling2007bayesian,
+  author = {Spirling, Arthur},
+  title = {Bayesian Approaches for Limited Dependent Variable Change Point Problems},
+  year = {2007},
+  volume = {15},
+  number = {4},
+  pages = {387-405},
+  doi = {10.1093/pan/mpm022},
+  eprint = {http://pan.oxfordjournals.org/content/15/4/387.full.pdf+html},
+  url = {http://pan.oxfordjournals.org/content/15/4/387.abstract},
+  abstract = {Limited dependent variable (LDV) data are common in political science,
+	and political methodologists have given much good advice on dealing
+	with them. We review some methods for LDV “change point problems”
+	and demonstrate the use of Bayesian approaches for count, binary,
+	and duration-type data. Our applications are drawn from American
+	politics, Comparative politics, and International Political Economy.
+	We discuss the tradeoffs both philosophically and computationally.
+	We conclude with possibilities for multiple change point work.},
+  journal = {Political Analysis},
+  owner = {jrnold},
+  timestamp = {2011-04-02}
 }
 
 @ARTICLE{Strawderman1971,

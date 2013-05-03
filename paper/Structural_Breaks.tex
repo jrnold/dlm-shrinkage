@@ -22,13 +22,19 @@
 \newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
 \newcommand{\dnorm}[1]{\ensuremath{\mathcal{N}\paren{#1}}}
 \newcommand{\dmvnorm}[2]{\ensuremath{\mathcal{N}_{#2}\paren{#1}}}
+\newcommand{\dt}[1]{\ensuremath{\mathcal{T}\paren{#1}}}
 \newcommand{\dcauchy}[1]{\ensuremath{\mathcal{C}\paren{#1}}}
 \newcommand{\dhalfcauchy}[1]{\ensuremath{\mathcal{C}^{+}\paren{#1}}}
-\newcommand{\dgamma}[1]{\ensuremath{\mathcal{G}\paren{#1}}}
 \newcommand{\dbeta}[1]{\ensuremath{\mathcal{B}\paren{#1}}}
-
+\newcommand{\dinvbeta}[1]{\ensuremath{\mathcal{IB}\paren{#1}}}
+\newcommand{\dgamma}[1]{\ensuremath{\mathcal{G}\paren{#1}}}
+\newcommand{\dinvgamma}[1]{\ensuremath{\mathcal{IG}\paren{#1}}}
 \newcommand{\R}{\ensuremath{\mathfrak{R}}}
 \newcommand{\RR}{\textsf{R}}
+
+\DeclareMathOperator{\E}{E}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\cov}{cov}
 
 \begin{document}
 
@@ -71,7 +77,7 @@ Modeling time-varying parameters with structural breaks with scale-mixtures of n
 \begin{itemize}
 \item Unlike many existing discrete state-space approaches, the number of change points (or equivalently the sparsity in the changes in the parameters) does not need to be specified \textit{ex ante}, but can be estimated.
 \item This method is flexible.
-  This is a special case of a conditional gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
+  This is a special case of a conditional gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{ShumwayStoffer2010}.
   DLMs are a class of models that include regression, stochastic volatility, and ARIMA models.
   The structural break method presented here can easily be adapted to model changes in multiple parameters, seasonal effects, slopes, and variance.
 \item It is convenient to independently model changes in multiple parameters, a situation which would cause an explosion in the number of states in discrete state space framework (Hidden Markov).
@@ -80,9 +86,7 @@ Modeling time-varying parameters with structural breaks with scale-mixtures of n
 
 \section{State Space Models}
 
-This paper models time-varying parameters within the Bayesian continuous state space approach.
-
-A Dynamic Linear model defined by the set of equations,
+A Dynamic Linear Model (DLM) is defined by the set of equations,
 \begin{align}
   \label{eq:8}
   Y_t &= F_{t} \theta_t + \nu_t & \nu_{t} &\sim \dmvnorm{0, V_{t}}{m} \\
@@ -97,52 +101,77 @@ equation \eqref{eq:14} is called the \textit{system equation},
 and \eqref{eq:4} is the prior distribution on the initial state.
 I will refer to $\nu_{t}$ as \textit{errors}, and and $\omega_{t}$ as \textit{innovations}.
 DLMs nest a large number of common models, including ARIMA, stochastic volatility, (time-varying parameter) regressions,
-and cubic splines.
+and cubic splines \parencites{WestHarrison1997}{DurbinKoopman2001}{ShumwayStoffer2010}{CommandeurKoopman2007}.%
+\footnote{See \textcite{CommandeurKoopmanOoms2011} for a review of statistical software to estimate state space models.}
 
-By nesting this method within the DLM framework, this method will inherit the flexibility of DLMs and it will be easy to extend to a wide variety of models.
-However, for simplicity and clarity in this section, I will consider a special case of the DLMs, a univariate local level model, which assumes a univariate $Y_{t}$, 
-$F_{t} = 1$, and $G_{t} = 1$.
+For, simplicity and clarity in this section, I will consider a special case of the DLMs, a univariate local level model.
+The univariate local level model assumes a univariate $Y_{t}$, $F_{t} = 1$, and $G_{t} = 1$.
 \begin{align}
   \label{eq:15}
   y_t &= \theta_t + \nu_t & \nu_{t} &\sim \dnorm{0, v_{t}} \\
   \label{eq:16}
   \theta_t &= \theta_{t-1} + \omega_{t} & \omega_{t} &\sim \dnorm{0, w_{t}} \\
 \end{align}
-
-Note that in this model, given the initial value $\theta_{0}$, the values of $\theta$ are determined by the distribution of the $\omega$.
+Note that in this model, given the initial value $\theta_{0}$, the values of $\theta$ are determined by the distribution of the $\omega$, which is a distribution over the changes in $\theta$,
 \begin{equation}
   \label{eq:12}
   \Delta \theta_{t} = \omega_{t} \sim \dnorm{0, w_{t}}
 \end{equation}
 where $\Delta \theta_{t} = \theta_{t} - \theta_{t - 1}$.
-Thus, the choice of the distributions of the $\omega$ parameters determines how the parameter $\theta$ can evolve over time.
-Since there are $n$ $\omega$ parameters, some structure must be imposed on the problem to get identifiable parameters.
+Thus, the choice of the distributions of the $\omega$ parameters determines how the parameter $\theta$ can evolve over time.%
+\footnote{Although I only consider Bayesian framework, the choice of prior distribution is equivalent to a choice of a penalty term in maximum likelihood framework \parencite{PolsonScott2010}.}
 
-A common approach is to assume that the innovations have a constant variance over time, $w_{t} = w$  for all $t \in 1:T$, and to estimate $w$.
-Assuming that the $\omega$ are distributed normal effectively penalizes large values in $\omega$ (and thus large changes in $\theta$) due to the thin tails of the normal distribution. 
-This smooths the evolution of $\theta$ over time. 
+A common approach is to assume that the innovations have a constant variance over time, $w_{t} = w$  for all $t \in 1:T$.
+Assuming a normal distribution on $\omega$ penalizes (equivalent to an L2 penalty in regularized regression) large changes in $\omega$ due to the thin tails of the normal distribution.
+This effectively smooths the evolution of $\theta$ over time.
 
-The problem with assuming $\omega_{t} \sim \dnorm{0, w}$ is that it does not incorporate handle sparsity and large values well, two features which are expected in many data generating processes.
-
-The inference problem in \eqref{eq:8} is to estimate the values of $\theta_{t}$ for all time periods.
-These values of $\theta_{t}$ are determined by the initial values $\theta_{1}$ and the sum of the innovations $\sum_{s=1}^{t} \eta_{s}$.
-Thus, estimating $\theta_{t}$ is equivalent to the problem of estimating $\eta_{t}$.
-Since the number of $\eta$ parameters is equal to the number of data points ($y$), this problem can be seen as a case of the ``large-p'' problem, and some sort of dimension reduction or regularization is needed to estimate the values of and $\eta$, and thus $\theta$.
-
-In the Bayesian literature, there are two main approaches to estimating time-varying parameters: discrete mixtures (Hidden Markov Models for change-points), and shrinkage (dynamic linear models).
-The approach in this paper is to use a shrinkage approach with scale-mixtures of normal distributions that are able to handle both sparsity and jumps.
+The problem with assuming $\omega_{t} \sim \dnorm{0, w}$ is that it does not incorporate handle sparsity and large values well, two features which are expected in many data generating processes encounted in political science.
 
 \subsection{Discrete Mixture Distribution}
 \label{sec:discr-mixt-distr}
 
 The first approach are selection approaches, in which the estimation technique selects which $\omega_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
-Models within this approach are usually formulated and estimated as discrete state-space Hidden Markov Models, as in Chib 1998 and extensions thereof (Spirling Park, Koop).
-However, this approach can also be represented within the continuous state-space approach by giving $\omega_{t}$ spike-and-slab mixture distributions \parencite{GiordaniKohn2008},
+Models within this approach are usually formulated and estimated as discrete state-space Hidden Markov Models, \parencites{Chib1998}{spirling2007bayesian}{Park2011}{Park2010}{Blackwell2012}.
+A downside of these methods is that they often require the number of discrete states to be set \parencite{Chib1998}, and although methods exist that relax that assumption, they are often not straighforward.
+
+However, structural breaks can also be estimated with continuouous state space approach \parencite{GiordaniKohn2008}.
+The key feature of structural break approaches is sparsity in changes in the parameter, i.e. most changes are 0, with a few non-zero changes.
+The sparsity of changes in $\theta$ can be modeled with a spike and slab prior distribution on $\omega$,
+i.e. $\omega$ is given a discrete mixture between the a degenerate distribution at zero and another continuous distribution.
 \begin{equation}
   \label{eq:1}
   \omega_{t} \sim p g(\omega_{t}) + (1 - p) \delta_{0} \text{,}
 \end{equation}
 where $p$ is the prior probability of a structural break (change-point), and $g(\omega_{t})$ is the distribution of the change in $\theta$ if there is a structural break.
+Alternatively, \eqref{eq:1} can be written as,
+\begin{equation}
+  \label{eq:7}
+  \begin{aligned}[t]
+    \omega_{t} & \sim \lambda_{t} \eta_{t} \\
+    \eta_{t} & \sim \dnorm{0, \tau} \\
+    \lambda_{t} = & 
+    \begin{cases}
+      1 & \text{with probability $p$} \\
+      0 & \text{with probability $1 - p$}
+    \end{cases}
+  \end{aligned}
+\end{equation}
+
+This model of structural breaks has an advantage over discrete state space models in that the number ofstructural breaks does not need to be specified \textit{ex ante} by the researcher.
+The value of $p$ determines the prior sparsity of changes (and thus the number of structural breaks), and can either be specified by the researcher or given a prior distribution and estimated from the data.
+
+The problem with using a spike and slab approach is that it is implausible in applied practice that the actual changes in the parameter are exactly zero, violating the assumptions of the spike and slab prior distribution \parencite{Gelman2013}.
+Also practically, the posterior distribution from a spike-and-slab prior will not put a point mass on zero.
+So it may be easier to estimate a continuous distribution that 
+
+In practice, the structural break (sparse) approaches to time varying parameters are used for two reasons.
+First, even if the actual changes in political processes is not zero, political processes are marked by periods of relative stability and periods of rapid change.
+Traditionally, there have not been continuous distributions that could adapt to rapid change, e.g. the normal distribution smooths of those rapid changes.
+Second, sparse results have advantages in intepretability.
+Structural breaks can be understood by their proximity to real-world events, whereas continous change is harder to make sense of.
+
+The next section discusses the use of continuous distributions (shrinkage priors) that are robust to sparse changes.
+This draws on many recent advances in the Bayesian shrinkage and regression regularization literature.
 
 \subsection{Shrinkage}
 \label{sec:shrinkage}
@@ -180,7 +209,7 @@ The distribution of $\omega$ which will be used in this paper is the horseshoe p
 The horseshoe prior distribution does not have an analytical form, but is formed when the $\lambda_{t}$ in equation \eqref{eq:6} are independently distributed half-Cauchy,
 \begin{align}
   \label{eq:13}
-  \lambda_{t} &\sim \dhalfcauchy{+}{0, 1}
+  \lambda_{t} &\sim \dhalfcauchy{0, 1}
 \end{align}
 where $C^{+}(0, \gamma)$ is the standard half-Cauchy distribution with support on the positive real numbers, and scale $\gamma$.%
 \footnote{
@@ -219,39 +248,40 @@ I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ a
 \subsection{Identifying Structural Breaks}
 \label{sec:ident-struct-breaks}
 
-One of the advantages of the horseshoe prior distribution over other shrinkage distributions is that there is a simple thresholding rule that can be used to identify structural breaks.
+The posterior distribution $p(\theta | y)$ can be used to identify structural breaks in two ways. 
 
-Let $\Delta \theta_{t} = \theta_{t} - \theta_{t - 1}$ and $e_{t} = y_{t} - \theta_{t - 1}$, 
-For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean is $E(\Delta \theta_{t}) \approx p_{t} e_{t} $, where $p_{t}$ is the posterior inclusion probability of $\omega_{t}$.
-For a sufficiently heavy tailed $g$, that posterior mean is approximately $p_{i} e_{i}$.
-Note that not only do $p_{t}$ determine whether $\omega_{t}$ should be classified as a signal or noise, they also determine how much $e_{t}$ should be shrunk to 0 when estimating $\omega_{t}$.
+The first method is simply to use the posterior distribution of $\omega_{t} = \theta_{t} - \theta_{t-1}$.
+This can be easily be calcualated from posterior samples.
+The probability that there was a positive change in $\theta$ at time $t$ is
+$\Pr(\omega_{t} | y) > 0$, and the probability of a negative change is $\Pr(\omega_{t} | y) < 0$.
+Altenatively, the highest posterior density region of the posterior can be calculated and the researcher can classify observations as structural breaks by whether the credible interval crosses 0.
 
-A quantity similar to $p_{t}$ can be defined for scale-normal mixture distributions.
-Let $\kappa_{t}$ be a shrinkage parameter, defined as
+The second method is to calculate a quantity similar to the posterior probability $\omega \neq 0$ that would be produced by a spike and slab distribution.
+For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean,
 \begin{equation}
-  \label{eq:3}
-  \kappa_{t} = \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}} \text{.}
+  \label{eq:17}
+  \E(\Delta \theta_{t}) \approx p_{t} e_{t} 
 \end{equation}
-When $\kappa_{t} \approx 0$, the change in $\theta$ is approximately $y_{t} - \theta_{t-1}$.
-When $\kappa_{t} \approx 1$, the change in $\theta \approx 0$.
+where $p_{t}$ is the posterior probability of $\omega_{t} \neq 0$.
 
-The expected value of $\omega_{t}$ is,
+For a scale mixture of normal distributions, the expected value of $\Delta \omega_{t}$ is 
 \begin{equation}
   \label{eq:10}
-  E(\omega_{t} | \theta_{t - 1}, \sigma, \tau, \lambda_{t}) = e_{t}
+  E(\Delta \omega_{t} | \theta_{t - 1}, \sigma, \tau, \lambda_{t}) =
   \left(
-    1 - \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}}
-  \right)  = \hat \kappa_{t} e_{i}
+    1 - \frac{1}{1 + \lambda^{2}_{t} \tau^{2}}
+  \right) e_{t} = (1 - \hat \kappa_{t}) e_{i}
 \end{equation}
-Thus the quantity $1 - \hat \kappa_{t}$ behaves similarly to $p_{t}$ in the discrete mixture.
-
-And in the case of the horseshoe prior distribution, $1 - \hat \kappa_{t} \approx p_{t}$ \parencite[474]{CarvalhoPolsonScott2010}.
-Thus, \textcite{CarvalhoPolsonScott2010} recommend the following  decision rule under a 0-1 decision rule as to whether an observation is a signal,
+Equating equation \eqref{eq:17} with equation \eqref{eq:10}, it is clear that 
+the quantity $1 - \hat \kappa_{t}$ behaves similarly to $p_{t}$.
+While $1 - \hat \kappa_{t}$ can be calculated for all mixture of normal distributions, it is not necessarily the case that $1 - \hat \kappa_{t} \approx p_{t}$.
+However, one of the advantages of using the Horseshoe Prior distribution is that 
+\parencite[474]{CarvalhoPolsonScott2010} show through simulations that this is the case for the Horseshoe Prior distribution.
+Given that, \textcite{CarvalhoPolsonScott2010} recommend the following  decision rule under a 0-1 loss function to classify whether an observation is a signal (structural break in this case) or noise (no structural break), 
 \begin{equation}
   \label{eq:5}
   \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
 \end{equation}
-If a strict decision rule is needed to determine whether an obervation is a structural break is needed, equation \eqref{eq:5} can be used.
 
 \section{Monte Carlo}
 \label{sec:monte-carlo}
@@ -264,9 +294,10 @@ This paper probably needs a monte carlo.
 \subsection{Nile Flow Data}
 \label{sec:nile}
 
-The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \textcite{Cobb1978}{Balke1993}{DurbinKoopman2001}{DurbinKoopman2012}
+The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \textcite{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}
 The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970.
 It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
+\footnote{Also, the years 1877 and 1913 are possible outliers.}
 I compare the estimates of the horseshoe prior model with that of a normal distribution, and a normal distribution with an intervention in 1899.
 
 Figure \ref{fig:nile1} plots the original data, and the mean of the posterior predicted data of the horseshoe prior model and the dynamic linear model.
@@ -298,7 +329,7 @@ As expected, only the year 1899 has a structural break probability greater than 
 \begin{figure}[htpb]
   \centering
   \includegraphics{plots/fig-nile_w.pdf}
-  \caption{Plot of estimated probability of a structural break, calculated as $w_{i} = 1 - E(\hat{\kappa})$}
+  \caption{Plot of estimated probability of a structural break, calculated as $w_{i} = 1 - \E(\hat{\kappa})$}
   \label{fig:nile_w}
 \end{figure}
 
