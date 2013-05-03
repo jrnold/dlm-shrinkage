@@ -19,6 +19,17 @@
 \title{Scale Mixture of Gaussians Dynamic Linear Models for Sparse 
   Time-Varying Parameter Change}
 
+\newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
+\newcommand{\dnorm}[1]{\ensuremath{\mathcal{N}\paren{#1}}}
+\newcommand{\dmvnorm}[2]{\ensuremath{\mathcal{N}_{#2}\paren{#1}}}
+\newcommand{\dcauchy}[1]{\ensuremath{\mathcal{C}\paren{#1}}}
+\newcommand{\dhalfcauchy}[1]{\ensuremath{\mathcal{C}^{+}\paren{#1}}}
+\newcommand{\dgamma}[1]{\ensuremath{\mathcal{G}\paren{#1}}}
+\newcommand{\dbeta}[1]{\ensuremath{\mathcal{B}\paren{#1}}}
+
+\newcommand{\R}{\ensuremath{\mathfrak{R}}}
+\newcommand{\RR}{\textsf{R}}
+
 \begin{document}
 
 \maketitle{}
@@ -33,20 +44,16 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Political processes are rarely constant over time, so there often a need for political science researchers to estimate time-varying parameters. 
-In practice, there exist two broad approaches to this problem.
+Political processes are rarely constant over time, so there often a need for political science researchers to estimate time-varying parameters.
+Suppose there are $T$ time periods, and the researcher would like to estimate a parameter $\theta$ that can take a different values in each period, $\theta_{t}$ for $t \in 1:T$.
+Often there is only a single data point per time period, making the problem of estimating time varying parameters a small-n, large-p problem. 
+Thus, some sort of additional structure needs to be imposed on the evolution of $\theta$ in order to estimate it.
+In practice, there are two broad approaches to this problem.
 The first approach is to smooth parameter change over time.
 Examples of this approach are dynamic linear models, polynomial, and splines.
-The second approach is to restrict changes in the parameter to distinct times, and keep it constant. 
-In other words, the parameter over time is modeled as a step function. 
-This approach includes structural break, regime-shift, change-point, and even including time-period indicator variables.
+The second approach is to restrict changes in the parameter to distinct times; this is equivalent to restricting the function of the parameter values with respect to time to be a step function.
+This approach includes structural break, regime-shift, change-point of the locations of the breaks is unknown, and indictator variables if the location of the breaks is known.
 
-The underlying problem of time-varying parameters is to estimate $\alpha_{t}$ for $t = 1:T$ time periods. 
-One way to model this, that nests most models is as 
-\begin{equation}
-  \label{eq:7}
-  \alpha_{t} - \alpha_{t-1}  = \eta_{t}
-\end{equation}
 Since the number of parameters is almost certainly going to be greater than or equal to the number of data points this is a case of a ``large-p'' problem.
 The smoothing approach corresponds to shrinkage.
 The $\eta_{t}$ are estimated by penalizing large values, normally through the use of the normal distribution, as in dynamic linear models.
@@ -62,48 +69,60 @@ The horseshoe prior distribution is a scale-mixture of normal distributions that
 
 Modeling time-varying parameters with structural breaks with scale-mixtures of normals is an approach that has favorable properties both in terms of its flexibility, ease of implementation, and computational efficiency.
 \begin{itemize}
-\item The researcher to \textit{ex ante} specification the number of structural breaks. 
-  The number of structural breaks, which is implied by the sparsity of the $\eta$ parameters, can be estimated from the data.
-\item 
+\item Unlike many existing discrete state-space approaches, the number of change points (or equivalently the sparsity in the changes in the parameters) does not need to be specified \textit{ex ante}, but can be estimated.
 \item This method is flexible.
   This is a special case of a conditional gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2012}{CommandeurKoopman2007}{ShumwayStoffer2010}.
   DLMs are a class of models that include regression, stochastic volatility, and ARIMA models.
   The structural break method presented here can easily be adapted to model changes in multiple parameters, seasonal effects, slopes, and variance.
 \item It is convenient to independently model changes in multiple parameters, a situation which would cause an explosion in the number of states in discrete state space framework (Hidden Markov).
 \item Since the horseshoe prior distribution is hierarchical distribution formed from normal and Cauchy distributions, this model can easily be specified in general purpose Bayesian software (BUGS, Stan, etc.), even though that is not the most efficient method of estimating it.
-\item Since this model is a CGDLM, there exist computionally  efficient methods of maximizing (Kalman Filter), and sampling (Forward-filter backward sample) from it.
-  Additionally, as a CGDLM there are even methods for estimating it online (sequential importance sampling methods).
 \end{itemize}
 
-\section{Dynamic Linear Model}
+\section{State Space Models}
 
-Consider a univariate vector of data $y$, indexed by $t = 1:T$.
-Each $y_{t}$ is drawn from a normal distribution with a time-varying mean, $\theta_{t}$.
+This paper models time-varying parameters within the Bayesian continuous state space approach.
+
+A Dynamic Linear model defined by the set of equations,
 \begin{align}
   \label{eq:8}
-  y_t &= \theta_t + \epsilon_t \\
+  Y_t &= F_{t} \theta_t + \nu_t & \nu_{t} &\sim \dmvnorm{0, V_{t}}{m} \\
   \label{eq:14}
-  \theta_t &= \theta_{t-1} + \eta_{t} & \text{for $t > 1$} \\
-  \label{eq:19}
-  \theta_1 &= \theta_{1} + \eta_{1}
+  \theta_t &= G_{t} \theta_{t-1} + \omega_{t} & \omega_{t} &\sim \dmvnorm{0, W_{t}}{p} \\
+  \label{eq:2}
+  \theta_{0} & \sim \dmvnorm{m_{0}, C_{0}}{p}
+\end{align}  
+where $t = 1:T$, $Y_{t}$ is a length $p$ row-vector, $F_{t}$ is a 
+Equation \eqref{eq:8} is called the \textit{observation} or \textit{measurement} equation, 
+equation \eqref{eq:14} is called the \textit{system equation},
+and \eqref{eq:4} is the prior distribution on the initial state.
+I will refer to $\nu_{t}$ as \textit{errors}, and and $\omega_{t}$ as \textit{innovations}.
+DLMs nest a large number of common models, including ARIMA, stochastic volatility, (time-varying parameter) regressions,
+and cubic splines.
+
+By nesting this method within the DLM framework, this method will inherit the flexibility of DLMs and it will be easy to extend to a wide variety of models.
+However, for simplicity and clarity in this section, I will consider a special case of the DLMs, a univariate local level model, which assumes a univariate $Y_{t}$, 
+$F_{t} = 1$, and $G_{t} = 1$.
+\begin{align}
+  \label{eq:15}
+  y_t &= \theta_t + \nu_t & \nu_{t} &\sim \dnorm{0, v_{t}} \\
+  \label{eq:16}
+  \theta_t &= \theta_{t-1} + \omega_{t} & \omega_{t} &\sim \dnorm{0, w_{t}} \\
 \end{align}
-where $\epsilon_{t} \sim N(0, \sigma^{2})$ and $E(\eta_{t}) = 0$.
-The model described by equations \eqref{eq:8}, \eqref{eq:14}, and \eqref{eq:19} is 
-is a special case of dynamic linear models called the local level model.
-Equation \eqref{eq:8} is called the observation equation, 
-equation \eqref{eq:14} is called the system equation,
-and \eqref{eq:4} is the prior distribution.
-The parameters $\theta_{t}$ are the latent states, which in this case are the means of $y_{t}$.
-The parameters $\eta_{t}$ are called the \textit{innovations}.
 
-Assumptions about this regularization through the choice of the prior distribution of $\eta$.
-There are two features for which any prior of $\eta$ must account.
-First, $\eta_{t}$ is likely sparse; in most time periods, the change in $\theta$ is (close-to) zero.
-Second, $\eta_{t}$ may be large; there are occasionally quite large jumps in $\theta$.
-In other words, processes (at least those encountered in political science) are likely to be stable or slowly varying for most periods, but with occasionally dramatic changes at key events \parencite{RatkovicEng2010}.
+Note that in this model, given the initial value $\theta_{0}$, the values of $\theta$ are determined by the distribution of the $\omega$.
+\begin{equation}
+  \label{eq:12}
+  \Delta \theta_{t} = \omega_{t} \sim \dnorm{0, w_{t}}
+\end{equation}
+where $\Delta \theta_{t} = \theta_{t} - \theta_{t - 1}$.
+Thus, the choice of the distributions of the $\omega$ parameters determines how the parameter $\theta$ can evolve over time.
+Since there are $n$ $\omega$ parameters, some structure must be imposed on the problem to get identifiable parameters.
 
-\subsection{Discrete Mixture Distribution}
-\label{sec:discr-mixt-distr}
+A common approach is to assume that the innovations have a constant variance over time, $w_{t} = w$  for all $t \in 1:T$, and to estimate $w$.
+Assuming that the $\omega$ are distributed normal effectively penalizes large values in $\omega$ (and thus large changes in $\theta$) due to the thin tails of the normal distribution. 
+This smooths the evolution of $\theta$ over time. 
+
+The problem with assuming $\omega_{t} \sim \dnorm{0, w}$ is that it does not incorporate handle sparsity and large values well, two features which are expected in many data generating processes.
 
 The inference problem in \eqref{eq:8} is to estimate the values of $\theta_{t}$ for all time periods.
 These values of $\theta_{t}$ are determined by the initial values $\theta_{1}$ and the sum of the innovations $\sum_{s=1}^{t} \eta_{s}$.
@@ -113,25 +132,28 @@ Since the number of $\eta$ parameters is equal to the number of data points ($y$
 In the Bayesian literature, there are two main approaches to estimating time-varying parameters: discrete mixtures (Hidden Markov Models for change-points), and shrinkage (dynamic linear models).
 The approach in this paper is to use a shrinkage approach with scale-mixtures of normal distributions that are able to handle both sparsity and jumps.
 
-The first approach are selection approaches, in which the estimation technique selects which $\eta_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
+\subsection{Discrete Mixture Distribution}
+\label{sec:discr-mixt-distr}
+
+The first approach are selection approaches, in which the estimation technique selects which $\omega_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
 Models within this approach are usually formulated and estimated as discrete state-space Hidden Markov Models, as in Chib 1998 and extensions thereof (Spirling Park, Koop).
-However, this approach can also be represented within the continuous state-space approach by giving $\eta_{t}$ spike-and-slab mixture distributions \parencite{GiordaniKohn2008},
+However, this approach can also be represented within the continuous state-space approach by giving $\omega_{t}$ spike-and-slab mixture distributions \parencite{GiordaniKohn2008},
 \begin{equation}
   \label{eq:1}
-  \eta_{t} \sim p g(\eta_{t}) + (1 - p) \delta_{0} \text{,}
+  \omega_{t} \sim p g(\omega_{t}) + (1 - p) \delta_{0} \text{,}
 \end{equation}
-where $p$ is the prior probability of a structural break (change-point), and $g(\eta_{t})$ is the distribution of the change in $\theta$ if there is a structural break.
+where $p$ is the prior probability of a structural break (change-point), and $g(\omega_{t})$ is the distribution of the change in $\theta$ if there is a structural break.
 
 \subsection{Shrinkage}
 \label{sec:shrinkage}
 
-The shrinkage approach in estimating time-varying approach is to penalize large values of $\eta_{t}$. 
-The predominant example of this approach is the normal dynamic linear model, in which the $\eta_{t}$ are distributed i.i.d. normal,
+The shrinkage approach in estimating time-varying approach is to penalize large values of $\omega_{t}$. 
+The predominant example of this approach is the normal dynamic linear model, in which the $\omega_{t}$ are distributed i.i.d. normal,
 \begin{equation}
   \label{eq:4}
-  \eta_{t} \sim N(0, \tau^{2})
+  \omega_{t} \sim N(0, \tau^{2})
 \end{equation}
-Since the normal distribution has thin tails, it penalizes large values of $\eta_{t}$ and thus smooths the values of $\theta_{t}$ over time.
+Since the normal distribution has thin tails, it penalizes large values of $\omega_{t}$ and thus smooths the values of $\theta_{t}$ over time.
 \footnote{The normal dynamic linear model is similar to ridge regression for the innovations.}
 This approach works well when the value of $\theta$ changes slowly over time.
 However, many political processes are marked by periods of stability and points of rapid change \parencite{RatkovicEng2010}.
@@ -139,13 +161,13 @@ A data generating process with structural breaks poses problems for the normal d
 In order to accomodate large structural breaks, the posterior estimate of $\tau$ must increase. 
 This results in undersmoothing (overfitting) in periods of relative stability, while still oversmoothing (underfitting) structural breaks.
 
-However, as noted before, the problem of estimating $\eta$ is an example of a large-p problem and there are many proposed distributions for shrinkage parameters.
+However, as noted before, the problem of estimating $\omega$ is an example of a large-p problem and there are many proposed distributions for shrinkage parameters.
 The class of scale-normal mixtures includes many Bayesian shrinkage priors, such as the student-\textit{t} \parencite{Tipping2001}, double-exponential prior (Bayesian LASSO) \parencites{LiGoel2006}{ParkCasella2008}{Hans2009}, normal-Jeffreys \parencites{FigueiredoMember2003}{BaeMallick2004}, Strawderman-Berger \parencites{Strawderman1971}{Berger1980}, double Pareto \parencite{ArmaganDunsonLee2011},  and normal-exponential-gamma \parencite{BrownGriffin2005}, normal/gamma and normal/inverse-gamma \parencite{CaronDoucet2008}{BrownGriffin2010}.
-Since many computationally efficient forms of maximization and sampling of the dynamic linear model require the errors and innovations be distributed normal, I will focus on a class of shrinkage distributions that are scale mixtures of normal distributions, i.e. each $\eta_{t}$ will be distributed normal, but the variances of these normal distributions are drawn from a hierarchical distribution.
+Since many computationally efficient forms of maximization and sampling of the dynamic linear model require the errors and innovations be distributed normal, I will focus on a class of shrinkage distributions that are scale mixtures of normal distributions, i.e. each $\omega_{t}$ will be distributed normal, but the variances of these normal distributions are drawn from a hierarchical distribution.
 \begin{equation}
   \label{eq:6}
   \begin{aligned}[t]
-    \eta_{t} | \tau^{2}, \lambda^{2} & \sim N(0, \sigma^{2} \lambda^{2}) \\
+    \omega_{t} | \tau^{2}, \lambda^{2} & \sim N(0, \sigma^{2} \lambda^{2}) \\
     \lambda_{t}^{2} & \sim p(\lambda^{2}_{t})
   \end{aligned}
 \end{equation}
@@ -154,11 +176,11 @@ The $t$-distribution is an example of a scale mixture of normal distributions, a
 The $t$-distribution in its most extreme form (Cauchy), has very flat tails, which allows for structural breaks.
 However, it does not have a large spike at zero, and thus may not shrink noise enough.
 
-The distribution of $\eta$ which will be used in this paper is the horseshoe prior distribution, introduced in \textcites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}.
+The distribution of $\omega$ which will be used in this paper is the horseshoe prior distribution, introduced in \textcites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}.
 The horseshoe prior distribution does not have an analytical form, but is formed when the $\lambda_{t}$ in equation \eqref{eq:6} are independently distributed half-Cauchy,
 \begin{align}
   \label{eq:13}
-  \lambda_{t} &\sim C^{+}(0, 1)
+  \lambda_{t} &\sim \dhalfcauchy{+}{0, 1}
 \end{align}
 where $C^{+}(0, \gamma)$ is the standard half-Cauchy distribution with support on the positive real numbers, and scale $\gamma$.%
 \footnote{
@@ -191,7 +213,7 @@ I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ a
   \label{eq:9}
   p(\sigma^{2}) & \frac{1}{\sigma^{2}}  \\
   \label{eq:11}
-  \tau &\sim C^{+}(0, 1) \text{.}
+  \tau &\sim \dhalfcauchy{0, 1} \text{.}
 \end{align}
 
 \subsection{Identifying Structural Breaks}
@@ -200,9 +222,9 @@ I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ a
 One of the advantages of the horseshoe prior distribution over other shrinkage distributions is that there is a simple thresholding rule that can be used to identify structural breaks.
 
 Let $\Delta \theta_{t} = \theta_{t} - \theta_{t - 1}$ and $e_{t} = y_{t} - \theta_{t - 1}$, 
-For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean is $E(\Delta \theta_{t}) \approx p_{t} e_{t} $, where $p_{t}$ is the posterior inclusion probability of $\eta_{t}$.
+For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean is $E(\Delta \theta_{t}) \approx p_{t} e_{t} $, where $p_{t}$ is the posterior inclusion probability of $\omega_{t}$.
 For a sufficiently heavy tailed $g$, that posterior mean is approximately $p_{i} e_{i}$.
-Note that not only do $p_{t}$ determine whether $\eta_{t}$ should be classified as a signal or noise, they also determine how much $e_{t}$ should be shrunk to 0 when estimating $\eta_{t}$.
+Note that not only do $p_{t}$ determine whether $\omega_{t}$ should be classified as a signal or noise, they also determine how much $e_{t}$ should be shrunk to 0 when estimating $\omega_{t}$.
 
 A quantity similar to $p_{t}$ can be defined for scale-normal mixture distributions.
 Let $\kappa_{t}$ be a shrinkage parameter, defined as
@@ -213,10 +235,10 @@ Let $\kappa_{t}$ be a shrinkage parameter, defined as
 When $\kappa_{t} \approx 0$, the change in $\theta$ is approximately $y_{t} - \theta_{t-1}$.
 When $\kappa_{t} \approx 1$, the change in $\theta \approx 0$.
 
-The expected value of $\eta_{t}$ is,
+The expected value of $\omega_{t}$ is,
 \begin{equation}
   \label{eq:10}
-  E(\eta_{t} | \theta_{t - 1}, \sigma, \tau, \lambda_{t}) = e_{t}
+  E(\omega_{t} | \theta_{t - 1}, \sigma, \tau, \lambda_{t}) = e_{t}
   \left(
     1 - \frac{\sigma^{2}}{\sigma^{2} + \lambda^{2}_{t} \tau^{2}}
   \right)  = \hat \kappa_{t} e_{i}
@@ -245,7 +267,6 @@ This paper probably needs a monte carlo.
 The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \textcite{Cobb1978}{Balke1993}{DurbinKoopman2001}{DurbinKoopman2012}
 The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970.
 It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
-
 I compare the estimates of the horseshoe prior model with that of a normal distribution, and a normal distribution with an intervention in 1899.
 
 Figure \ref{fig:nile1} plots the original data, and the mean of the posterior predicted data of the horseshoe prior model and the dynamic linear model.

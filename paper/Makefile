@@ -14,7 +14,7 @@ makeplots:
 
 $(obj): $(SRC) $(BIBFILE) makeplots
 	$(LATEX) $<
-	$(JABREF) -n -a $(auxfile),local.bib $(BIBFILE)
+	$(JABREF) -n true -a $(auxfile),local.bib $(BIBFILE)
 	$(BIBTEX) $(auxfile)
 	$(LATEX) $<
 	$(LATEX) $<

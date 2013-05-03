@@ -2,8 +2,11 @@ suppressPackageStartupMessages({
   library("filehash")
   library("plyr")
   library("boot")
+  library("reshape2")
+  
   library("mcmcdb")
   library("stanmisc")
+  library("mcmcstats")
 })
 
 ROOT_DIR <- normalizePath(".")
