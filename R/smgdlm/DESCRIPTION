@@ -10,9 +10,7 @@ Depends:
     methods,
 Imports:
     mcmcdb,
-    mcmcstats,
-    Rcpp,
-    rstan
+    mcmcstats
 Suggests:
     testthat,
     roxygen2
