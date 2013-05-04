@@ -1,4 +1,4 @@
-.libPaths("./R/library")
+.libPaths(c("./R/library", .libPaths())
 
 suppressPackageStartupMessages({
   library("filehash")
@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
   library("mcmcdb")
   library("stanmisc")
   library("mcmcstats")
+  library("stanmisc")
 })
 
 ROOT_DIR <- normalizePath(".")
