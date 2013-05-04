@@ -115,14 +115,14 @@ The univariate local level model assumes a univariate $Y_{t}$, $F_{t} = 1$, and 
 Note that in this model, given the initial value $\theta_{0}$, the values of $\theta$ are determined by the distribution of the $\omega$, which is a distribution over the changes in $\theta$,
 \begin{equation}
   \label{eq:12}
-  \Delta \theta_{t} = \omega_{t} \sim \dnorm{0, w_{t}}
+  \Delta \theta_{t} = \theta_{t} - \theta_{t - 1} = \omega_{t} \sim \dnorm{0, w_{t}} \text{.}
 \end{equation}
-where $\Delta \theta_{t} = \theta_{t} - \theta_{t - 1}$.
 Thus, the choice of the distributions of the $\omega$ parameters determines how the parameter $\theta$ can evolve over time.%
 \footnote{Although I only consider Bayesian framework, the choice of prior distribution is equivalent to a choice of a penalty term in maximum likelihood framework \parencite{PolsonScott2010}.}
 
 A common approach is to assume that the innovations have a constant variance over time, $w_{t} = w$  for all $t \in 1:T$.
-Assuming a normal distribution on $\omega$ penalizes (equivalent to an L2 penalty in regularized regression) large changes in $\omega$ due to the thin tails of the normal distribution.
+If $\omega$ is distributed normal, it penalizes large changes in $\omega$ due to the thin tails of the normal distribution.%
+\footnote{This is equivalent to an L2 penalty.}
 This effectively smooths the evolution of $\theta$ over time.
 
 The problem with assuming $\omega_{t} \sim \dnorm{0, w}$ is that it does not incorporate handle sparsity and large values well, two features which are expected in many data generating processes encounted in political science.
@@ -294,10 +294,9 @@ This paper probably needs a monte carlo.
 \subsection{Nile Flow Data}
 \label{sec:nile}
 
-The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \textcite{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}
+The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}
 The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970.
 It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
-\footnote{Also, the years 1877 and 1913 are possible outliers.}
 I compare the estimates of the horseshoe prior model with that of a normal distribution, and a normal distribution with an intervention in 1899.
 
 Figure \ref{fig:nile1} plots the original data, and the mean of the posterior predicted data of the horseshoe prior model and the dynamic linear model.

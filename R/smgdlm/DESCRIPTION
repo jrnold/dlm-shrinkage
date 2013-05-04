@@ -22,3 +22,4 @@ Collate:
     'McmcdbNormal2.R'
     'McmcdbHorseshoe2.R'
     'McmcdbHorseshoe4.R'
+    'dhp.R'

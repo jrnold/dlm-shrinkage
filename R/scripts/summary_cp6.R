@@ -1,3 +1,5 @@
+# Depends: cp6 mcmcdb_cp6_normal mcmcdb_cp6_hs mcmcdb_cp6_hs2 mcmcdb_cp6_hs4 
+# Keys: summary_cp6
 set.seed(09781350)
 
 # Summaries of the Nile models

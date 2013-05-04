@@ -1,3 +1,4 @@
+export(dhp)
 export(discrepancy)
 export(prgt0)
 export(prgte0)
