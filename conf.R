@@ -1,15 +1,18 @@
-.libPaths(c("./R/library", .libPaths())
+.libPaths(c("./R/library", .libPaths()))
 
 suppressPackageStartupMessages({
+  # CRAN
   library("filehash")
   library("plyr")
   library("boot")
   library("reshape2")
-  
+  # github/jrnold
   library("mcmcdb")
   library("stanmisc")
   library("mcmcstats")
   library("stanmisc")
+  # local
+  library("smgdlm")
 })
 
 ROOT_DIR <- normalizePath(".")

@@ -6,14 +6,12 @@ model_normal <- "../stan/models/normal.stanx"
 model_normal2 <- "../stan/models/normal2.stanx"
 
 SEED <- c(64425843)
-ITER <- 2^16
-WARMUP <- 2^14
-NSAMPLES <- 2^10
+ITER <- 2^8
+WARMUP <- 2^2
+NSAMPLES <- 2^4
 THIN <- (ITER - WARMUP) / NSAMPLES
 
 nile_data <- list(n_obs = length(nile),
-                  y = nile,
-                  x = c(rep(0, 28), rep(1, length(nile) - 28)),
                   theta1_mean = nile[1],
                   theta1_sd = sd(nile))
 
@@ -22,22 +20,24 @@ nile_smpl_output_normal <-
                  data = nile_data, seed=SEED,
                  iter = ITER, warmup = WARMUP, thin = THIN)
 RDATA[["mcmcdb_nile_normal"]] <-
-  mcmcdb_wide_from_stan(nile_smpl_output_normal,
-                        model_name = "normal")
+  new("McmcdbNormal",
+      mcmcdb_wide_from_stan(nile_smpl_output_normal,
+                            model_name = "normal"))
 
 nile_smpl_output_hs <-
   run_stan_model(model_hs,
                  data = nile_data, seed=SEED,
                  iter = ITER, warmup = WARMUP, thin = THIN)
 RDATA[["mcmcdb_nile_hs"]] <-
-  mcmcdb_wide_from_stan(nile_smpl_output_hs,
-                        model_name = "horseshoe")
+  new("McmcdbHorseshoe",
+      mcmcdb_wide_from_stan(nile_smpl_output_hs,
+                            model_name = "horseshoe"))
 
 nile_smpl_output_normal2 <-
   run_stan_model(model_normal2,
                  data = nile_data, seed=SEED,
                  iter = ITER, warmup = WARMUP, thin = THIN)
 RDATA[["mcmcdb_nile_normal2"]] <-
-  mcmcdb_wide_from_stan(nile_smpl_output_normal2,
-                        model_name = "normal2")
+  new("McmcdbNormal2", mcmcdb_wide_from_stan(nile_smpl_output_normal2,
+                                            model_name = "normal2"))
 

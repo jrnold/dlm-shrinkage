@@ -4,12 +4,19 @@ Author: Jeffrey Arnold <jeffrey.arnold@gmail.com>
 Version: 0.0.1
 License: GPL-3
 Title: Code for Scale Mixture of Gaussian DLMs
-Description: Code used in Scale Mixture of 
-             Gaussian DLMs for Structural Breaks paper
+Description: Code used in Scale Mixture of
+    Gaussian DLMs for Structural Breaks paper
+Depends:
+    methods
 Imports:
-    mcmcstats    
+    mcmcdb,
+    mcmcstats
 Suggests:
     testthat,
     roxygen2
 Collate:
-    'smgdlm-package.r'
+    'smgdlm-package.R'
+    'McmcdbNormal.R'
+    'misc.R'
+    'McmcdbHorseshoe.R'
+    'McmcdbNormal2.R'
