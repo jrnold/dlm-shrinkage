@@ -1,3 +1,5 @@
+set.seed(09781350)
+
 # Summaries of the Nile models
 modelk <- c("normal", "hs", "hs2", "hs4")
 models <- sprintf("mcmcdb_cp6_%s", modelk)

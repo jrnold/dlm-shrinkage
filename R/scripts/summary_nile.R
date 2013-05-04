@@ -1,5 +1,5 @@
-nile <- RDATA[["nile"]]
 set.seed(09532769)
+nile <- RDATA[["nile"]]
 
 # Summaries of the Nile models
 modelk <- c("normal", "normal2", "hs")
