@@ -7,10 +7,12 @@ Title: Code for Scale Mixture of Gaussian DLMs
 Description: Code used in Scale Mixture of
     Gaussian DLMs for Structural Breaks paper
 Depends:
-    methods
+    methods,
 Imports:
     mcmcdb,
-    mcmcstats
+    mcmcstats,
+    Rcpp,
+    rstan
 Suggests:
     testthat,
     roxygen2
@@ -20,3 +22,5 @@ Collate:
     'misc.R'
     'McmcdbHorseshoe.R'
     'McmcdbNormal2.R'
+    'McmcdbHorseshoe2.R'
+    'McmcdbHorseshoe4.R'

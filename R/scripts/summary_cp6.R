@@ -4,51 +4,6 @@ models <- sprintf("mcmcdb_cp6_%s", modelk)
 
 cp6 <- RDATA[["cp6"]]
 
-disc_mse <- function(y, yrep) {
-  ey <- apply(yrep, 1, mean)
-  mean((y - ey)^2)
-}
-
-disc_chisq <- function(y, yrep) {
-  ey <- apply(yrep, 1, mean)
-  vy <- apply(yrep, 1, var)
-  sum((y - ey)^2 / vy)
-}
-
-summary_mcmcdb_cp6_normal <- function(object, y) {
-  f <- function(x) rnorm(length(x$theta), x$theta, x$sigma)
-  yrep <- simplify2array(mcmcdb_samples_iter(object, FUN = f))
-  yhat <- apply(yrep, 1, mean)
-  llik <- object[["llik"]]
-  lppd <- log(apply(exp(object[["llik"]]), 1, mean))
-  waic <- waic(llik)
-  mse <- disc_mse(y, yrep)
-  chisq <- disc_chisq(y, yrep)
-  w <- 1 - mean(1 / (1 + object[["tau"]]))
-  errors <- apply(object[["theta"]], 2, `-`, y = y)
-  innovations <- apply(object[["theta"]], 2, diff)
-  list(yrep = yrep, yhat = yhat, lppd = lppd, waic = waic,
-       chisq = chisq, mse = mse, w = w)
-}
-
-summary_mcmcdb_cp6_hs <- function(object, y) {
-  f <- function(x) rnorm(length(x$theta), x$theta, x$sigma)
-  yrep <- simplify2array(mcmcdb_samples_iter(object, FUN = f))
-  yhat <- apply(yrep, 1, mean)
-  llik <- object[["llik"]]
-  lppd <- log(apply(exp(object[["llik"]]), 1, mean))
-  waic <- waic(llik)
-  mse <- disc_mse(y, yrep)
-  chisq <- disc_chisq(y, yrep)
-  w <- 1 - apply(object[["kappa"]], 1, mean)
-  errors <- apply(object[["theta"]], 2, `-`, y = y)
-  innovations <- apply(object[["theta"]], 2, diff)
-  list(yrep = yrep, yhat = yhat, lppd = lppd, waic = waic,
-       chisq = chisq, mse = mse, w = w)
-}
-
-summary_mcmcdb_cp6_hs2 <- summary_mcmcdb_cp6_hs
-
 summary_mcmcdb_cp6_hs4 <- function(object, y) {
   f <- function(x) rnorm(length(x$theta0), x$theta0, x$sigma)
   yrep <- simplify2array(mcmcdb_samples_iter(object, FUN = f))

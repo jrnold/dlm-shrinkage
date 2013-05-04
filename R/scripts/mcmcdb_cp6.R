@@ -23,17 +23,23 @@ cp6_data <- list(n_obs = nrow(cp6),
 cp6_smpl1 <- run_stan_model(model_normal,
                             data = cp6_data, seed=SEED,
                             iter = ITER, warmup = WARMUP, thin = THIN)
-RDATA[["mcmcdb_cp6_normal"]] <- mcmcdb_wide_from_stan(cp6_smpl1, model_name = "normal")
+RDATA[["mcmcdb_cp6_normal"]] <-
+  new("McmcdbNormal",
+      mcmcdb_wide_from_stan(cp6_smpl1, model_name = "normal"))
 
 cp6_smpl2 <- run_stan_model(model_hs,
                             data = cp6_data, seed=SEED,
                             iter = ITER, warmup = WARMUP, thin = THIN)
-RDATA[["mcmcdb_cp6_hs"]] <- mcmcdb_wide_from_stan(cp6_smpl2, model_name = "horseshoe")
+RDATA[["mcmcdb_cp6_hs"]] <-
+  new("McmcdbHorseshoe",
+      mcmcdb_wide_from_stan(cp6_smpl2, model_name = "horseshoe"))
 
 cp6_smpl3 <- run_stan_model(model_hs2,
                             data = cp6_data, seed=SEED,
                             iter = ITER, warmup = WARMUP, thin = THIN)
-RDATA[["mcmcdb_cp6_hs2"]] <- mcmcdb_wide_from_stan(cp6_smpl3, model_name = "horseshoe2")
+RDATA[["mcmcdb_cp6_hs2"]] <-
+  new("McmcdbHorseshoe2",
+      mcmcdb_wide_from_stan(cp6_smpl3, model_name = "horseshoe2"))
 
 cp6_data_2 <- list(n_obs = nrow(cp6),
                  n_time = nrow(cp6),
@@ -46,4 +52,6 @@ cp6_data_2 <- list(n_obs = nrow(cp6),
 cp6_smpl4 <- run_stan_model(model_hs4,
                             data = cp6_data_2,
                             seed=SEED, iter = ITER, warmup = WARMUP, thin = THIN)
-RDATA[["mcmcdb_cp6_hs4"]] <- mcmcdb_wide_from_stan(cp6_smpl4, model_name = "horseshoe4")
+RDATA[["mcmcdb_cp6_hs4"]] <-
+  new("McmcdbHorseshoe4",
+      mcmcdb_wide_from_stan(cp6_smpl4, model_name = "horseshoe4"))
