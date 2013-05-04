@@ -7,9 +7,7 @@ models <- sprintf("mcmcdb_nile_%s", modelk)
 
 summaries <- 
   llply(models,
-        function(k, y) {
-          get(sprintf("summary_%s", k))(RDATA[[k]], y)
-        }, y = nile$flow)
+        function(k, y) summary(RDATA[[k]], y), y = nile$flow)
 names(summaries) <- modelk
 
 RDATA[["summary_nile"]] <- summaries
