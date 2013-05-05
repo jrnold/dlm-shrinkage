@@ -3,14 +3,13 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage[margin=1in]{geometry}
-
+\usepackage{fancyvrb}
+% \usepackage{color}
+\usepackage[latin1]{inputenc}
 \usepackage[style=authoryear]{biblatex}
-
 \usepackage{graphicx}
 \usepackage{subcaption}
-
 \addbibresource{local}
-
 \usepackage{setspace}
 \doublespace
 
@@ -36,6 +35,7 @@
 \DeclareMathOperator{\var}{var}
 \DeclareMathOperator{\cov}{cov}
 
+\include{pygments}
 \begin{document}
 
 \maketitle{}
@@ -180,7 +180,7 @@ The shrinkage approach in estimating time-varying approach is to penalize large 
 The predominant example of this approach is the normal dynamic linear model, in which the $\omega_{t}$ are distributed i.i.d. normal,
 \begin{equation}
   \label{eq:4}
-  \omega_{t} \sim N(0, \tau^{2})
+  \omega_{t} \sim \dnorm{0, \tau^{2}}
 \end{equation}
 Since the normal distribution has thin tails, it penalizes large values of $\omega_{t}$ and thus smooths the values of $\theta_{t}$ over time.
 \footnote{The normal dynamic linear model is similar to ridge regression for the innovations.}
@@ -196,7 +196,7 @@ Since many computationally efficient forms of maximization and sampling of the d
 \begin{equation}
   \label{eq:6}
   \begin{aligned}[t]
-    \omega_{t} | \tau^{2}, \lambda^{2} & \sim N(0, \sigma^{2} \lambda^{2}) \\
+    \omega_{t} | \tau^{2}, \lambda^{2} & \sim \dnorm{0, \sigma^{2} \lambda^{2}} \\
     \lambda_{t}^{2} & \sim p(\lambda^{2}_{t})
   \end{aligned}
 \end{equation}
@@ -211,38 +211,43 @@ The horseshoe prior distribution does not have an analytical form, but is formed
   \label{eq:13}
   \lambda_{t} &\sim \dhalfcauchy{0, 1}
 \end{align}
-where $C^{+}(0, \gamma)$ is the standard half-Cauchy distribution with support on the positive real numbers, and scale $\gamma$.%
+where $\dhalfcauchy(0, \gamma)$ is the standard half-Cauchy distribution with support on the positive real numbers, and scale $\gamma$.%
 \footnote{
   This implies that $p(\lambda^{2})$ is distributed inverse-beta, $IB(a, b)$ where $a = b = \frac{1}{2}$ \parencite[4]{PolsonScott2010}. 
 }
 
-The horseshoe prior has two features that make it useful as a shrinkage prior that is robust to structural breaks.
-It has flat Cauchy-like tails and an infinitely tall spike at zero.
-The flat tails mean that the structural breaks are not shrunk \textit{a posteriori} and the spike around zero aggressively shrinks non-structural breaks.
-Figure \ref{fig:horseshoe} plots the density of the horseshoe prior distribution against the normal, Cauchy, and Laplacian (Baysian LASSO) distributions.%
-\footnote{
-  Although the horseshoe prior distribution's density does not have analytic form, \textcite{CarvalhoPolsonScott2010}, Theorem 1, provides tight bounds on it.
-  The density has the same behavior as $\log (1 + \frac{2}{\theta_{t}^{2}})$.
-}
+The horseshoe prior distribution has two features that make it useful as a shrinkage prior for sparse parameters.
+It has flat Cauchy-like tails, which mean that structural breaks are not shrunk \textit{a posteriori}.
+It also has an infinitely tall spike at zero which aggressively shrinks non-structural breaks to zero.
+Figure \ref{fig:horseshoe} compares the density of the horseshoe prior distribution against the normal, Cauchy, and Laplacian (Baysian LASSO) distributions.
+The Laplacian distribution is commonly used in sparse regularized regression.
+However, the horseshoe prior distribution has both a taller spike at zero and fatter tails than the Laplacian distribution.
 
 \begin{figure}
   \centering
-  \begin{subfigure}[b]{0.5\textwidth}
-    \includegraphics{plots/fig-horseshoe1.pdf}
-  \end{subfigure}%
-  \begin{subfigure}[b]{0.5\textwidth}
-    \includegraphics{plots/fig-horseshoe2.pdf}
-  \end{subfigure}
-  \caption{The densities of the horseshoe prior, normal, Cauchy, and Laplacian distribution.}
+  \includegraphics{plots/fig-horseshoe1.pdf}
+  \includegraphics{plots/fig-horseshoe2.pdf}
+  \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
   \label{fig:horseshoe}
 \end{figure}
 
-I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ as in Carvalho et al. (2010, 2009),
+
+To summarize, a local level with a horseshoe prior on the innovations,
+\begin{equation}
+  \label{eq:3}
+  \begin{aligned}[t]
+    y_{t} & \sim \dnorm{\theta_{t}, \sigma^{2}} \\
+    \theta_{t} & \sim \dnorm{\theta_{t - 1}, \sigma^{2} \tau^{2} \lambda^{2}} \\
+    \lambda_{t} & \dhalfcauchy{0, 1}
+  \end{aligned}
+\end{equation}
+The model is completed with non-informative priors on $\sigma^{2}$ and $\tau$ as in \textcite{CarvalhoPolsonScott2010}{DattaGhosh2012},
 \begin{align}
   \label{eq:9}
-  p(\sigma^{2}) & \frac{1}{\sigma^{2}}  \\
-  \label{eq:11}
-  \tau &\sim \dhalfcauchy{0, 1} \text{.}
+  \begin{aligned}[t]
+    p(\sigma^{2}) & \frac{1}{\sigma^{2}}  \\
+    \tau &\sim \dhalfcauchy{0, 1} \text{.}
+  \end{aligned}
 \end{align}
 
 \subsection{Identifying Structural Breaks}
@@ -251,10 +256,9 @@ I assume the following non-informative hyper-priors on $\sigma^{2}$ and $\tau$ a
 The posterior distribution $p(\theta | y)$ can be used to identify structural breaks in two ways. 
 
 The first method is simply to use the posterior distribution of $\omega_{t} = \theta_{t} - \theta_{t-1}$.
-This can be easily be calcualated from posterior samples.
 The probability that there was a positive change in $\theta$ at time $t$ is
 $\Pr(\omega_{t} | y) > 0$, and the probability of a negative change is $\Pr(\omega_{t} | y) < 0$.
-Altenatively, the highest posterior density region of the posterior can be calculated and the researcher can classify observations as structural breaks by whether the credible interval crosses 0.
+Alternatively, the highest posterior density region of the posterior can be calculated and the researcher can classify observations as structural breaks if the credible interval for a given probability does not cross zero.
 
 The second method is to calculate a quantity similar to the posterior probability $\omega \neq 0$ that would be produced by a spike and slab distribution.
 For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean,
@@ -263,11 +267,10 @@ For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently 
   \E(\Delta \theta_{t}) \approx p_{t} e_{t} 
 \end{equation}
 where $p_{t}$ is the posterior probability of $\omega_{t} \neq 0$.
-
-For a scale mixture of normal distributions, the expected value of $\Delta \omega_{t}$ is 
+For a scale mixture of normal distributions, the expected value of $\omega_{t}$ is 
 \begin{equation}
   \label{eq:10}
-  E(\Delta \omega_{t} | \theta_{t - 1}, \sigma, \tau, \lambda_{t}) =
+  E(\omega_{t} | \theta_{t - 1}, \sigma, \tau, \lambda_{t}) =
   \left(
     1 - \frac{1}{1 + \lambda^{2}_{t} \tau^{2}}
   \right) e_{t} = (1 - \hat \kappa_{t}) e_{i}
@@ -299,27 +302,22 @@ The data consist of annual observations of the flow of the Nile river at Ashwan 
 It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
 I compare the estimates of the horseshoe prior model with that of a normal distribution, and a normal distribution with an intervention in 1899.
 
-Figure \ref{fig:nile1} plots the original data, and the mean of the posterior predicted data of the horseshoe prior model and the dynamic linear model.
+Figure \ref{fig:nile} plots the original data, and the mean of the posterior predicted data of the horseshoe prior model and the dynamic linear model.
 The horseshoe prior model shows a clear break and stability in the mean before and after the break.
 The normal model also adjusts to the structural break, but smooths over the break showing a lower mean in the years leading up to it, and higher mean in the years after it.
 The necessity of including local shrinkage parameters in addition to a global shrinkage parameter is apparent in the estimated mean of the normal model.
 In order to incorporate the structural break, the variance parameter had to be increased.
 However, increasing the variance does not shrink the other estimates as much, and thus estimates of the mean in the normal model are more variable than those of the horseshoe prior before and after the structural break.
 
-Figure \ref{fig:nile2} plots the horseshoe prior model and a normal distribution model with an intervention in 1899.
 The horseshoe prior model's posterior mean estimates closely match those of the intervention model, without any \textit{ex ante} knowledge of the presence of the structural break.
 The Nile model is an easy case in that the series (although it has a fairly low signal to  noise ratio) is simple to interpret, with a clear break, and the event is apparent, so it is fairly obvious that an intervention should be included.
 However, in many applications, the presence of the structural break will not be known, and in fact estimating the presence and location of the structural breaks will be the purpose of the application.
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics{plots/fig-nile1.pdf}  
-  \caption{Nile Graph}
-  \label{fig:nile1}
-
-  \includegraphics{plots/fig-nile2.pdf}
-  \caption{Nile Graph}
-  \label{fig:nile2}
+  \includegraphics{plots/fig-nile.pdf}
+  \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
+  \label{fig:nile}
 \end{figure}
 
 Figure \ref{fig:nile_w} plots the value of the probability of the structural break, as described in section ???.
@@ -332,8 +330,55 @@ As expected, only the year 1899 has a structural break probability greater than 
   \label{fig:nile_w}
 \end{figure}
 
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-nile_innovations.pdf}
+  \caption{Plot of innovations}
+  \label{fig:nile_innovations}
+\end{figure}
+
+\begin{table}[htpb]
+  \centering
+  \input{plots/tab-nile.tex}
+  \caption{Model summary statistics of Nile models.}
+  \label{tab:nile}
+\end{table}
+
+\clearpage{}
+
 \subsection{CP6 Sales Data}
 \label{sec:cp6-sales-data}
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-cp6.pdf}
+  \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
+  \label{fig:cp6}
+\end{figure}
+
+Figure \ref{fig:cp6_w} plots the value of the probability of the structural break, as described in section ???.
+As expected, only the year 1899 has a structural break probability greater than 0.5.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-cp6_w.pdf}
+  \caption{Plot of estimated probability of a structural break, calculated as $w_{i} = 1 - \E(\hat{\kappa})$}
+  \label{fig:cp6_w}
+\end{figure}
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-cp6_innovations.pdf}
+  \caption{Plot of innovations}
+  \label{fig:cp6_innovations}
+\end{figure}
+
+\begin{table}[htpb]
+  \centering
+  \input{plots/tab-cp6.tex}
+  \caption{Model summary statistics of the cp6 models.}
+  \label{tab:cp6}
+\end{table}
 
 
 \section{Appendix}
@@ -347,8 +392,17 @@ As expected, only the year 1899 has a structural break probability greater than 
 \label{sec:cp6}
 
 
+% \subsection{Code}
+% \label{sec:code}
+
+% \subsection{Normal DLM}
+
+% \input{plots/code-normal.tex}
 
 
+% \subsection{Horseshoe Prior DLM}
+
+% \input{plots/code-horseshoe.tex}
 
 \printbibliography{}
 
