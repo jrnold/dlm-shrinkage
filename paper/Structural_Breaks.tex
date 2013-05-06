@@ -53,15 +53,16 @@
 \section{Introduction}
 \label{sec:introduction}
 
-% Political processes vary over time, and the variation is often marked by periods of stability interrupted by large changes.
-% Thus, there is a need for methods to estimate time-varying parameters and those methods must be able to handle sparse changes in the parameters.
+Political processes vary over time, and the variation is often marked by periods of stability interrupted by large changes.
+Thus, there is a need for methods to estimate time-varying parameters and those methods must be able to handle sparse changes in the parameters.
+Two approaches to estimating time-varying parameters are structural-break/change-point/regime-switching models and smoothing models.
+
+Although The basic time-varying parameter problem is an example of a large-p, small-n problem.
+Suppose there are $T$ time periods, and the researcher would like to estimate a parameter $\theta$ that can take a different values in each period, $\theta_{t}$ for $t \in 1:T$.
+The problem is that there are often only $T$ data points, meaning that some additional structure must be applied to estimate 
+The time-varying parameter problem is different than many other large-p, small-n problems due to the ordering of the parameters.
 
 % This paper shows how time-varying parameters with possible large structural breakscan be modeled as conditional dynamic linear models with continuous scale-mixture of gaussian distributions in the state variance.
-
-% Although The basic time-varying parameter problem is an example of a large-p, small-n problem.
-% Suppose there are $T$ time periods, and the researcher would like to estimate a parameter $\theta$ that can take a different values in each period, $\theta_{t}$ for $t \in 1:T$.
-% The problem is that there are often only $T$ data points, meaning that some additional structure must be applied to estimate 
-% The time-varying parameter problem is different than many other large-p, small-n problems due to the ordering of the parameters.
 
 % This paper shows that structural break and smoothing approaches to time-varying parameters can both be incorporated into continuous state-space models.
 
@@ -142,7 +143,7 @@ Thus structural breaks can be incorporated within the DLM model by replacing the
   \eta_{t} & \sim \dnorm{0, \tau} 
 \end{equation}
 where $p$ is the prior probability that $\omega_{t}$ is a structural break ($\omega_{t} \neq 0$).
-Equation \eqref{eq:1} can also be rewritten as a normal scale mixture,
+Equation \eqref{eq:1} can also be rewritten so that $\omega_{t}$ is conditionally gaussian,
 \begin{equation}
   \label{eq:7}
   \begin{aligned}[t]
@@ -154,7 +155,7 @@ Equation \eqref{eq:1} can also be rewritten as a normal scale mixture,
     \end{cases}
   \end{aligned}
 \end{equation}
-with the convention that $N(0, 0) = \delta_{0}$.
+with the convention that $N(0, 0) = \delta_{0}$. 
 
 The number of breaks is not fixed \textit{ex ante} but is itself random variable.
 The value of $p$ determines the prior sparsity of changes and thus the expected number of structural breaks,
