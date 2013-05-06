@@ -10,7 +10,7 @@ cp6 <- RDATA[["cp6"]]
 
 summaries <- 
   llply(models,
-        function(k, y) summary(RDATA[[k]], y), y = cp6$flow)
+        function(k, y) summary(RDATA[[k]], y), y = cp6$sales)
 names(summaries) <- modelk
 
 RDATA[["summary_cp6"]] <- summaries

@@ -1,7 +1,7 @@
 nile <- RDATA[["nile"]]
 
 SEED <- c(64425843)
-ITER <- 2^15
+ITER <- 2^16
 WARMUP <- 2^13
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES

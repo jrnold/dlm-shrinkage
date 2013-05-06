@@ -18,22 +18,27 @@
 \title{Scale Mixture of Gaussians Dynamic Linear Models for Sparse 
   Time-Varying Parameter Change}
 
+
 \newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
 \newcommand{\dnorm}[1]{\ensuremath{\mathcal{N}\paren{#1}}}
 \newcommand{\dmvnorm}[2]{\ensuremath{\mathcal{N}_{#2}\paren{#1}}}
-\newcommand{\dt}[1]{\ensuremath{\mathcal{T}\paren{#1}}}
+\newcommand{\dt}[2]{\ensuremath{\mathcal{T}_{#1}\paren{#2}}}
 \newcommand{\dcauchy}[1]{\ensuremath{\mathcal{C}\paren{#1}}}
 \newcommand{\dhalfcauchy}[1]{\ensuremath{\mathcal{C}^{+}\paren{#1}}}
 \newcommand{\dbeta}[1]{\ensuremath{\mathcal{B}\paren{#1}}}
 \newcommand{\dinvbeta}[1]{\ensuremath{\mathcal{IB}\paren{#1}}}
 \newcommand{\dgamma}[1]{\ensuremath{\mathcal{G}\paren{#1}}}
 \newcommand{\dinvgamma}[1]{\ensuremath{\mathcal{IG}\paren{#1}}}
-\newcommand{\R}{\ensuremath{\mathfrak{R}}}
-\newcommand{\RR}{\textsf{R}}
+\newcommand{\dwishart}[1]{\ensuremath{\mathcal{W}\paren{#1}}}
+\newcommand{\dinvwishart}[1]{\ensuremath{\mathcal{IW}\paren{#1}}}
+\newcommand{\dunif}[1]{\ensuremath{\mathcal{U}\paren{#1}}}
+
+\newcommand{\RLang}{\textsf{R}}
+\newcommand{\R}{\ensuremath{\mathbb{R}}} %real
 
 \DeclareMathOperator{\E}{E}
-\DeclareMathOperator{\var}{var}
-\DeclareMathOperator{\cov}{cov}
+\DeclareMathOperator{\var}{Var}
+\DeclareMathOperator{\cov}{Cov}
 
 \include{pygments}
 \begin{document}
@@ -53,27 +58,17 @@
 Political processes are rarely constant over time, so there often a need for political science researchers to estimate time-varying parameters.
 Suppose there are $T$ time periods, and the researcher would like to estimate a parameter $\theta$ that can take a different values in each period, $\theta_{t}$ for $t \in 1:T$.
 Often there is only a single data point per time period, making the problem of estimating time varying parameters a small-n, large-p problem. 
-Thus, some sort of additional structure needs to be imposed on the evolution of $\theta$ in order to estimate it.
-In practice, there are two broad approaches to this problem.
-The first approach is to smooth parameter change over time.
+Thus, some sort of additional structure needs to be imposed on multivariate distribution of $\theta$ in order to estimate the time varying parameters.%
+Since the parameters are ordered by time, it is common to structure the differences in $\theta$, $\theta_{t} - \theta_{t - 1}$.
+\footnote{The alternative approach is to ignore the ordering of $\theta$ and apply a prior distribution on the $\theta$, as in random effects.}
+There are two classes of models for time-varying parameters.
+The first class smooths parameter changes over time, by shrinking the values of $\Delta \theta_{t}$.
 Examples of this approach are dynamic linear models, polynomial, and splines.
-The second approach is to restrict changes in the parameter to distinct times; this is equivalent to restricting the function of the parameter values with respect to time to be a step function.
+The second class selects times, usually a small number, at which there are non-zero changes in the parameter and the size of the non-zero changes.
+This is equivalent to setting the function of the parameter values with respect to time to be a step function.
 This approach includes structural break, regime-shift, change-point of the locations of the breaks is unknown, and indictator variables if the location of the breaks is known.
 
-Since the number of parameters is almost certainly going to be greater than or equal to the number of data points this is a case of a ``large-p'' problem.
-The smoothing approach corresponds to shrinkage.
-The $\eta_{t}$ are estimated by penalizing large values, normally through the use of the normal distribution, as in dynamic linear models.
-The structural break approach corresponds to selection models in the ``large-p'' framework.
-The $\eta_{t}$ are modeled as a discrete mixture over a point mass at 0, and another distribution (the distribution of the structural breaks); in other words, a spike-and-slab distribution.
-Note that if all time periods are structural breaks, the structural break approach is equivalent to the shrinkage approach.
-
-The purpose of this paper is to show that Bayesian shrinkage priors developed for regression regularization can be used to model time-varying.
-Traditionally, shrinkage approaches have had a difficult time in sparse signals.
-However, recent advances in the Bayesian shrinkage and variable selection literature has introduced new prior distributions that can effectively estimate sparse parameters. 
-This paper will focus on one of these distributions, the horseshoe prior distribution.
-The horseshoe prior distribution is a scale-mixture of normal distributions that can approximate a discrete mixture in sparse situations, as well as adapt to the level of sparsity.
-
-Modeling time-varying parameters with structural breaks with scale-mixtures of normals is an approach that has favorable properties both in terms of its flexibility, ease of implementation, and computational efficiency.
+Modeling time-varying parameters with structural breaks with scale-mixtures of normal distributions is an approach that has favorable properties in terms of its flexibility, ease of implementation, and computational efficiency.
 \begin{itemize}
 \item Unlike many existing discrete state-space approaches, the number of change points (or equivalently the sparsity in the changes in the parameters) does not need to be specified \textit{ex ante}, but can be estimated.
 \item This method is flexible.
@@ -95,17 +90,22 @@ A Dynamic Linear Model (DLM) is defined by the set of equations,
   \label{eq:2}
   \theta_{0} & \sim \dmvnorm{m_{0}, C_{0}}{p}
 \end{align}  
-where $t = 1:T$, $Y_{t}$ is a length $p$ row-vector, $F_{t}$ is a 
+where $t = 1:T$, 
+$Y_{t}$ and $\nu_{t}$ are length $m$ vectors,
+$\theta_{t}$, $m_{0}$, and $\omega_{t}$ are length $p$ vectors,
+$F_{t}$ is a $m \times p$ matrix, 
+$V_{t}$ is an $m \times m$ matrix,
+and $G_{t}$, $C_{0}$ and $W_{t}$ are $p \times p$ matrices.
 Equation \eqref{eq:8} is called the \textit{observation} or \textit{measurement} equation, 
 equation \eqref{eq:14} is called the \textit{system equation},
 and \eqref{eq:4} is the prior distribution on the initial state.
-I will refer to $\nu_{t}$ as \textit{errors}, and and $\omega_{t}$ as \textit{innovations}.
+I will refer to the $\nu_{t}$ as \textit{errors}, and the $\omega_{t}$ as \textit{innovations}.
 DLMs nest a large number of common models, including ARIMA, stochastic volatility, (time-varying parameter) regressions,
 and cubic splines \parencites{WestHarrison1997}{DurbinKoopman2001}{ShumwayStoffer2010}{CommandeurKoopman2007}.%
 \footnote{See \textcite{CommandeurKoopmanOoms2011} for a review of statistical software to estimate state space models.}
 
-For, simplicity and clarity in this section, I will consider a special case of the DLMs, a univariate local level model.
-The univariate local level model assumes a univariate $Y_{t}$, $F_{t} = 1$, and $G_{t} = 1$.
+For the purpose of motivating the estimation of time-varying parameters in this section, I will consider a special case of DLMs, a univariate local level model.
+The univariate local level model assumes a univariate $Y_{t} = y_{t}$, $F_{t} = 1$, and $G_{t} = 1$.
 \begin{align}
   \label{eq:15}
   y_t &= \theta_t + \nu_t & \nu_{t} &\sim \dnorm{0, v_{t}} \\
@@ -211,7 +211,7 @@ The horseshoe prior distribution does not have an analytical form, but is formed
   \label{eq:13}
   \lambda_{t} &\sim \dhalfcauchy{0, 1}
 \end{align}
-where $\dhalfcauchy(0, \gamma)$ is the standard half-Cauchy distribution with support on the positive real numbers, and scale $\gamma$.%
+where $\dhalfcauchy{0, \gamma}$ is the standard half-Cauchy distribution with support on the positive real numbers, and scale $\gamma$.%
 \footnote{
   This implies that $p(\lambda^{2})$ is distributed inverse-beta, $IB(a, b)$ where $a = b = \frac{1}{2}$ \parencite[4]{PolsonScott2010}. 
 }
@@ -238,10 +238,11 @@ To summarize, a local level with a horseshoe prior on the innovations,
   \begin{aligned}[t]
     y_{t} & \sim \dnorm{\theta_{t}, \sigma^{2}} \\
     \theta_{t} & \sim \dnorm{\theta_{t - 1}, \sigma^{2} \tau^{2} \lambda^{2}} \\
-    \lambda_{t} & \dhalfcauchy{0, 1}
+    \lambda_{t} & \sim \dhalfcauchy{0, 1}
   \end{aligned}
 \end{equation}
-The model is completed with non-informative priors on $\sigma^{2}$ and $\tau$ as in \textcite{CarvalhoPolsonScott2010}{DattaGhosh2012},
+The values $\sigma$ and $\tau$ can be estimated as parameters. 
+In which case, the following prior distributions are suggested in \textcite{CarvalhoPolsonScott2010}{DattaGhosh2012},
 \begin{align}
   \label{eq:9}
   \begin{aligned}[t]
@@ -264,13 +265,13 @@ The second method is to calculate a quantity similar to the posterior probabilit
 For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean,
 \begin{equation}
   \label{eq:17}
-  \E(\Delta \theta_{t}) \approx p_{t} e_{t} 
+  \E(\omega_{t} | y) \approx p_{t} e_{t} 
 \end{equation}
 where $p_{t}$ is the posterior probability of $\omega_{t} \neq 0$.
 For a scale mixture of normal distributions, the expected value of $\omega_{t}$ is 
 \begin{equation}
   \label{eq:10}
-  E(\omega_{t} | \theta_{t - 1}, \sigma, \tau, \lambda_{t}) =
+  E(\omega_{t} | y) =
   \left(
     1 - \frac{1}{1 + \lambda^{2}_{t} \tau^{2}}
   \right) e_{t} = (1 - \hat \kappa_{t}) e_{i}
@@ -289,7 +290,7 @@ Given that, \textcite{CarvalhoPolsonScott2010} recommend the following  decision
 \section{Monte Carlo}
 \label{sec:monte-carlo}
 
-This paper probably needs a monte carlo.
+This paper probably needs a Monte Carlo.
 
 \section{Examples}
 \label{sec:examples}
@@ -297,21 +298,40 @@ This paper probably needs a monte carlo.
 \subsection{Nile Flow Data}
 \label{sec:nile}
 
-The first example of change-point detection is a classic datset in the state-space and change point literature, the Nile river flow data \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}
+The first example is the Nile river flow data, which is a classic dataset in the  \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}
 The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970.
 It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
-I compare the estimates of the horseshoe prior model with that of a normal distribution, and a normal distribution with an intervention in 1899.
+Since in this example, there is only one clear change point, it is not fully exploiting the flexibility of this method, but is instead a sanity check.
+It will illustrate important differences between the adaption of the HPDLM and GDLM to a structural break,
+and it will show how, the HPDLM can approximate an intervention without any \textit{ex ante} input from the analyst.
 
-Figure \ref{fig:nile} plots the original data, and the mean of the posterior predicted data of the horseshoe prior model and the dynamic linear model.
-The horseshoe prior model shows a clear break and stability in the mean before and after the break.
-The normal model also adjusts to the structural break, but smooths over the break showing a lower mean in the years leading up to it, and higher mean in the years after it.
-The necessity of including local shrinkage parameters in addition to a global shrinkage parameter is apparent in the estimated mean of the normal model.
-In order to incorporate the structural break, the variance parameter had to be increased.
-However, increasing the variance does not shrink the other estimates as much, and thus estimates of the mean in the normal model are more variable than those of the horseshoe prior before and after the structural break.
+I compare the performance of the horseshoe prior innovations model ($M_{nile,HS}$) with two alternative models.
+The first model has a uses a normal distribution with a time-invariant variance for the innovations ($M_{nile,normal}$).
+The second model extends $M_{nile,normal}$ to include a single parameter that represents change in the level after 1899 ($M_{nile,normal2}$).
+The details of these models is given in Section \ref{sec:nile-1}.
+Figure \ref{fig:nile} plots the original data, and the mean of the posterior predictive distributions for each of these models.
+The  shows a sharp drop 1899 and stability before and after the break.
+The normal model $M_{nile,normal}$ shows a smother adjustment with the decline in the level beginning a few years before 1899 and continuing a few years thereafter.
+Model $M_{nile,normal}$ also shows more variability in the level before and after 1899.
+This variability illustrates the importance of using a scale mixtures of normal distributions with local shrinkage parameters ($\lambda_{t}$) in addition to a global shrinkage parameter ($\tau$).
+Since the normal model has only a single global shrinkage parameter ($\tau$). 
+In order to accommodate the large change in the level in 1899, the estimated value of $\tau$ must increase.
+However, increasing $\tau$ will result in less smoothing in the other observations.
+The normal model must trade off shrinking the non-structural breaks and not shrinking the structural break with only a single parameter, resulting in over-smoothing around the break and under-smoothing elsewhere.
 
-The horseshoe prior model's posterior mean estimates closely match those of the intervention model, without any \textit{ex ante} knowledge of the presence of the structural break.
-The Nile model is an easy case in that the series (although it has a fairly low signal to  noise ratio) is simple to interpret, with a clear break, and the event is apparent, so it is fairly obvious that an intervention should be included.
+It is also remarkable that the horseshoe prior model's posterior predictive means closely match those of the intervention model ($M_{nile,normal2}$) without any \textit{ex ante} knowledge of the presence of the structural break in 1899.
+There is a slight difference in the two models in that the horseshoe prior model puts some weight on the possibility that the structural break occurred in 1897 or 1898.
+This is most likely due to the low signal to noise ratio in the data; note that the observations in 1897 and 1898 are consistent with, although high for, the distribution of flows after 1899.
+The Nile model is an easy case in that the series has a single, large level change with a clear causal event, and thus easy to include a dummy variable.
 However, in many applications, the presence of the structural break will not be known, and in fact estimating the presence and location of the structural breaks will be the purpose of the application.
+
+Figures \ref{fig:nile_innovations} and \ref{fig:nile_w} show the results of the two methods that could be used to identify structural breaks. 
+Figure \ref{fig:nile_innovations} plots the mean and 95 percent HPD interval of each $p(\omega_{t} | y)$.%
+\footnote{For $M_{nile,normal2}$, the posterior distribution $p(\omega_{t} + \delta (x_{t} - x_{t-1}) | y)$ is used.}
+The normal model $M_{nile,nomral}$ shows no structural breaks, while the intervention model $M_{nile,normal2}$ shows a clear structural break at 1899.
+In the horseshoe model, the estimated mean of $p(\omega_{1899} | y)$ is large, suggesting a structural break, although its 95 percent credible interval does not cross zero.
+As noted before, this seems to be due to small, although highly variable estimates, of $\omega$ in 1897 and 1898.
+However, the second method, using the values of $w_{t}$ classifies 1899 as a structural break, giving the $\Pr(\omega_{1899} \neq 0) \approx 0.55$.
 
 \begin{figure}[htpb]
   \centering
@@ -319,9 +339,6 @@ However, in many applications, the presence of the structural break will not be 
   \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
   \label{fig:nile}
 \end{figure}
-
-Figure \ref{fig:nile_w} plots the value of the probability of the structural break, as described in section ???.
-As expected, only the year 1899 has a structural break probability greater than 0.5.
 
 \begin{figure}[htpb]
   \centering
@@ -346,40 +363,17 @@ As expected, only the year 1899 has a structural break probability greater than 
 
 \clearpage{}
 
-\subsection{CP6 Sales Data}
-\label{sec:cp6-sales-data}
+\subsubsection{Other Examples}
 
-\begin{figure}[htpb]
-  \centering
-  \includegraphics{plots/fig-cp6.pdf}
-  \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
-  \label{fig:cp6}
-\end{figure}
+This paper needs a political science example.
 
-Figure \ref{fig:cp6_w} plots the value of the probability of the structural break, as described in section ???.
-As expected, only the year 1899 has a structural break probability greater than 0.5.
-
-\begin{figure}[htpb]
-  \centering
-  \includegraphics{plots/fig-cp6_w.pdf}
-  \caption{Plot of estimated probability of a structural break, calculated as $w_{i} = 1 - \E(\hat{\kappa})$}
-  \label{fig:cp6_w}
-\end{figure}
-
-\begin{figure}[htpb]
-  \centering
-  \includegraphics{plots/fig-cp6_innovations.pdf}
-  \caption{Plot of innovations}
-  \label{fig:cp6_innovations}
-\end{figure}
-
-\begin{table}[htpb]
-  \centering
-  \input{plots/tab-cp6.tex}
-  \caption{Model summary statistics of the cp6 models.}
-  \label{tab:cp6}
-\end{table}
-
+\begin{itemize}
+\item Presidential approval for George W. Bush. \parencites{RatkovicEng2010}
+\item Median ideal point of the Senate. \parencites{RatkovicEng2010}
+\item Supreme court dissents and concurrences. 1 or 2 structural breaks. Poisson data. \parencite{CalderiaZorn1998}
+\item Discrete DV change-point models in \parencite{spirling2007bayesian}.
+\item Inflation or GDP?
+\end{itemize}
 
 \section{Appendix}
 \label{sec:appendix}
@@ -387,6 +381,46 @@ As expected, only the year 1899 has a structural break probability greater than 
 
 \subsection{Models}
 \label{sec:models}
+
+\subsubsection{Nile}
+\label{sec:nile-1}
+
+Model $M_{nile,normal}$ is a local level model with a normal distribution.
+The observation variance is given an improper Jeffrey's prior.
+The system variance (global scale parameter) is given a half-Cauchy distribution. 
+The initial state is given a semi-informative prior, a normal distribution with a mean at the value of the first observation, and variance equal to the sample variance of the data.
+\begin{equation}
+  \label{eq:11}
+  \begin{aligned}[t]
+    y_{t} &\sim \dnorm{\theta_{t}, \sigma^{2}} \\
+    \theta_{t} &\sim \dnorm{\theta_{t - 1}, \sigma^{2} \tau^{2}} \\
+    p(\sigma^{2}) &= \frac{1}{\sigma^{2}} \\
+    \tau &\sim \dhalfcauchy{0, 1} \\
+    p(\theta_{1}) &\sim \dnorm{y_{1}, \var{y}}
+  \end{aligned}
+\end{equation}
+
+Model $M_{nile,HS}$ differs from $M_{nile,normal}$ in that it assumes a horseshoe prior distribution on 
+the innovations,
+\begin{equation}
+  \label{eq:18}
+  \begin{aligned}[t]
+    \theta_{t} &\sim \dnorm{\theta_{t - 1}, \sigma^{2} \lambda_{t}^{2} \tau^{2}} \\
+    \lambda &\sim \dhalfcauchy{0, 1} \\
+    \tau &\sim \dhalfcauchy{0, 1}
+  \end{aligned}
+\end{equation}
+
+Model $M_{nile,HS}$ differs from $M_{nile,normal}$ by adding an intervention parameter $\delta$ to the observation equation to model the level shift. 
+The data $x_{t}$ is a binary vector equal to 0 before 1899, and 1 thereafter.
+\begin{equation}
+  \label{eq:18}
+  \begin{aligned}[t]
+    y_{t} &\sim \dnorm{\theta_{t} + \delta x_{t}, \sigma^{2}} \\
+    \delta &\sim \dunif{-\infty, \infty}
+  \end{aligned}
+\end{equation}
+
 
 \subsubsection{CP6}
 \label{sec:cp6}
