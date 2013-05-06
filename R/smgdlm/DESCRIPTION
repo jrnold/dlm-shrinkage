@@ -1,0 +1,26 @@
+Package: smgdlm
+Maintainer: Jeffrey Arnold <jeffrey.arnold@gmail.com>
+Author: Jeffrey Arnold <jeffrey.arnold@gmail.com>
+Version: 0.0.1
+License: GPL-3
+Title: Code for Scale Mixture of Gaussian DLMs
+Description: Code used in Scale Mixture of
+    Gaussian DLMs for Structural Breaks paper
+Depends:
+    methods,
+Imports:
+    mcmcdb,
+    mcmcstats
+Suggests:
+    testthat,
+    roxygen2
+Collate:
+    'smgdlm-package.R'
+    'McmcdbNormal.R'
+    'misc.R'
+    'McmcdbHorseshoe.R'
+    'McmcdbNormal2.R'
+    'McmcdbHorseshoe2.R'
+    'McmcdbHorseshoe4.R'
+    'dhp.R'
+    'crosszero.R'

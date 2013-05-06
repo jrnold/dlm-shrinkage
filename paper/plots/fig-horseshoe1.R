@@ -1,6 +1,4 @@
 source("conf.R")
-library(VGAM)
-
 OUTFILE <- commandArgs(TRUE)[1]
 
 x <- seq(-3.5, 3.5, by=0.1)
@@ -12,15 +10,14 @@ dist <- melt(data.frame(x = x,
                         normal = dnorm(x),
                         cauchy = dcauchy(x),
                         laplace = dlaplace(x)),
-             id.vars = "x")
+             id.vars = c("x", "horseshoe"))
 
-gg1 <- (ggplot(dist, aes(x = x, y = value, linetype=variable))
-        + geom_line()
-        + theme_local(base_size = 10)
-        + scale_x_continuous("Density")
-        + scale_y_continuous("alpha")
-        + scale_linetype_discrete("")
-        + guides(linetype = guide_legend(nrow=2)))
-
-ggsave(plot = gg1, file = OUTFILE, width=2.5, height = 2.5)
+gg1 <- (ggplot(dist, aes(x = x, y = value))
+        + facet_grid(. ~ variable)
+        + geom_line(aes(y = value), colour = "gray50")
+        + geom_line(aes(y = horseshoe), colour = "black")
+        + theme_minimal(base_size = 10)
+        + scale_x_continuous("x")
+        + scale_y_continuous("p(x)"))
+ggsave(plot = gg1, file = OUTFILE, width=5, height = 3)
        

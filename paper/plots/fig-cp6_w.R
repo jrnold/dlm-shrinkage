@@ -1,12 +1,12 @@
 source("conf.R")
 OUTFILE <- commandArgs(TRUE)[1]
-nile <- RDATA[["nile"]]
+cp6 <- RDATA[["cp6"]]
 
 outliers <-
-  data.frame(year = nile$year,
-             w = RDATA[["summary_nile"]][["hs"]][["w"]])
+  data.frame(date = cp6$date,
+             w = RDATA[["summary_cp6"]][["hs"]][["w"]])
 
-gg <- (ggplot(outliers[-1, ], aes(x = year, y = w))
+gg <- (ggplot(outliers[-1, ], aes(x = date, y = w))
        + geom_point()
        + geom_hline(yintercept = 0.5, colour = "gray")
        + scale_y_continuous(expression(w[i] == 1 - E(hat(kappa[i]))))
