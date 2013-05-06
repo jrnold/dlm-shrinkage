@@ -50,7 +50,7 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Political processes are rarely constant over time, so there often a need for political science researchers to estimate time-varying parameters.
+Political processes are rarely constant over time, so there often a need for researchers to estimate time-varying parameters.
 Suppose there are $T$ time periods, and the researcher would like to estimate a parameter $\theta$ that can take a different values in each period, $\theta_{t}$ for $t \in 1:T$.
 Often there is only a single data point per time period, making the problem of estimating time varying parameters a small-n, large-p problem. 
 Thus, some sort of additional structure needs to be imposed on the evolution of $\theta$ in order to estimate it.
@@ -59,6 +59,8 @@ The first approach is to smooth parameter change over time.
 Examples of this approach are dynamic linear models, polynomial, and splines.
 The second approach is to restrict changes in the parameter to distinct times; this is equivalent to restricting the function of the parameter values with respect to time to be a step function.
 This approach includes structural break, regime-shift, change-point of the locations of the breaks is unknown, and indictator variables if the location of the breaks is known.
+
+In addition, for many political processes, the changes are sparse, meaning that for many periods there is little change, and for a few periods there are potentially large changes.
 
 Since the number of parameters is almost certainly going to be greater than or equal to the number of data points this is a case of a ``large-p'' problem.
 The smoothing approach corresponds to shrinkage.
