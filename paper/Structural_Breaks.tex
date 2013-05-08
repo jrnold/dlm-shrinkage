@@ -53,19 +53,32 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Political processes vary over time, and the variation is often marked by periods of stability interrupted by large changes \parencite{RatkovicEng2010}.
-Thus, there is a need for methods to estimate time-varying parameters and those methods must be able to handle sparse changes in the parameters.
-Two approaches to estimating time-varying parameters are structural-break/change-point/regime-switching models and smoothing models.
+Structural breaks and smoothing approaches to estimating time-varying parameters are often thought of as distinct and estimated with different methods.
+This paper shows that both structural break methods and smoothing approaches can both be nested within continuous state space models and in particular 
+The fundamental difference between structural break models and smoothing approaches is in the assumptions they make about the distribution of the parameter innovations (changes).
+Structural break models assume that the innovations are a mixture between zero and a usually fat-tailed distribution.
+Smoothing approaches assume a continuous distribution for the innovations, usually one which penalizes large deviations.
+However, it is important to note that both of these models can be represented in a continuous state space model, and just differ in the distributions placed on the innovations.
 
+Political processes vary over time, and this variation is often marked by sparse changes, many periods of stability interruped by possible large changes \parencite{RatkovicEng2010}.
+However, Standard smoothing approaches to time varying parameters such as smoothing splines and the Kalman filter, do not model sparse innovations well.
+Because of that, there has been an interest in structural break, often called change-point, approaches to time-varying parameters in political science \textcite{Park2011}.
+These are often modeled within a discrete state space approach, e.g. Hidden Markov Models.
 
-This paper shows how dynamic linear models can easily be extended to be robust to and identify structural breaks.
+Not only can structural breaks be modeled within a continuous state space approach, structural breaks can be modeled within a 
+
+This paper shows how dynamic linear models (Kalman filter) can be easily extended to be robust to and identify structural breaks.
+The manner is which a latent state changes over time is determined by the assumed distribution over its changes, the distribution on the \textit{innovations}.
+Scale mixture of normal distributions for the distributions provide a flexible class of distributions that retain the computational advantages of the Kalman-like filters and while being able to accomodate the sort of sparse innovations that are often observed in political science data.
+This paper focuses on one such distribution, the Horseshoe Prior distribution, which although it is a continuous mixture of normal distributions has properties similar to a the spike-and-slab distribution implied by a structural break model.
 
 The incorporation of structural breaks and the general problem of estimating time-varying parameters is related to and a special case of the large-p, small-n problem.
 Suppose there are $T$ time periods, and the researcher would like to estimate a parameter $\theta$ that can take a different values in each period, $\theta_{t}$ for $t \in 1:T$.
-The problem is that there are often only $T$ data points, meaning that some additional structure must be applied to estimate 
-The time-varying parameter problem is different than many other large-p, small-n problems due to the ordering of the parameters.
-
-First, both smoothing and structural breaks can be represented within the continuous state space form. 
+A barrier to estimation is that there are often only $T$ data points, meaning that some additional structure must be applied to estimate 
+The time-varying parameter problem is distinct from other large-p, small-n problems due to the additional structure implied by an ordering of the parameters by time.
+Many approaches to estimating time-varying parameters can be thought of as implying different restrictions on per-period difference in the parameters $\Delta \theta_{t} = \theta_{t} - \theta_{t - 1}$.%
+Smoothing and structural break approaches to estimating time-varying parameters are analagous to shrinkage and variable selection approaches.
+The basic process is as follows.
 
 Modeling time-varying parameters with structural breaks with scale-mixtures of normals is an approach that has favorable properties both in terms of its flexibility, ease of implementation, and computational efficiency.
 \begin{itemize}
