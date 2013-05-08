@@ -24,3 +24,5 @@ Collate:
     'McmcdbHorseshoe4.R'
     'dhp.R'
     'crosszero.R'
+    'rbernoulli.R'
+    'sim_struc_break.R'

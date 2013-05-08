@@ -53,32 +53,35 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Political processes vary over time, and the variation is often marked by periods of stability interrupted by large changes.
+Political processes vary over time, and the variation is often marked by periods of stability interrupted by large changes \parencite{RatkovicEng2010}.
 Thus, there is a need for methods to estimate time-varying parameters and those methods must be able to handle sparse changes in the parameters.
 Two approaches to estimating time-varying parameters are structural-break/change-point/regime-switching models and smoothing models.
 
-Although The basic time-varying parameter problem is an example of a large-p, small-n problem.
+
+This paper shows how dynamic linear models can easily be extended to be robust to and identify structural breaks.
+
+The incorporation of structural breaks and the general problem of estimating time-varying parameters is related to and a special case of the large-p, small-n problem.
 Suppose there are $T$ time periods, and the researcher would like to estimate a parameter $\theta$ that can take a different values in each period, $\theta_{t}$ for $t \in 1:T$.
 The problem is that there are often only $T$ data points, meaning that some additional structure must be applied to estimate 
 The time-varying parameter problem is different than many other large-p, small-n problems due to the ordering of the parameters.
 
-% This paper shows how time-varying parameters with possible large structural breakscan be modeled as conditional dynamic linear models with continuous scale-mixture of gaussian distributions in the state variance.
+First, both smoothing and structural breaks can be represented within the continuous state space form. 
 
-% This paper shows that structural break and smoothing approaches to time-varying parameters can both be incorporated into continuous state-space models.
+Modeling time-varying parameters with structural breaks with scale-mixtures of normals is an approach that has favorable properties both in terms of its flexibility, ease of implementation, and computational efficiency.
+\begin{itemize}
+\item Unlike many existing discrete state-space approaches, the number of change points (or equivalently the sparsity in the changes in the parameters) does not need to be specified \textit{ex ante}, but can be estimated.
+\item This method is flexible.
+  This is a special case of a conditional gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{ShumwayStoffer2010}.
+  DLMs are a class of models that include regression, stochastic volatility, and ARIMA models.
+  The structural break method presented here can easily be adapted to model changes in multiple parameters, seasonal effects, slopes, and variance.
+\item It is convenient to independently model changes in multiple parameters, a situation which would cause an explosion in the number of states in discrete state space framework (Hidden Markov).
+\item Since the horseshoe prior distribution is hierarchical distribution formed from normal and Cauchy distributions, this model can easily be specified in general purpose Bayesian software (BUGS, Stan, etc.), even though that is not the most efficient method of estimating it.
+\end{itemize}
 
-% This paper approaches the estimation of time-varying parameters with structural breaks by noting that this means that the innovations in the parameters are sparse.
-% This paper also connects the estimation of time-varying parameters to the small-n, large-p literature that includes regularized regression and Bayesian shrinkage.
-
-% Modeling time-varying parameters with structural breaks with scale-mixtures of normals is an approach that has favorable properties both in terms of its flexibility, ease of implementation, and computational efficiency.
-% \begin{itemize}
-% \item Unlike many existing discrete state-space approaches, the number of change points (or equivalently the sparsity in the changes in the parameters) does not need to be specified \textit{ex ante}, but can be estimated.
-% \item This method is flexible.
-%   This is a special case of a conditional gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{ShumwayStoffer2010}.
-%   DLMs are a class of models that include regression, stochastic volatility, and ARIMA models.
-%   The structural break method presented here can easily be adapted to model changes in multiple parameters, seasonal effects, slopes, and variance.
-% \item It is convenient to independently model changes in multiple parameters, a situation which would cause an explosion in the number of states in discrete state space framework (Hidden Markov).
-% \item Since the horseshoe prior distribution is hierarchical distribution formed from normal and Cauchy distributions, this model can easily be specified in general purpose Bayesian software (BUGS, Stan, etc.), even though that is not the most efficient method of estimating it.
-% \end{itemize}
+This paper makes several contributions to the discussion of time-varying parameters within the political science literature.
+First, it places structural break and smoothing methods within a common modeling framework.
+This is useful in its own right; increases the understanding of structural breaks by focusing on the distribution of the changes of the state, and suggests fututure routes forward for building time-varying parameter models.
+Second, it links time-varying parameter models to the large-p, small-n literature (regularized / penalized regression in the likelihood literature, and shrinkage and variable selection in the Bayesian literature). 
 
 \section{Dynamic Linear Models}
 
