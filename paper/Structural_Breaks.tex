@@ -53,48 +53,62 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Structural breaks and smoothing approaches to estimating time-varying parameters are often thought of as distinct and estimated with different methods.
-This paper shows that both structural break methods and smoothing approaches can both be nested within continuous state space models and in particular 
-The fundamental difference between structural break models and smoothing approaches is in the assumptions they make about the distribution of the parameter innovations (changes).
-Structural break models assume that the innovations are a mixture between zero and a usually fat-tailed distribution.
-Smoothing approaches assume a continuous distribution for the innovations, usually one which penalizes large deviations.
-However, it is important to note that both of these models can be represented in a continuous state space model, and just differ in the distributions placed on the innovations.
-
 Political processes vary over time, and this variation is often marked by sparse changes, many periods of stability interruped by possible large changes \parencite{RatkovicEng2010}.
 However, Standard smoothing approaches to time varying parameters such as smoothing splines and the Kalman filter, do not model sparse innovations well.
 Because of that, there has been an interest in structural break, often called change-point, approaches to time-varying parameters in political science \textcite{Park2011}.
 These are often modeled within a discrete state space approach, e.g. Hidden Markov Models.
 
-Not only can structural breaks be modeled within a continuous state space approach, structural breaks can be modeled within a 
+Structural breaks and smoothing approaches to estimating time-varying parameters are often thought of as distinct methods.
+However, both structural break methods and smoothing approaches can both be nested within continuous state space models.
+The fundamental difference between structural break models and smoothing approaches is in the assumptions they make about the distribution of the innovations, where innovations refers to the one period difference in the time-varying parameter.
+Structural break models assume that the innovations are a mixture between zero and a usually fat-tailed distribution.
+Smoothing approaches assume a continuous distribution for the innovations, usually one which penalizes large deviations.
+However, both of these models can be represented in a continuous state space model, and differ only in the distribution placed on the innovations.
 
 This paper shows how dynamic linear models (Kalman filter) can be easily extended to be robust to and identify structural breaks.
 The manner is which a latent state changes over time is determined by the assumed distribution over its changes, the distribution on the \textit{innovations}.
 Scale mixture of normal distributions for the distributions provide a flexible class of distributions that retain the computational advantages of the Kalman-like filters and while being able to accomodate the sort of sparse innovations that are often observed in political science data.
 This paper focuses on one such distribution, the Horseshoe Prior distribution, which although it is a continuous mixture of normal distributions has properties similar to a the spike-and-slab distribution implied by a structural break model.
 
-The incorporation of structural breaks and the general problem of estimating time-varying parameters is related to and a special case of the large-p, small-n problem.
-Suppose there are $T$ time periods, and the researcher would like to estimate a parameter $\theta$ that can take a different values in each period, $\theta_{t}$ for $t \in 1:T$.
-A barrier to estimation is that there are often only $T$ data points, meaning that some additional structure must be applied to estimate 
-The time-varying parameter problem is distinct from other large-p, small-n problems due to the additional structure implied by an ordering of the parameters by time.
-Many approaches to estimating time-varying parameters can be thought of as implying different restrictions on per-period difference in the parameters $\Delta \theta_{t} = \theta_{t} - \theta_{t - 1}$.%
-Smoothing and structural break approaches to estimating time-varying parameters are analagous to shrinkage and variable selection approaches.
-The basic process is as follows.
-
-Modeling time-varying parameters with structural breaks with scale-mixtures of normals is an approach that has favorable properties both in terms of its flexibility, ease of implementation, and computational efficiency.
+The methods presented in this paper have several appealing features.
 \begin{itemize}
 \item Unlike many existing discrete state-space approaches, the number of change points (or equivalently the sparsity in the changes in the parameters) does not need to be specified \textit{ex ante}, but can be estimated.
+\item The lack of a need to specify the number of structural breaks follows from but since the sparsity of innovations can be estimated it is also a super-model that nests both structural break methods, when the innovations are sparse, and smoothing methods, when the innovations are dense.
 \item This method is flexible.
-  This is a special case of a conditional gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{ShumwayStoffer2010}.
+  The methods presented here are themselves special cases of Gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{ShumwayStoffer2010}.
   DLMs are a class of models that include regression, stochastic volatility, and ARIMA models.
   The structural break method presented here can easily be adapted to model changes in multiple parameters, seasonal effects, slopes, and variance.
 \item It is convenient to independently model changes in multiple parameters, a situation which would cause an explosion in the number of states in discrete state space framework (Hidden Markov).
-\item Since the horseshoe prior distribution is hierarchical distribution formed from normal and Cauchy distributions, this model can easily be specified in general purpose Bayesian software (BUGS, Stan, etc.), even though that is not the most efficient method of estimating it.
+\item Since the horseshoe prior distribution is hierarchical distribution formed from normal and Cauchy distributions, this model can easily be specified in general purpose Bayesian software (BUGS, Stan, etc.).
+\item Since the scale-mixture distributions of normal distributions are time-varying 
 \end{itemize}
 
-This paper makes several contributions to the discussion of time-varying parameters within the political science literature.
-First, it places structural break and smoothing methods within a common modeling framework.
-This is useful in its own right; increases the understanding of structural breaks by focusing on the distribution of the changes of the state, and suggests fututure routes forward for building time-varying parameter models.
-Second, it links time-varying parameter models to the large-p, small-n literature (regularized / penalized regression in the likelihood literature, and shrinkage and variable selection in the Bayesian literature). 
+Ultimately, this modeling smoothing and structural breaks via the prior distribution or penalty terms on the innovations is useful in its own right. 
+It increases the analysts understanding of time-varying parameters, including structural breaks, because it focuses on the distribution of the changes of the state.
+It links time-varying parameter models to the multiple testing / variable selection / large-p, small-n literature.
+The horeseshoe prior distribution that is used in this paper comes from that literature; there many be other linkages between the two problems that may result in more advances.
+
+\textit{Editor} I am not entirely sure how to present this introduction, and in what order, and what I need to tell the reader. My main points and line of inquiry and argument are as follows.
+
+\begin{itemize}
+\item Structural break methods (change-points) and smoothing methods can both be estimated within continuous state space models. 
+They are often treated as distinct, but can be considered different distributions (or equivalently regularization penalties) on the innovations (changes in parameters).
+\item Scale mixtures of normal distributions are able to model the type of sparse innovations often seen in political science processes (many periods of stability, and a few periods with large changes).
+They are able so without assuming a specific number of non-zero innovations (structural breaks), without implausibly assuming that there are periods in which the innovations are zero, and in a manner which is fairly robust to the case in which the underlying DGP has non-sparse innovations (smoothly varying TVP)
+\item Scale mixture of normal distributions have several additional favorable characteristics that follow from the fact that they are a cases of (conditional) Gaussian dynamic linear models.
+  \begin{enumerate}
+  \item First, they are flexible.
+    DLMs include a variety of common models, including SARIMA, structural time-series, cubic splines, TVP regressions, stocahstic volatility. 
+    An advantage of DLMs is that they can easily be extended and include different methods. 
+    These models can generally be altered with minimal effort so that the innovations use scale mixture of normal distributions, and thus potentiall include structural breaks.
+  \item Second, they are easily coded.
+    They can be easily coded in general purpose Bayesian software, such as Stan, BUGS, JAGS, or PyMC.
+    Example Stan code is provided.
+  \item Third, they are computationally efficient.
+    Although in general, time-varying parameters are difficult to estimate.
+    However, in the case of DLMs, there are computationally efficient algorithms for maximization (Kalman filter) and sampling.
+  \end{enumerate}
+\end{itemize}
 
 \section{Dynamic Linear Models}
 
