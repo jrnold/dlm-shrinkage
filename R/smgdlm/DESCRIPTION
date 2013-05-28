@@ -24,3 +24,5 @@ Collate:
     'McmcdbHorseshoe4.R'
     'dhp.R'
     'crosszero.R'
+    'McmcdbHorseshoe1a.R'
+    'McmcdbNormal1a.R'

@@ -15,7 +15,8 @@
 
 \author{Jeffrey B. Arnold}
 % Seeing a Shrink about Structural Breaks
-\title{Scale Mixture Innovation Models as a Flexible Model of Time-Varying Parameters with Structural Breaks}
+\title{Scale-Mixture of Normal Innovation Models: \\
+  A Flexible and Robust Model of Time-Varying Parameters with Structural Breaks}
 
 \newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
 \newcommand{\dnorm}[1]{\ensuremath{\mathcal{N}\paren{#1}}}
@@ -53,34 +54,51 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Political processes vary over time, and the variation is often marked by periods of stability interrupted by large changes.
-Thus, there is a need for methods to estimate time-varying parameters and those methods must be able to handle sparse changes in the parameters.
-Two approaches to estimating time-varying parameters are structural-break/change-point/regime-switching models and smoothing models.
+Political and social processes are rarely, if ever, constant over time. 
+Moreover, many of these processes the changes in the process are characterized by many periods of stability and a few periods of possibly rapid and large, change \parencite{RatkovicEng2010}.
+Because many smoothing methods such as splines and Kalman filters cannot account for the sparsity and scale differences in the innovation process,
+\footnote{\textcite{RatkovicEng2010} is the notable exception in that their method combines both smoothly varying sections with structural breaks.}
+structural break (change point) models are often used \parencites{CalderiaZorn1998}{Spirling2007}{Spirling2007a}{Park2010}{Park2011}.%
 
-Although The basic time-varying parameter problem is an example of a large-p, small-n problem.
-Suppose there are $T$ time periods, and the researcher would like to estimate a parameter $\theta$ that can take a different values in each period, $\theta_{t}$ for $t \in 1:T$.
-The problem is that there are often only $T$ data points, meaning that some additional structure must be applied to estimate 
-The time-varying parameter problem is different than many other large-p, small-n problems due to the ordering of the parameters.
+This paper shows how both structural break and smoothing processes are nested within continuous state space models.
+Structural break models and smoothing models differ in the assumptions they make over the distribution (or equivalently the penalty) on the innovations, the changes in the parameters.
+In structural break models, the innovations are modeled as a discrete mixture distribution between a point mass at zero (the non-breaks) and an often diffuse distribution for the non-zero innovations (the structural breaks).
+Smoothing models model the innovations with a continuous distribution that shrinks the innovations toward zero.
+The problem with most smoothing models in the face of sparse innovations is that the normal distribution does not shrink the non-breaks enough to zero, and they shrink the structural break innovations too much.
+Noting that identifying the structural breaks among the innovations is an example of a multiple testing problem, this paper draws on recently developed Bayesian shrinkage priors
+These shrinkage priors are able more aggressively shrink non-signals towards zero while leaving signals unshrunk.
+In particular, this paper will use the horseshoe prior distribution introduced in \textcite{CarvalhoPolsonScott2010} and \textcite{CarvalhoPolsonScott2009} to model the innovations.
+Although the horseshoe prior distribution is continuous, it behaves quite similarly to the discrete mixture model.
 
-% This paper shows how time-varying parameters with possible large structural breakscan be modeled as conditional dynamic linear models with continuous scale-mixture of gaussian distributions in the state variance.
+\section{TVP and Large-p Problems}
+\label{sec:tvp-large-p}
 
-% This paper shows that structural break and smoothing approaches to time-varying parameters can both be incorporated into continuous state-space models.
+\textit{I should probably be referencing the multiple-testing model}
 
-% This paper approaches the estimation of time-varying parameters with structural breaks by noting that this means that the innovations in the parameters are sparse.
-% This paper also connects the estimation of time-varying parameters to the small-n, large-p literature that includes regularized regression and Bayesian shrinkage.
+The time-varying parameter (TVP) problem is a special case of the large-p, small-n (LPSN) problem.
+\todo{Is a citation of large-p, small-n needed? What is a good citation?}
+If $T$, the number of time-periods, is large, then clearly $\theta_{1:T}$ is high-dimensional.
+If it is time-series data, there are often only $T$ data points, and even if it is a panel, the number of data points per time-period is generally small. 
+However, TVP problems differ from other large-p, small-n problems in that the parameters can be ordered (indexed) by time, $\theta_{1}, \theta_{2}, \dots, \theta_{T-1}, \theta_{T}$.
+This structure of the parameters allows for the use of recursive (dynamic-programming) algorithms for maximization and sampling that make the problem more tractable than the general case.
 
-% Modeling time-varying parameters with structural breaks with scale-mixtures of normals is an approach that has favorable properties both in terms of its flexibility, ease of implementation, and computational efficiency.
-% \begin{itemize}
-% \item Unlike many existing discrete state-space approaches, the number of change points (or equivalently the sparsity in the changes in the parameters) does not need to be specified \textit{ex ante}, but can be estimated.
-% \item This method is flexible.
-%   This is a special case of a conditional gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{ShumwayStoffer2010}.
-%   DLMs are a class of models that include regression, stochastic volatility, and ARIMA models.
-%   The structural break method presented here can easily be adapted to model changes in multiple parameters, seasonal effects, slopes, and variance.
-% \item It is convenient to independently model changes in multiple parameters, a situation which would cause an explosion in the number of states in discrete state space framework (Hidden Markov).
-% \item Since the horseshoe prior distribution is hierarchical distribution formed from normal and Cauchy distributions, this model can easily be specified in general purpose Bayesian software (BUGS, Stan, etc.), even though that is not the most efficient method of estimating it.
-% \end{itemize}
+There are direct analogies between the selection and shrinkage approaches in the LVSN literature and the structural break and smoothing approaches in the TVP literature.
+Structural break methods solve the TVP problem by dividing innovations into two groups: zero and non-zero innovations, and then estimates the values the non-zero innovations, usually from a diffuse prior distribution.
+Smoothing methods solve the TVP problem with a one-group model, but use either prior distributions or penalized likelihood to shrink the parameters towards zero.
+
+For reasons similar to the general reasons in the LPSN literature, this paper prefers a one-group solution to the TVP problem. 
+
+\begin{itemize}
+\item In most political and social science problems, it is implausible that there is ever a data generating process in which there is actually zero change from one period to the next.
+Structural break models are a convenient approximation, which can account for the sparsity in parameter innovations in many political science data, and have accounted for that sparsity better than many traditional smoothing models, e.g. normal dynamic linear models and smoothing splines.
+However, the methods presented in this paper will be able to account for the sparse parameter innovations without implausibly assuming periods in which the innovations are exactly zero.
+\item Even in the case of two-group models of innovations (assuming they put some positive probability on a break at all time periods), the posterior distribution of the innovations is continuous.
+In the converse of the previous point, even it the underlying data generating process is a two-group model, the posterior distribution will be continuous, thus estimating the innovations with a one-group model may be convenient (and potentially computationally efficient?) approximation.
+\item Estimating and sampling from discrete mixtures is often more challenging and computationally difficult than estimating and sampling from continuous distributions.
+\end{itemize}
 
 \section{Dynamic Linear Models}
+\label{sec:dynam-line-models}
 
 A Dynamic Linear Model (DLM) is defined by the following set of equations,
 \begin{align}
@@ -139,8 +157,10 @@ The intutition behind structural break models is that per period changes in the 
 Thus structural breaks can be incorporated within the DLM model by replacing the normal distribution of $\omega_{t}$ with a mixture of normal distributions.
 \begin{equation}
   \label{eq:1}
-  \omega_{t} \sim p \eta_{t}  + (1 - p) \delta_{0} \\
-  \eta_{t} & \sim \dnorm{0, \tau} 
+  \begin{aligned}[t]
+    \omega_{t} \sim p \eta_{t}  + (1 - p) \delta_{0} \\
+    \eta_{t} & \sim \dnorm{0, \tau} 
+  \end{aligned}
 \end{equation}
 where $p$ is the prior probability that $\omega_{t}$ is a structural break ($\omega_{t} \neq 0$).
 Equation \eqref{eq:1} can also be rewritten so that $\omega_{t}$ is conditionally gaussian,
@@ -163,7 +183,7 @@ and can either be fixed by the researcher or given a prior distribution and esti
 Prior regime duration distributed geometric with mean $(1 - p) / p$ and variance $\sqrt{1 - p} / p$ \parencite[68]{GiordaniKohn2008}, the same as in the original \textcite{Chib1998} HMM model.
 If $p = 1$, then then the model is equivalent to a dynamic linear model with constant innovation variance.
 
-\subsection{Continuous Scale Mixtures}
+\subsection{Continuous Scale Mixtures and the Horseshoe Prior Distribution}
 \label{sec:shrinkage}
 
 The approach which will be taken in this paper, is to adopt continuous scale mixture of 
@@ -171,7 +191,7 @@ The approach which will be taken in this paper, is to adopt continuous scale mix
   \label{eq:4}
   \begin{aligned}[t]
     \omega_{t} &\sim \dnorm{0, \lambda_{t}^{2} \tau^{2}} \\
-    \lamda_{t} &\sim p(\lambda_{t})
+    \lambda_{t} &\sim p(\lambda_{t})
   \end{aligned}
 \end{equation}
 
@@ -275,7 +295,7 @@ Given that, \textcite{CarvalhoPolsonScott2010} recommend the following  decision
 \section{Monte Carlo}
 \label{sec:monte-carlo}
 
-This paper probably needs a Monte Carlo.
+Since this would be computationally expensive, I've been working on both Stan code and a new R package for Kalman filters in order to be able to do these.
 
 \section{Examples}
 \label{sec:examples}
@@ -315,7 +335,9 @@ Figure \ref{fig:nile_innovations} plots the mean and 95 percent HPD interval of 
 \footnote{For $M_{nile,normal2}$, the posterior distribution $p(\omega_{t} + \delta (x_{t} - x_{t-1}) | y)$ is used.}
 The normal model $M_{nile,nomral}$ shows no structural breaks, while the intervention model $M_{nile,normal2}$ shows a clear structural break at 1899.
 In the horseshoe model, the estimated mean of $p(\omega_{1899} | y)$ is large, suggesting a structural break, although its 95 percent credible interval does not cross zero.
-As noted before, this seems to be due to small, although highly variable estimates, of $\omega$ in 1897 and 1898.
+As noted before, this seems to be due to small, although highly variable estimates, of $\omega$ in 1897 and 1898, suggesting small probabilities that the structural break occurred in those years.
+Note that the observed data in those years is consistent with the upper tail of the distribution after 1899.
+The reason that there is near certainty of a structural break in 1899 as opposed to the two earlier years is due to outside data, the knowledge that the dam was built in that year.
 However, the second method, using the values of $w_{t}$ classifies 1899 as a structural break, giving the $\Pr(\omega_{1899} \neq 0) \approx 0.55$.
 
 \begin{figure}[htpb]
@@ -346,11 +368,14 @@ However, the second method, using the values of $w_{t}$ classifies 1899 as a str
   \label{tab:nile}
 \end{table}
 
+\section{Implementation}
+\label{sec:implementation}
+
 \clearpage{}
 
 \subsubsection{Other Examples}
 
-This paper needs a political science example.
+This paper needs some / good examples.
 
 \begin{itemize}
 \item Presidential approval for George W. Bush. \parencites{RatkovicEng2010}
@@ -362,7 +387,6 @@ This paper needs a political science example.
 
 \section{Appendix}
 \label{sec:appendix}
-
 
 \subsection{Models}
 \label{sec:models}
@@ -407,8 +431,7 @@ The data $x_{t}$ is a binary vector equal to 0 before 1899, and 1 thereafter.
 \end{equation}
 
 
-\subsubsection{CP6}
-\label{sec:cp6}
+
 
 
 % \subsection{Code}
