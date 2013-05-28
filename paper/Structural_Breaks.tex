@@ -65,7 +65,7 @@ Structural break models assume that the innovations are a mixture between zero a
 Smoothing approaches assume a continuous distribution for the innovations, usually one which penalizes large deviations.
 However, both of these models can be represented in a continuous state space model, and differ only in the distribution placed on the innovations.
 
-This paper shows how dynamic linear models (Kalman filter) can be easily extended to be robust to and identify structural breaks.
+This paper shows time-varying parameters with potential structural breaks can be modeled as the dynamic linear model.
 The manner is which a latent state changes over time is determined by the assumed distribution over its changes, the distribution on the \textit{innovations}.
 Scale mixture of normal distributions for the distributions provide a flexible class of distributions that retain the computational advantages of the Kalman-like filters and while being able to accomodate the sort of sparse innovations that are often observed in political science data.
 This paper focuses on one such distribution, the Horseshoe Prior distribution, which although it is a continuous mixture of normal distributions has properties similar to a the spike-and-slab distribution implied by a structural break model.
@@ -269,38 +269,38 @@ In which case, the following prior distributions are suggested in \textcite{Carv
 \subsection{Identifying Structural Breaks}
 \label{sec:ident-struct-breaks}
 
-The posterior distribution $p(\theta | y)$ can be used to identify structural breaks in two ways. 
+Identification of structural breaks posterior distribution $p(\theta | y)$ can be used to identify structural breaks in two ways. 
 
 The first method is simply to use the posterior distribution of $\omega_{t} = \theta_{t} - \theta_{t-1}$.
 The probability that there was a positive change in $\theta$ at time $t$ is
 $\Pr(\omega_{t} | y) > 0$, and the probability of a negative change is $\Pr(\omega_{t} | y) < 0$.
 Alternatively, the highest posterior density region of the posterior can be calculated and the researcher can classify observations as structural breaks if the credible interval for a given probability does not cross zero.
 
-The second method is to calculate a quantity similar to the posterior probability $\omega \neq 0$ that would be produced by a spike and slab distribution.
-For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean,
-\begin{equation}
-  \label{eq:17}
-  \E(\omega_{t} | y) \approx p_{t} e_{t} 
-\end{equation}
-where $p_{t}$ is the posterior probability of $\omega_{t} \neq 0$.
-For a scale mixture of normal distributions, the expected value of $\omega_{t}$ is 
-\begin{equation}
-  \label{eq:10}
-  E(\omega_{t} | y) =
-  \left(
-    1 - \frac{1}{1 + \lambda^{2}_{t} \tau^{2}}
-  \right) e_{t} = (1 - \hat \kappa_{t}) e_{i}
-\end{equation}
-Equating equation \eqref{eq:17} with equation \eqref{eq:10}, it is clear that 
-the quantity $1 - \hat \kappa_{t}$ behaves similarly to $p_{t}$.
-While $1 - \hat \kappa_{t}$ can be calculated for all mixture of normal distributions, it is not necessarily the case that $1 - \hat \kappa_{t} \approx p_{t}$.
-However, one of the advantages of using the Horseshoe Prior distribution is that 
-\parencite[474]{CarvalhoPolsonScott2010} show through simulations that this is the case for the Horseshoe Prior distribution.
-Given that, \textcite{CarvalhoPolsonScott2010} recommend the following  decision rule under a 0-1 loss function to classify whether an observation is a signal (structural break in this case) or noise (no structural break), 
-\begin{equation}
-  \label{eq:5}
-  \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
-\end{equation}
+% The second method is to calculate a quantity similar to the posterior probability $\omega \neq 0$ that would be produced by a spike and slab distribution.
+% For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean,
+% \begin{equation}
+%   \label{eq:17}
+%   \E(\omega_{t} | y) \approx p_{t} e_{t} 
+% \end{equation}
+% where $p_{t}$ is the posterior probability of $\omega_{t} \neq 0$.
+% For a scale mixture of normal distributions, the expected value of $\omega_{t}$ is 
+% \begin{equation}
+%   \label{eq:10}
+%   E(\omega_{t} | y) =
+%   \left(
+%     1 - \frac{1}{1 + \lambda^{2}_{t} \tau^{2}}
+%   \right) e_{t} = (1 - \hat \kappa_{t}) e_{i}
+% \end{equation}
+% Equating equation \eqref{eq:17} with equation \eqref{eq:10}, it is clear that 
+% the quantity $1 - \hat \kappa_{t}$ behaves similarly to $p_{t}$.
+% While $1 - \hat \kappa_{t}$ can be calculated for all mixture of normal distributions, it is not necessarily the case that $1 - \hat \kappa_{t} \approx p_{t}$.
+% However, one of the advantages of using the Horseshoe Prior distribution is that 
+% \parencite[474]{CarvalhoPolsonScott2010} show through simulations that this is the case for the Horseshoe Prior distribution.
+% Given that, \textcite{CarvalhoPolsonScott2010} recommend the following  decision rule under a 0-1 loss function to classify whether an observation is a signal (structural break in this case) or noise (no structural break), 
+% \begin{equation}
+%   \label{eq:5}
+%   \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
+% \end{equation}
 
 \section{Monte Carlo}
 \label{sec:monte-carlo}
@@ -436,22 +436,6 @@ The data $x_{t}$ is a binary vector equal to 0 before 1899, and 1 thereafter.
   \end{aligned}
 \end{equation}
 
-
-\subsubsection{CP6}
-\label{sec:cp6}
-
-
-% \subsection{Code}
-% \label{sec:code}
-
-% \subsection{Normal DLM}
-
-% \input{plots/code-normal.tex}
-
-
-% \subsection{Horseshoe Prior DLM}
-
-% \input{plots/code-horseshoe.tex}
 
 \printbibliography{}
 
