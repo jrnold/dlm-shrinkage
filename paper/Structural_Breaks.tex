@@ -95,6 +95,62 @@ However, the methods presented in this paper will be able to account for the spa
 \item Even in the case of two-group models of innovations (assuming they put some positive probability on a break at all time periods), the posterior distribution of the innovations is continuous.
 In the converse of the previous point, even it the underlying data generating process is a two-group model, the posterior distribution will be continuous, thus estimating the innovations with a one-group model may be convenient (and potentially computationally efficient?) approximation.
 \item Estimating and sampling from discrete mixtures is often more challenging and computationally difficult than estimating and sampling from continuous distributions.
+=======
+Political processes vary over time, and this variation is often marked by sparse changes, many periods of stability interruped by possible large changes \parencite{RatkovicEng2010}.
+However, Standard smoothing approaches to time varying parameters such as smoothing splines and the Kalman filter, do not model sparse innovations well.
+Because of that, there has been an interest in structural break, often called change-point, approaches to time-varying parameters in political science \textcite{Park2011}.
+These are often modeled within a discrete state space approach, e.g. Hidden Markov Models.
+
+Structural breaks and smoothing approaches to estimating time-varying parameters are often thought of as distinct methods.
+However, both structural break methods and smoothing approaches can both be nested within continuous state space models.
+The fundamental difference between structural break models and smoothing approaches is in the assumptions they make about the distribution of the innovations, where innovations refers to the one period difference in the time-varying parameter.
+Structural break models assume that the innovations are a mixture between zero and a usually fat-tailed distribution.
+Smoothing approaches assume a continuous distribution for the innovations, usually one which penalizes large deviations.
+However, both of these models can be represented in a continuous state space model, and differ only in the distribution placed on the innovations.
+
+This paper shows time-varying parameters with potential structural breaks can be modeled as the dynamic linear model.
+The manner is which a latent state changes over time is determined by the assumed distribution over its changes, the distribution on the \textit{innovations}.
+Scale mixture of normal distributions for the distributions provide a flexible class of distributions that retain the computational advantages of the Kalman-like filters and while being able to accomodate the sort of sparse innovations that are often observed in political science data.
+This paper focuses on one such distribution, the Horseshoe Prior distribution, which although it is a continuous mixture of normal distributions has properties similar to a the spike-and-slab distribution implied by a structural break model.
+
+The methods presented in this paper have several appealing features.
+\begin{itemize}
+\item Unlike many existing discrete state-space approaches, the number of change points (or equivalently the sparsity in the changes in the parameters) does not need to be specified \textit{ex ante}, but can be estimated.
+\item The lack of a need to specify the number of structural breaks follows from but since the sparsity of innovations can be estimated it is also a super-model that nests both structural break methods, when the innovations are sparse, and smoothing methods, when the innovations are dense.
+\item This method is flexible.
+  The methods presented here are themselves special cases of Gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{ShumwayStoffer2010}.
+  DLMs are a class of models that include regression, stochastic volatility, and ARIMA models.
+  The structural break method presented here can easily be adapted to model changes in multiple parameters, seasonal effects, slopes, and variance.
+\item It is convenient to independently model changes in multiple parameters, a situation which would cause an explosion in the number of states in discrete state space framework (Hidden Markov).
+\item Since the horseshoe prior distribution is hierarchical distribution formed from normal and Cauchy distributions, this model can easily be specified in general purpose Bayesian software (BUGS, Stan, etc.).
+\item Since the scale-mixture distributions of normal distributions are time-varying 
+\end{itemize}
+
+Ultimately, this modeling smoothing and structural breaks via the prior distribution or penalty terms on the innovations is useful in its own right. 
+It increases the analysts understanding of time-varying parameters, including structural breaks, because it focuses on the distribution of the changes of the state.
+It links time-varying parameter models to the multiple testing / variable selection / large-p, small-n literature.
+The horeseshoe prior distribution that is used in this paper comes from that literature; there many be other linkages between the two problems that may result in more advances.
+
+\textit{Editor} I am not entirely sure how to present this introduction, and in what order, and what I need to tell the reader. My main points and line of inquiry and argument are as follows.
+
+\begin{itemize}
+\item Structural break methods (change-points) and smoothing methods can both be estimated within continuous state space models. 
+They are often treated as distinct, but can be considered different distributions (or equivalently regularization penalties) on the innovations (changes in parameters).
+\item Scale mixtures of normal distributions are able to model the type of sparse innovations often seen in political science processes (many periods of stability, and a few periods with large changes).
+They are able so without assuming a specific number of non-zero innovations (structural breaks), without implausibly assuming that there are periods in which the innovations are zero, and in a manner which is fairly robust to the case in which the underlying DGP has non-sparse innovations (smoothly varying TVP)
+\item Scale mixture of normal distributions have several additional favorable characteristics that follow from the fact that they are a cases of (conditional) Gaussian dynamic linear models.
+  \begin{enumerate}
+  \item First, they are flexible.
+    DLMs include a variety of common models, including SARIMA, structural time-series, cubic splines, TVP regressions, stocahstic volatility. 
+    An advantage of DLMs is that they can easily be extended and include different methods. 
+    These models can generally be altered with minimal effort so that the innovations use scale mixture of normal distributions, and thus potentiall include structural breaks.
+  \item Second, they are easily coded.
+    They can be easily coded in general purpose Bayesian software, such as Stan, BUGS, JAGS, or PyMC.
+    Example Stan code is provided.
+  \item Third, they are computationally efficient.
+    Although in general, time-varying parameters are difficult to estimate.
+    However, in the case of DLMs, there are computationally efficient algorithms for maximization (Kalman filter) and sampling.
+  \end{enumerate}
 \end{itemize}
 
 \section{Dynamic Linear Models}
@@ -259,38 +315,38 @@ In which case, the following prior distributions are suggested in \textcite{Carv
 \subsection{Identifying Structural Breaks}
 \label{sec:ident-struct-breaks}
 
-The posterior distribution $p(\theta | y)$ can be used to identify structural breaks in two ways. 
+Identification of structural breaks posterior distribution $p(\theta | y)$ can be used to identify structural breaks in two ways. 
 
 The first method is simply to use the posterior distribution of $\omega_{t} = \theta_{t} - \theta_{t-1}$.
 The probability that there was a positive change in $\theta$ at time $t$ is
 $\Pr(\omega_{t} | y) > 0$, and the probability of a negative change is $\Pr(\omega_{t} | y) < 0$.
 Alternatively, the highest posterior density region of the posterior can be calculated and the researcher can classify observations as structural breaks if the credible interval for a given probability does not cross zero.
 
-The second method is to calculate a quantity similar to the posterior probability $\omega \neq 0$ that would be produced by a spike and slab distribution.
-For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean,
-\begin{equation}
-  \label{eq:17}
-  \E(\omega_{t} | y) \approx p_{t} e_{t} 
-\end{equation}
-where $p_{t}$ is the posterior probability of $\omega_{t} \neq 0$.
-For a scale mixture of normal distributions, the expected value of $\omega_{t}$ is 
-\begin{equation}
-  \label{eq:10}
-  E(\omega_{t} | y) =
-  \left(
-    1 - \frac{1}{1 + \lambda^{2}_{t} \tau^{2}}
-  \right) e_{t} = (1 - \hat \kappa_{t}) e_{i}
-\end{equation}
-Equating equation \eqref{eq:17} with equation \eqref{eq:10}, it is clear that 
-the quantity $1 - \hat \kappa_{t}$ behaves similarly to $p_{t}$.
-While $1 - \hat \kappa_{t}$ can be calculated for all mixture of normal distributions, it is not necessarily the case that $1 - \hat \kappa_{t} \approx p_{t}$.
-However, one of the advantages of using the Horseshoe Prior distribution is that 
-\parencite[474]{CarvalhoPolsonScott2010} show through simulations that this is the case for the Horseshoe Prior distribution.
-Given that, \textcite{CarvalhoPolsonScott2010} recommend the following  decision rule under a 0-1 loss function to classify whether an observation is a signal (structural break in this case) or noise (no structural break), 
-\begin{equation}
-  \label{eq:5}
-  \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
-\end{equation}
+% The second method is to calculate a quantity similar to the posterior probability $\omega \neq 0$ that would be produced by a spike and slab distribution.
+% For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean,
+% \begin{equation}
+%   \label{eq:17}
+%   \E(\omega_{t} | y) \approx p_{t} e_{t} 
+% \end{equation}
+% where $p_{t}$ is the posterior probability of $\omega_{t} \neq 0$.
+% For a scale mixture of normal distributions, the expected value of $\omega_{t}$ is 
+% \begin{equation}
+%   \label{eq:10}
+%   E(\omega_{t} | y) =
+%   \left(
+%     1 - \frac{1}{1 + \lambda^{2}_{t} \tau^{2}}
+%   \right) e_{t} = (1 - \hat \kappa_{t}) e_{i}
+% \end{equation}
+% Equating equation \eqref{eq:17} with equation \eqref{eq:10}, it is clear that 
+% the quantity $1 - \hat \kappa_{t}$ behaves similarly to $p_{t}$.
+% While $1 - \hat \kappa_{t}$ can be calculated for all mixture of normal distributions, it is not necessarily the case that $1 - \hat \kappa_{t} \approx p_{t}$.
+% However, one of the advantages of using the Horseshoe Prior distribution is that 
+% \parencite[474]{CarvalhoPolsonScott2010} show through simulations that this is the case for the Horseshoe Prior distribution.
+% Given that, \textcite{CarvalhoPolsonScott2010} recommend the following  decision rule under a 0-1 loss function to classify whether an observation is a signal (structural break in this case) or noise (no structural break), 
+% \begin{equation}
+%   \label{eq:5}
+%   \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
+% \end{equation}
 
 \section{Monte Carlo}
 \label{sec:monte-carlo}
@@ -430,23 +486,6 @@ The data $x_{t}$ is a binary vector equal to 0 before 1899, and 1 thereafter.
   \end{aligned}
 \end{equation}
 
-
-
-
-
-% \subsection{Code}
-% \label{sec:code}
-
-% \subsection{Normal DLM}
-
-% \input{plots/code-normal.tex}
-
-
-% \subsection{Horseshoe Prior DLM}
-
-% \input{plots/code-horseshoe.tex}
-
-\printbibliography{}
 
 \end{document}
 

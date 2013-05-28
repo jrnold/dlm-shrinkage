@@ -26,3 +26,5 @@ Collate:
     'crosszero.R'
     'McmcdbHorseshoe1a.R'
     'McmcdbNormal1a.R'
+    'rbernoulli.R'
+    'sim_struc_break.R'
