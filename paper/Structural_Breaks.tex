@@ -54,154 +54,120 @@
 \label{sec:introduction}
 
 Political processes vary over time, and this variation is often marked by sparse changes, many periods of stability interruped by possible large changes \parencite{RatkovicEng2010}.
-However, Standard smoothing approaches to time varying parameters such as smoothing splines and the Kalman filter, do not model sparse innovations well.
+However, standard smoothing approaches to time varying parameters such as smoothing splines and the Kalman filter, do not model sparse innovations well.
 Because of that, there has been an interest in structural break, often called change-point, approaches to time-varying parameters in political science \textcite{Park2011}.
 These are often modeled within a discrete state space approach, e.g. Hidden Markov Models.
 
-Structural breaks and smoothing approaches to estimating time-varying parameters are often thought of as distinct methods.
-However, both structural break methods and smoothing approaches can both be nested within continuous state space models.
-The fundamental difference between structural break models and smoothing approaches is in the assumptions they make about the distribution of the innovations, where innovations refers to the one period difference in the time-varying parameter.
-Structural break models assume that the innovations are a mixture between zero and a usually fat-tailed distribution.
-Smoothing approaches assume a continuous distribution for the innovations, usually one which penalizes large deviations.
+Structural break and smoothing models are both models of estimating time-varying parameters, but they are often thought of as distinct, and researchers need to choose between using one or the other.
+However, structural break methods and smoothing approaches can both be nested within continuous state space models.
+The fundamental difference between structural break models and smoothing approaches is in the assumption that they make about the distribution of the innovations, where innovations refers to the one period difference in the time-varying parameter.
+Structural break models assume that the innovations are a discrete mixture between zero and a usually fat-tailed distribution.
+Smoothing approaches assume a continuous distribution on the innovations, usually one which penalizes large deviations from zero.
 However, both of these models can be represented in a continuous state space model, and differ only in the distribution placed on the innovations.
 
-This paper shows time-varying parameters with potential structural breaks can be modeled as the dynamic linear model.
-The manner is which a latent state changes over time is determined by the assumed distribution over its changes, the distribution on the \textit{innovations}.
-Scale mixture of normal distributions for the distributions provide a flexible class of distributions that retain the computational advantages of the Kalman-like filters and while being able to accomodate the sort of sparse innovations that are often observed in political science data.
-This paper focuses on one such distribution, the Horseshoe Prior distribution, which although it is a continuous mixture of normal distributions has properties similar to a the spike-and-slab distribution implied by a structural break model.
+This paper shows how time-varying parameters with potential structural breaks can be easily and flexibly modeled within the continuous state space (dynamic linear) model fraamework.
+Structural breaks in parameters can be modeled within DLMs by using sparsity promoting distributions for the distribution of the innovations (changes in parameters).
 
-The methods presented in this paper have several appealing features.
-\begin{itemize}
-\item Unlike many existing discrete state-space approaches, the number of change points (or equivalently the sparsity in the changes in the parameters) does not need to be specified \textit{ex ante}, but can be estimated.
-\item The lack of a need to specify the number of structural breaks follows from but since the sparsity of innovations can be estimated it is also a super-model that nests both structural break methods, when the innovations are sparse, and smoothing methods, when the innovations are dense.
-\item This method is flexible.
-  The methods presented here are themselves special cases of Gaussian dynamic linear models (CGDLM) \parencites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{ShumwayStoffer2010}.
-  DLMs are a class of models that include regression, stochastic volatility, and ARIMA models.
-  The structural break method presented here can easily be adapted to model changes in multiple parameters, seasonal effects, slopes, and variance.
-\item It is convenient to independently model changes in multiple parameters, a situation which would cause an explosion in the number of states in discrete state space framework (Hidden Markov).
-\item Since the horseshoe prior distribution is hierarchical distribution formed from normal and Cauchy distributions, this model can easily be specified in general purpose Bayesian software (BUGS, Stan, etc.).
-\item Since the scale-mixture distributions of normal distributions are time-varying 
-\end{itemize}
-
-Ultimately, this modeling smoothing and structural breaks via the prior distribution or penalty terms on the innovations is useful in its own right. 
-It increases the analysts understanding of time-varying parameters, including structural breaks, because it focuses on the distribution of the changes of the state.
-It links time-varying parameter models to the multiple testing / variable selection / large-p, small-n literature.
-The horeseshoe prior distribution that is used in this paper comes from that literature; there many be other linkages between the two problems that may result in more advances.
-
-\textit{Editor} I am not entirely sure how to present this introduction, and in what order, and what I need to tell the reader. My main points and line of inquiry and argument are as follows.
-
-\begin{itemize}
-\item Structural break methods (change-points) and smoothing methods can both be estimated within continuous state space models. 
-They are often treated as distinct, but can be considered different distributions (or equivalently regularization penalties) on the innovations (changes in parameters).
-\item Scale mixtures of normal distributions are able to model the type of sparse innovations often seen in political science processes (many periods of stability, and a few periods with large changes).
-They are able so without assuming a specific number of non-zero innovations (structural breaks), without implausibly assuming that there are periods in which the innovations are zero, and in a manner which is fairly robust to the case in which the underlying DGP has non-sparse innovations (smoothly varying TVP)
-\item Scale mixture of normal distributions have several additional favorable characteristics that follow from the fact that they are a cases of (conditional) Gaussian dynamic linear models.
-  \begin{enumerate}
-  \item First, they are flexible.
-    DLMs include a variety of common models, including SARIMA, structural time-series, cubic splines, TVP regressions, stocahstic volatility. 
-    An advantage of DLMs is that they can easily be extended and include different methods. 
-    These models can generally be altered with minimal effort so that the innovations use scale mixture of normal distributions, and thus potentiall include structural breaks.
-  \item Second, they are easily coded.
-    They can be easily coded in general purpose Bayesian software, such as Stan, BUGS, JAGS, or PyMC.
-    Example Stan code is provided.
-  \item Third, they are computationally efficient.
-    Although in general, time-varying parameters are difficult to estimate.
-    However, in the case of DLMs, there are computationally efficient algorithms for maximization (Kalman filter) and sampling.
-  \end{enumerate}
-\end{itemize}
+% \begin{itemize}
+% \item Structural break methods (change-points) and smoothing methods can both be estimated within continuous state space models. 
+% They are often treated as distinct, but can be considered different distributions (or equivalently regularization penalties) on the innovations (changes in parameters).
+% \item Scale mixtures of normal distributions are able to model the type of sparse innovations often seen in political science processes (many periods of stability, and a few periods with large changes).
+% They are able so without assuming a specific number of non-zero innovations (structural breaks), without implausibly assuming that there are periods in which the innovations are zero, and in a manner which is fairly robust to the case in which the underlying DGP has non-sparse innovations (smoothly varying TVP)
+% \item Scale mixture of normal distributions have several additional favorable characteristics that follow from the fact that they are a cases of (conditional) Gaussian dynamic linear models.
+%   \begin{enumerate}
+%   \item First, they are flexible.
+%     DLMs include a variety of common models, including SARIMA, structural time-series, cubic splines, TVP regressions, stocahstic volatility. 
+%     An advantage of DLMs is that they can easily be extended and include different methods. 
+%     These models can generally be altered with minimal effort so that the innovations use scale mixture of normal distributions, and thus potentiall include structural breaks.
+%   \item Second, they are easily coded.
+%     They can be easily coded in general purpose Bayesian software, such as Stan, BUGS, JAGS, or PyMC.
+%     Example Stan code is provided.
+%   \item Third, they are computationally efficient.
+%     Although in general, time-varying parameters are difficult to estimate.
+%     However, in the case of DLMs, there are computationally efficient algorithms for maximization (Kalman filter) and sampling.
+%   \end{enumerate}
+% \end{itemize}
 
 \section{Dynamic Linear Models}
 
-A Dynamic Linear Model (DLM) is defined by the following set of equations,
+A Dynamic Linear Model (DLM), also called a Linear Gaussian state space model, for a $n$-dimensional observation sequence $y_{1}, \dots, y_{n}$ is defined by the following set of equations.%
+\footnote{This paper uses the notation used in Koopman and Durbin and the SsfPack software.}
+For $t = 1:n$,
 \begin{align}
   \label{eq:8}
-  Y_t &= F_{t} \theta_t + \nu_t & \nu_{t} &\sim \dmvnorm{0, V_{t}}{m} \\
+  y_t &= Z_{t} \alpha_t + \eta_t & \varepsilon_{t} &\sim \dmvnorm{0, H_{t}}{p} \\
   \label{eq:14}
-  \theta_t &= G_{t} \theta_{t-1} + \omega_{t} & \omega_{t} &\sim \dmvnorm{0, W_{t}}{p} \\
+  \alpha_{t+1} &= T_{t} \alpha_{t} + R_{t} \eta_{t} & \eta_{t} &\sim \dmvnorm{0, Q_{t}}{r} \\
   \label{eq:2}
-  \theta_{0} & \sim \dmvnorm{m_{0}, C_{0}}{p}
-\end{align}  
-where $t = 1:T$, 
-$Y_{t}$ and $\nu_{t}$ are length $m$ vectors,
-$\theta_{t}$, $m_{0}$, and $\omega_{t}$ are length $p$ vectors,
-$F_{t}$ is a $m \times p$ matrix, 
-$V_{t}$ is an $m \times m$ matrix,
-and $G_{t}$, $C_{0}$ and $W_{t}$ are $p \times p$ matrices.
-Equation \eqref{eq:8} is called the \textit{observation} equation, 
-equation \eqref{eq:14} is called the \textit{system} equation,
-and \eqref{eq:4} is the prior distribution on the initial state.
-I will refer to the $\nu_{t}$ as observation \textit{errors}, and the $\omega_{t}$ as \textit{innovations}.
+  \alpha_{1} & \sim \dmvnorm{a_{1}, P_{1}}{m}
+\end{align}
+where $\alpha_{t}$ is the (latent) state vector, 
+$\varepsilon$ are the observation disturbances, 
+$\eta$ are the innovations, 
+and $Z_{t}$, $H_{t}$, $T_{t}$, $R_{t}$, and $Q_{t}$ are referred to as the system matrices.
+$y_{t}$ and $\varepsilon_{t}$ are length $p$ vectors,
+$\eta_{t}$, $a_{1}$, and $\eta_{t}$ are length $m$ vectors,
+$R_{t}$ is a $m \times r$ matrix, $Q_{t}$ is an $r \times r$ matrix.
 
 DLMs nest a large number of common models, including ARIMA, stochastic volatility, (time-varying parameter) regressions,
 and cubic splines \parencites{WestHarrison1997}{DurbinKoopman2001}\parencite{PetrisPetroneEtAl2009}{CommandeurKoopman2007}.%
 \footnote{See \textcite{CommandeurKoopmanOoms2011} for a review of statistical software to estimate state space models.}
 This flexibility is important because the methods presented below can be applied to a wide range of models with little modification.
 
-Perhaps the most simple non-trivial DLM is the the univariate local level model,
+Perhaps the most simple non-trivial DLM is the the univariate local level model, which will be used to motivate this paper's approach to time varying parameters and structural breaks.
 \begin{align}
   \label{eq:15}
-  y_t &= \theta_t + \nu_t & \nu_{t} &\sim \dnorm{0, v_{t}} \\
+  y_t &= \alpha_t + \varepsilon_t & \varepsilon_{t} &\sim \dnorm{0, H_{t}} \\
   \label{eq:16}
-  \theta_t &= \theta_{t-1} + \omega_{t} & \omega_{t} &\sim \dnorm{0, w_{t}} \\
+  \alpha_t &= \alpha_{t-1} + \eta_{t} & \eta_{t} &\sim \dnorm{0, Q_{t}} \\
 \end{align}
-where $y_{t}$ and $\theta_{t}$ are scalars.
-In this model, given the initial value $\theta_{0}$, the values of $\theta$ are determined by the distribution of the $\omega$, which is a distribution over the changes in $\theta$,
-\begin{equation}
-  \label{eq:12}
-  \Delta \theta_{t} = \theta_{t} - \theta_{t - 1} = \omega_{t} \sim \dnorm{0, w_{t}} \text{.}
-\end{equation}
-Thus, the choice of the distributions of the $\omega$ parameters determines how the parameter $\theta$ can evolve over time.%
-\footnote{Although I only consider Bayesian framework, the choice of prior distribution is equivalent to a choice of a penalty term in maximum likelihood framework \parencite{PolsonScott2010}.}
+where $y_{t}$ and $\alpha_{t}$ are scalars.
 
-A common approach is to assume that the innovations have a constant variance over time, $w_{t} = w$  for all $t \in 1:T$.
-If $\omega_{t}$ are distributed i.i.d. normal, then large changes in $\theta$ are penalized and the evolution of $\theta$ over time is smoothed.
-\footnote{This is equivalent to an L2 penalty.}
-The problem with assuming $\omega_{t} \sim \dnorm{0, w}$ is that it does not incorporate handle sparsity and large values well, two features which are expected in many data generating processes encounted in political science.
+Notice that changes in $\alpha$ are driven by the distribution over $\eta$.
+A common approach is to assume that the innovations have a constant variance over time, $Q_{t} = Q$  for all $t \in 1:n$.
+If $\omega_{t}$ are distributed i.i.d. normal, then large changes in $\alpha$ are penalized and the evolution of $\alpha$ over time is smoothed.
+The problem with assuming $\omega_{t} \sim \dnorm{0, Q}$ is that it does not incorporate handle sparsity and large values well, two features which are expected in many data generating processes encounted in political science.
 
-\subsection{Discrete Scale Mixtures}
-\label{sec:discr-mixt-distr}
+% \subsection{Discrete Scale Mixtures}
+% \label{sec:discr-mixt-distr}
 
-The first approach are selection approaches, in which the estimation technique selects which $\omega_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
-Models within this approach are usually formulated and estimated as discrete state-space Hidden Markov Models, \parencites{Chib1998}{spirling2007bayesian}{Park2011}{Park2010}{Blackwell2012}.
-A downside of these methods is that they often require the number of discrete states to be set \parencite{Chib1998}, and although methods exist that relax that assumption, they are often not straighforward.
+% The first approach are selection approaches, in which the estimation technique selects which $\alpha_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
+% Models within this approach are usually formulated and estimated as discrete state-space Hidden Markov Models, \parencites{Chib1998}{spirling2007bayesian}{Park2011}{Park2010}{Blackwell2012}.
+% A downside of these methods is that they often require the number of discrete states to be set \parencite{Chib1998}, and although methods exist that relax that assumption, they are often not straighforward.
 
-The intutition behind structural break models is that per period changes in the parameters are divided into two groups: structural breaks in which the change is non-zero, and non-structural breaks in which there is no change.
-Thus structural breaks can be incorporated within the DLM model by replacing the normal distribution of $\omega_{t}$ with a mixture of normal distributions.
-\begin{equation}
-  \label{eq:1}
-  \omega_{t} \sim p \eta_{t}  + (1 - p) \delta_{0} \\
-  \eta_{t} & \sim \dnorm{0, \tau} 
-\end{equation}
-where $p$ is the prior probability that $\omega_{t}$ is a structural break ($\omega_{t} \neq 0$).
-Equation \eqref{eq:1} can also be rewritten so that $\omega_{t}$ is conditionally gaussian,
-\begin{equation}
-  \label{eq:7}
-  \begin{aligned}[t]
-    \omega_{t} & \sim N(0, \lambda_{t} \tau) \\
-    \lambda_{t} = & 
-    \begin{cases}
-      1 & \text{with probability $p$} \\
-      0 & \text{with probability $1 - p$}
-    \end{cases}
-  \end{aligned}
-\end{equation}
-with the convention that $N(0, 0) = \delta_{0}$. 
+% The intutition behind structural break models is that per period changes in the parameters are divided into two groups: structural breaks in which the change is non-zero, and non-structural breaks in which there is no change.
+% Thus structural breaks can be incorporated within the DLM model by replacing the normal distribution of $\alpha_{t}$ with a mixture of normal distributions.
+% \begin{equation}
+%   \label{eq:1}
+%   \alpha_{t} \sim p \eta_{t}  + (1 - p) \delta_{0} \\
+%   \eta_{t} & \sim \dnorm{0, \tau} 
+% \end{equation}
+% where $p$ is the prior probability that $\alpha_{t}$ is a structural break ($\alpha_{t} \neq 0$).
+% Equation \eqref{eq:1} can also be rewritten so that $\alpha_{t}$ is conditionally gaussian,
+% \begin{equation}
+%   \label{eq:7}
+%   \begin{aligned}[t]
+%     \alpha_{t} & \sim N(0, \lambda_{t} \tau) \\
+%     \lambda_{t} = & 
+%     \begin{cases}
+%       1 & \text{with probability $p$} \\
+%       0 & \text{with probability $1 - p$}
+%     \end{cases}
+%   \end{aligned}
+% \end{equation}
+% with the convention that $N(0, 0) = \delta_{0}$. 
 
-The number of breaks is not fixed \textit{ex ante} but is itself random variable.
-The value of $p$ determines the prior sparsity of changes and thus the expected number of structural breaks,
-and can either be fixed by the researcher or given a prior distribution and estimated.
-Prior regime duration distributed geometric with mean $(1 - p) / p$ and variance $\sqrt{1 - p} / p$ \parencite[68]{GiordaniKohn2008}, the same as in the original \textcite{Chib1998} HMM model.
-If $p = 1$, then then the model is equivalent to a dynamic linear model with constant innovation variance.
+% The number of breaks is not fixed \textit{ex ante} but is itself random variable.
+% The value of $p$ determines the prior sparsity of changes and thus the expected number of structural breaks,
+% and can either be fixed by the researcher or given a prior distribution and estimated.
+% Prior regime duration distributed geometric with mean $(1 - p) / p$ and variance $\sqrt{1 - p} / p$ \parencite[68]{GiordaniKohn2008}, the same as in the original \textcite{Chib1998} HMM model.
+% If $p = 1$, then then the model is equivalent to a dynamic linear model with constant innovation variance.
 
-\subsection{Continuous Scale Mixtures}
-\label{sec:shrinkage}
-
-The approach which will be taken in this paper, is to adopt continuous scale mixture of 
 \begin{equation}
   \label{eq:4}
   \begin{aligned}[t]
-    \omega_{t} &\sim \dnorm{0, \lambda_{t}^{2} \tau^{2}} \\
-    \lamda_{t} &\sim p(\lambda_{t})
+    \varepsilon_{t} &\sim \dnorm{0, \lambda_{t}^{2} \tau^{2}} \\
+    \lambda_{t} &\sim p(\lambda_{t})
   \end{aligned}
 \end{equation}
 
@@ -239,13 +205,13 @@ Figure \ref{fig:horseshoe} compares the density of the horseshoe prior distribut
 The Laplacian distribution is commonly used in sparse regularized regression.
 However, the horseshoe prior distribution has both a taller spike at zero and fatter tails than the Laplacian distribution.
 
-\begin{figure}
-  \centering
-  \includegraphics{plots/fig-horseshoe1.pdf}
-  \includegraphics{plots/fig-horseshoe2.pdf}
-  \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
-  \label{fig:horseshoe}
-\end{figure}
+% \begin{figure}
+%   \centering
+%   \includegraphics{plots/fig-horseshoe1.pdf}
+%   \includegraphics{plots/fig-horseshoe2.pdf}
+%   \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
+%   \label{fig:horseshoe}
+% \end{figure}
 
 To summarize, a local level model 
 \begin{equation}
@@ -305,8 +271,6 @@ Alternatively, the highest posterior density region of the posterior can be calc
 \section{Monte Carlo}
 \label{sec:monte-carlo}
 
-This paper probably needs a Monte Carlo.
-
 \section{Examples}
 \label{sec:examples}
 
@@ -348,33 +312,68 @@ In the horseshoe model, the estimated mean of $p(\omega_{1899} | y)$ is large, s
 As noted before, this seems to be due to small, although highly variable estimates, of $\omega$ in 1897 and 1898.
 However, the second method, using the values of $w_{t}$ classifies 1899 as a structural break, giving the $\Pr(\omega_{1899} \neq 0) \approx 0.55$.
 
-\begin{figure}[htpb]
-  \centering
-  \includegraphics{plots/fig-nile.pdf}
-  \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
-  \label{fig:nile}
-\end{figure}
+% \begin{figure}[htpb]
+%   \centering
+%   \includegraphics{plots/fig-nile.pdf}
+%   \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
+%   \label{fig:nile}
+% \end{figure}
 
-\begin{figure}[htpb]
-  \centering
-  \includegraphics{plots/fig-nile_w.pdf}
-  \caption{Plot of estimated probability of a structural break, calculated as $w_{i} = 1 - \E(\hat{\kappa})$}
-  \label{fig:nile_w}
-\end{figure}
+% \begin{figure}[htpb]
+%   \centering
+%   \includegraphics{plots/fig-nile_w.pdf}
+%   \caption{Plot of estimated probability of a structural break, calculated as $w_{i} = 1 - \E(\hat{\kappa})$}
+%   \label{fig:nile_w}
+% \end{figure}
 
-\begin{figure}[htpb]
-  \centering
-  \includegraphics{plots/fig-nile_innovations.pdf}
-  \caption{Plot of innovations}
-  \label{fig:nile_innovations}
-\end{figure}
+% \begin{figure}[htpb]
+%   \centering
+%   \includegraphics{plots/fig-nile_innovations.pdf}
+%   \caption{Plot of innovations}
+%   \label{fig:nile_innovations}
+% \end{figure}
 
-\begin{table}[htpb]
-  \centering
-  \input{plots/tab-nile.tex}
-  \caption{Model summary statistics of Nile models.}
-  \label{tab:nile}
-\end{table}
+% \begin{table}[htpb]
+%   \centering
+%   \input{plots/tab-nile.tex}
+%   \caption{Model summary statistics of Nile models.}
+%   \label{tab:nile}
+% \end{table}
+
+\section{Implementation}
+\label{sec:implementation}
+
+% There are a wide variety of sofware that can estimate state space models.
+% See the special issue of the \textit{Journal of Statistical Software} provides an overview of the software available to estimate state space models, including in R, Stata, and Matlab.%
+% \footnote{Also see \textcite{Tusell2011} for a review of R packages for Kalman filtering and smoothing.}
+
+Although state space models are often estimated using Bayesian MCMC methods, methods to efficiently sapmle from DLMs are not supported by most general purpose Bayesian software (OpenBUGS, JAGS, and PyMC).
+While, the  equations of the dynamic linear model (~\eqref{eq:8} and \eqref{eq:14}) can be easily translated into the BUGS language, it is difficult to efficiently estimate the models.
+That is because, BUGS and JAGS treat each $\alpha_{t}$ as a seperate parameter, and sample $\alpha_{t}$ conditional on the values of the other $\alpha_{-t}$.
+Due to the high correlation between $\alpha_{t}$ and $\alpha_{t+1}$, this sampling procedure will generally result in poor mixing \parencite[477]{Jackman2008}.
+
+To avoid this poor mixing, more efficient, specialized methods to sample from joint distribution of $\alpha_{1:n}$ have been developed.
+A standard method for sampling from the joing distribution of $\alpha$ is the Forward-Filter Backward Sampler (FFBS), independently developed by \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}.
+Subsequently, more efficient sampling methods have been developed by \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}, and \textcite{ChanJeliazkov2009}.
+However, the methods for sampling from the joing distribution of $\alpha$ are not included in the general purpose software (OpenBUGS, JAGS, PyMC), and thus a researcher interested in estimating dynamic linear models has had to write a custom samplers for each application.
+
+This paper shows a method for easily and efficiently estimating the posterior distribution of the state space model using Stan and R.
+This paper shows how Stan can be used to easily and efficiently estimate the posterior distribution of these models.
+Like BUGS, Stan \textcite{Stan2013}{Stan2013a} is a general purpose Bayesian software with a domain specific language that hides the details of the sampling from the user.
+Howeer, rather than using Gibbs Sampling like BUGS and JAGS, Stan implements a variant of Hamiltonian Monte Carlo (HMC) algorithm, the details of which are in \textcite{HoffmanGelman2013}.
+
+The posterior distribution of a dynamic linear model can be sampled from using Stan and R.
+This method proceeds in two steps.
+\begin{enumerate}
+\item First, the system matrices ($T$, $Z$, $H$, $Q$, $R$), or rather any parameters in them are sampled within Stan. This can be done efficiently within Stan without sampling from $\alpha_{1:n}$ by adding the likelihood $p(y_{1:n} | T_{1:n}, Z_{1:n}, Q_{1:n}, R_{1:n}, H_{1:n})$ to the log-posterior of the model.
+The likelihood $p(y_{1:n} | T_{1:n}, Z_{1:n}, Q_{1:n}, R_{1:n}, H_{1:n})$ can be efficiently calculated using the Kalman filter.
+\item Second, to sample from $\alpha$, for each sample of the posterior distribution of $T_{1:n}, Z_{1:n}, Q_{1:n}, R_{1:n}, H_{1:n}$, draw a sample of $\alpha$ using FFBS or a simulation smoother. In this paper, I use the R package \textbf{KFAS}.
+\end{enumerate}
+
+A useful feature of Stan's programming language is that custom distributions can be implemented by simply adding their contribution to the log posterior distribution.
+In the case of a dynamic linear model, this means that to estimate parameters in the system matrices  $p(y_{1:n} | T_{1:n}, Z_{1:n}, Q_{1:n}, R_{1:n}, H_{1:n})$.
+The likelihood of the DLM can be efficiently calculated using the Kalman filter. 
+And the Kalman filter can be written in the Stan modeling language.
 
 \clearpage{}
 
@@ -392,7 +391,6 @@ This paper needs a political science example.
 
 \section{Appendix}
 \label{sec:appendix}
-
 
 \subsection{Models}
 \label{sec:models}
@@ -435,7 +433,6 @@ The data $x_{t}$ is a binary vector equal to 0 before 1899, and 1 thereafter.
     \delta &\sim \dunif{-\infty, \infty}
   \end{aligned}
 \end{equation}
-
 
 \printbibliography{}
 
