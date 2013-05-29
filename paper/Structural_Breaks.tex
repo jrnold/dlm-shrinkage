@@ -15,7 +15,8 @@
 
 \author{Jeffrey B. Arnold}
 % Seeing a Shrink about Structural Breaks
-\title{Scale Mixture Innovation Models as a Flexible Model of Time-Varying Parameters with Structural Breaks}
+\title{Scale-Mixture of Normal Innovation Models: \\
+  A Flexible and Robust Model of Time-Varying Parameters with Structural Breaks}
 
 \newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
 \newcommand{\dnorm}[1]{\ensuremath{\mathcal{N}\paren{#1}}}
@@ -53,6 +54,48 @@
 \section{Introduction}
 \label{sec:introduction}
 
+Political and social processes are rarely, if ever, constant over time. 
+Moreover, many of these processes the changes in the process are characterized by many periods of stability and a few periods of possibly rapid and large, change \parencite{RatkovicEng2010}.
+Because many smoothing methods such as splines and Kalman filters cannot account for the sparsity and scale differences in the innovation process,
+\footnote{\textcite{RatkovicEng2010} is the notable exception in that their method combines both smoothly varying sections with structural breaks.}
+structural break (change point) models are often used \parencites{CalderiaZorn1998}{Spirling2007}{Spirling2007a}{Park2010}{Park2011}.%
+
+This paper shows how both structural break and smoothing processes are nested within continuous state space models.
+Structural break models and smoothing models differ in the assumptions they make over the distribution (or equivalently the penalty) on the innovations, the changes in the parameters.
+In structural break models, the innovations are modeled as a discrete mixture distribution between a point mass at zero (the non-breaks) and an often diffuse distribution for the non-zero innovations (the structural breaks).
+Smoothing models model the innovations with a continuous distribution that shrinks the innovations toward zero.
+The problem with most smoothing models in the face of sparse innovations is that the normal distribution does not shrink the non-breaks enough to zero, and they shrink the structural break innovations too much.
+Noting that identifying the structural breaks among the innovations is an example of a multiple testing problem, this paper draws on recently developed Bayesian shrinkage priors
+These shrinkage priors are able more aggressively shrink non-signals towards zero while leaving signals unshrunk.
+In particular, this paper will use the horseshoe prior distribution introduced in \textcite{CarvalhoPolsonScott2010} and \textcite{CarvalhoPolsonScott2009} to model the innovations.
+Although the horseshoe prior distribution is continuous, it behaves quite similarly to the discrete mixture model.
+
+\section{TVP and Large-p Problems}
+\label{sec:tvp-large-p}
+
+\textit{I should probably be referencing the multiple-testing model}
+
+The time-varying parameter (TVP) problem is a special case of the large-p, small-n (LPSN) problem.
+\todo{Is a citation of large-p, small-n needed? What is a good citation?}
+If $T$, the number of time-periods, is large, then clearly $\theta_{1:T}$ is high-dimensional.
+If it is time-series data, there are often only $T$ data points, and even if it is a panel, the number of data points per time-period is generally small. 
+However, TVP problems differ from other large-p, small-n problems in that the parameters can be ordered (indexed) by time, $\theta_{1}, \theta_{2}, \dots, \theta_{T-1}, \theta_{T}$.
+This structure of the parameters allows for the use of recursive (dynamic-programming) algorithms for maximization and sampling that make the problem more tractable than the general case.
+
+There are direct analogies between the selection and shrinkage approaches in the LVSN literature and the structural break and smoothing approaches in the TVP literature.
+Structural break methods solve the TVP problem by dividing innovations into two groups: zero and non-zero innovations, and then estimates the values the non-zero innovations, usually from a diffuse prior distribution.
+Smoothing methods solve the TVP problem with a one-group model, but use either prior distributions or penalized likelihood to shrink the parameters towards zero.
+
+For reasons similar to the general reasons in the LPSN literature, this paper prefers a one-group solution to the TVP problem. 
+
+\begin{itemize}
+\item In most political and social science problems, it is implausible that there is ever a data generating process in which there is actually zero change from one period to the next.
+Structural break models are a convenient approximation, which can account for the sparsity in parameter innovations in many political science data, and have accounted for that sparsity better than many traditional smoothing models, e.g. normal dynamic linear models and smoothing splines.
+However, the methods presented in this paper will be able to account for the sparse parameter innovations without implausibly assuming periods in which the innovations are exactly zero.
+\item Even in the case of two-group models of innovations (assuming they put some positive probability on a break at all time periods), the posterior distribution of the innovations is continuous.
+In the converse of the previous point, even it the underlying data generating process is a two-group model, the posterior distribution will be continuous, thus estimating the innovations with a one-group model may be convenient (and potentially computationally efficient?) approximation.
+\item Estimating and sampling from discrete mixtures is often more challenging and computationally difficult than estimating and sampling from continuous distributions.
+=======
 Political processes vary over time, and this variation is often marked by sparse changes, many periods of stability interruped by possible large changes \parencite{RatkovicEng2010}.
 However, standard smoothing approaches to time varying parameters such as smoothing splines and the Kalman filter, do not model sparse innovations well.
 Because of that, there has been an interest in structural break, often called change-point, approaches to time-varying parameters in political science \textcite{Park2011}.
@@ -89,9 +132,10 @@ Structural breaks in parameters can be modeled within DLMs by using sparsity pro
 % \end{itemize}
 
 \section{Dynamic Linear Models}
+\label{sec:dynam-line-models}
 
 A Dynamic Linear Model (DLM), also called a Linear Gaussian state space model, for a $n$-dimensional observation sequence $y_{1}, \dots, y_{n}$ is defined by the following set of equations.%
-\footnote{This paper uses the notation used in Koopman and Durbin and the SsfPack software.}
+\footnote{This paper follows the notation used in \textcite{DurbinKoopman2001}.}
 For $t = 1:n$,
 \begin{align}
   \label{eq:8}
@@ -122,46 +166,85 @@ Perhaps the most simple non-trivial DLM is the the univariate local level model,
   \alpha_t &= \alpha_{t-1} + \eta_{t} & \eta_{t} &\sim \dnorm{0, Q_{t}} \\
 \end{align}
 where $y_{t}$ and $\alpha_{t}$ are scalars.
+The univariate local level model describes the case in which $y_{t}$ are distributed normal with a mean $\alpha_{t}$ that is varying over time.
 
-Notice that changes in $\alpha$ are driven by the distribution over $\eta$.
 A common approach is to assume that the innovations have a constant variance over time, $Q_{t} = Q$  for all $t \in 1:n$.
 If $\omega_{t}$ are distributed i.i.d. normal, then large changes in $\alpha$ are penalized and the evolution of $\alpha$ over time is smoothed.
+As will be shown in examples later, in the case of sparse innovations this results in oversmoothing around large innovations, and under smoothing elsewhere.
 The problem with assuming $\omega_{t} \sim \dnorm{0, Q}$ is that it does not incorporate handle sparsity and large values well, two features which are expected in many data generating processes encounted in political science.
 
-% \subsection{Discrete Scale Mixtures}
-% \label{sec:discr-mixt-distr}
 
-% The first approach are selection approaches, in which the estimation technique selects which $\alpha_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
-% Models within this approach are usually formulated and estimated as discrete state-space Hidden Markov Models, \parencites{Chib1998}{spirling2007bayesian}{Park2011}{Park2010}{Blackwell2012}.
-% A downside of these methods is that they often require the number of discrete states to be set \parencite{Chib1998}, and although methods exist that relax that assumption, they are often not straighforward.
+\section{Time Varying Parameters and Sparse State Disturbances}
 
-% The intutition behind structural break models is that per period changes in the parameters are divided into two groups: structural breaks in which the change is non-zero, and non-structural breaks in which there is no change.
-% Thus structural breaks can be incorporated within the DLM model by replacing the normal distribution of $\alpha_{t}$ with a mixture of normal distributions.
-% \begin{equation}
-%   \label{eq:1}
-%   \alpha_{t} \sim p \eta_{t}  + (1 - p) \delta_{0} \\
-%   \eta_{t} & \sim \dnorm{0, \tau} 
-% \end{equation}
-% where $p$ is the prior probability that $\alpha_{t}$ is a structural break ($\alpha_{t} \neq 0$).
-% Equation \eqref{eq:1} can also be rewritten so that $\alpha_{t}$ is conditionally gaussian,
-% \begin{equation}
-%   \label{eq:7}
-%   \begin{aligned}[t]
-%     \alpha_{t} & \sim N(0, \lambda_{t} \tau) \\
-%     \lambda_{t} = & 
-%     \begin{cases}
-%       1 & \text{with probability $p$} \\
-%       0 & \text{with probability $1 - p$}
-%     \end{cases}
-%   \end{aligned}
-% \end{equation}
-% with the convention that $N(0, 0) = \delta_{0}$. 
+Consider a sequence of observations $y_{t} \sim N(\alpha_{t}, \sigma)$ for $t = 1:n$.
 
-% The number of breaks is not fixed \textit{ex ante} but is itself random variable.
-% The value of $p$ determines the prior sparsity of changes and thus the expected number of structural breaks,
-% and can either be fixed by the researcher or given a prior distribution and estimated.
-% Prior regime duration distributed geometric with mean $(1 - p) / p$ and variance $\sqrt{1 - p} / p$ \parencite[68]{GiordaniKohn2008}, the same as in the original \textcite{Chib1998} HMM model.
-% If $p = 1$, then then the model is equivalent to a dynamic linear model with constant innovation variance.
+\subsection{Discrete Scale Mixtures}
+\label{sec:discr-mixt-distr}
+
+The first approach are selection approaches, in which the estimation technique selects which $\alpha_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
+Models within this approach are usually formulated and estimated as discrete state-space Hidden Markov Models, \parencites{Chib1998}{spirling2007bayesian}{Park2011}{Park2010}{Blackwell2012}.
+A downside of these methods is that they often require the number of discrete states to be set \parencite{Chib1998}, and although methods exist that relax that assumption, they are often not straighforward.
+
+The intutition behind structural break models is that per period changes in the parameters are divided into two groups: structural breaks in which the change is non-zero, and non-structural breaks in which there is no change.
+Thus structural breaks can be incorporated within the DLM model by replacing the normal distribution of $\alpha_{t}$ with a mixture of normal distributions.
+\begin{equation}
+  \label{eq:1}
+  \alpha_{t} \sim p \eta_{t}  + (1 - p) \delta_{0} \\
+  \eta_{t} & \sim \dnorm{0, \tau} 
+\end{equation}
+where $p$ is the prior probability that $\alpha_{t}$ is a structural break ($\alpha_{t} \neq 0$).
+Equation \eqref{eq:1} can also be rewritten so that $\alpha_{t}$ is conditionally gaussian,
+\begin{equation}
+  \label{eq:7}
+  \begin{aligned}[t]
+    \alpha_{t} & \sim N(0, \lambda_{t} \tau) \\
+    \lambda_{t} = & 
+    \begin{cases}
+      1 & \text{with probability $p$} \\
+      0 & \text{with probability $1 - p$}
+    \end{cases}
+  \end{aligned}
+\end{equation}
+with the convention that $N(0, 0) = \delta_{0}$. 
+
+The number of breaks is not fixed \textit{ex ante} but is itself random variable.
+The value of $p$ determines the prior sparsity of changes and thus the expected number of structural breaks,
+and can either be fixed by the researcher or given a prior distribution and estimated.
+Prior regime duration distributed geometric with mean $(1 - p) / p$ and variance $\sqrt{1 - p} / p$ \parencite[68]{GiordaniKohn2008}, the same as in the original \textcite{Chib1998} HMM model.
+If $p = 1$, then then the model is equivalent to a dynamic linear model with constant innovation variance.
+
+The intutition behind structural break models is that per period changes in the parameters are divided into two groups: structural breaks in which the change is non-zero, and non-structural breaks in which there is no change.
+Thus structural breaks can be incorporated within the DLM model by replacing the normal distribution of $\omega_{t}$ with a mixture of normal distributions.
+\begin{equation}
+  \label{eq:1}
+  \begin{aligned}[t]
+    \omega_{t} \sim p \eta_{t}  + (1 - p) \delta_{0} \\
+    \eta_{t} & \sim \dnorm{0, \tau} 
+  \end{aligned}
+\end{equation}
+where $p$ is the prior probability that $\omega_{t}$ is a structural break ($\omega_{t} \neq 0$).
+Equation \eqref{eq:1} can also be rewritten so that $\omega_{t}$ is conditionally gaussian,
+\begin{equation}
+  \label{eq:7}
+  \begin{aligned}[t]
+    \omega_{t} & \sim N(0, \lambda_{t} \tau) \\
+    \lambda_{t} = & 
+    \begin{cases}
+      1 & \text{with probability $p$} \\
+      0 & \text{with probability $1 - p$}
+    \end{cases}
+  \end{aligned}
+\end{equation}
+with the convention that $N(0, 0) = \delta_{0}$. 
+
+The number of breaks is not fixed \textit{ex ante} but is itself random variable.
+The value of $p$ determines the prior sparsity of changes and thus the expected number of structural breaks,
+and can either be fixed by the researcher or given a prior distribution and estimated.
+Prior regime duration distributed geometric with mean $(1 - p) / p$ and variance $\sqrt{1 - p} / p$ \parencite[68]{GiordaniKohn2008}, the same as in the original \textcite{Chib1998} HMM model.
+If $p = 1$, then then the model is equivalent to a dynamic linear model with constant innovation variance.
+
+\subsection{Continuous Scale Mixtures and the Horseshoe Prior Distribution}
+\label{sec:shrinkage}
 
 \begin{equation}
   \label{eq:4}
@@ -232,44 +315,24 @@ In which case, the following prior distributions are suggested in \textcite{Carv
   \end{aligned}
 \end{align}
 
-\subsection{Identifying Structural Breaks}
-\label{sec:ident-struct-breaks}
+\textcite{DurbinKoopman2012} suggest identifying structural breaks from from the auxiliary residuals of the state disturbances (see also, \textcite{JongPenzer1998})
+The \textit{auxiliary residuals} of the state innovations are defined as,
+\begin{equation}
+  \label{eq:12}
+  e^{*}_{t} = \frac{\hat \eta_{t}}{\Var (\hat \eta_{t})}
+\end{equation}
+where $\hat \eta_{t}$ and $\Var \hat \eta_{t}$ is the mean and variance of the smoothed esitmate of $\eta$, $\eta_{t} | y_{1:T}$.
+Each auxiliary residual can be considered a t-test that there was no unobserved structural change in the systemtic component of the time series.
+Thus a rule for identifying structural breaks using a 95\% confidence interval is if $|e^{*}_{t}| > 1.96$.
 
-Identification of structural breaks posterior distribution $p(\theta | y)$ can be used to identify structural breaks in two ways. 
-
-The first method is simply to use the posterior distribution of $\omega_{t} = \theta_{t} - \theta_{t-1}$.
-The probability that there was a positive change in $\theta$ at time $t$ is
-$\Pr(\omega_{t} | y) > 0$, and the probability of a negative change is $\Pr(\omega_{t} | y) < 0$.
-Alternatively, the highest posterior density region of the posterior can be calculated and the researcher can classify observations as structural breaks if the credible interval for a given probability does not cross zero.
-
-% The second method is to calculate a quantity similar to the posterior probability $\omega \neq 0$ that would be produced by a spike and slab distribution.
-% For the discrete mixture model in equation \eqref{eq:1}, if $g$ is sufficiently heavy-tailed, the posterior mean,
-% \begin{equation}
-%   \label{eq:17}
-%   \E(\omega_{t} | y) \approx p_{t} e_{t} 
-% \end{equation}
-% where $p_{t}$ is the posterior probability of $\omega_{t} \neq 0$.
-% For a scale mixture of normal distributions, the expected value of $\omega_{t}$ is 
-% \begin{equation}
-%   \label{eq:10}
-%   E(\omega_{t} | y) =
-%   \left(
-%     1 - \frac{1}{1 + \lambda^{2}_{t} \tau^{2}}
-%   \right) e_{t} = (1 - \hat \kappa_{t}) e_{i}
-% \end{equation}
-% Equating equation \eqref{eq:17} with equation \eqref{eq:10}, it is clear that 
-% the quantity $1 - \hat \kappa_{t}$ behaves similarly to $p_{t}$.
-% While $1 - \hat \kappa_{t}$ can be calculated for all mixture of normal distributions, it is not necessarily the case that $1 - \hat \kappa_{t} \approx p_{t}$.
-% However, one of the advantages of using the Horseshoe Prior distribution is that 
-% \parencite[474]{CarvalhoPolsonScott2010} show through simulations that this is the case for the Horseshoe Prior distribution.
-% Given that, \textcite{CarvalhoPolsonScott2010} recommend the following  decision rule under a 0-1 loss function to classify whether an observation is a signal (structural break in this case) or noise (no structural break), 
-% \begin{equation}
-%   \label{eq:5}
-%   \text{$H_{0,t}$ if $\nu_{t} = 1 - E(\kappa_{t}|y_{t}, \nu_{t-1} \lambda_{t}, \tau, \sigma) > \frac{1}{2}$}
-% \end{equation}
+The Bayesian equivalent of the auxiliary residual test is to categorize observations as structural breaks if the highest posterior density region of $p(\eta_{t} | y)$ excludes zero.
+Apart from other differences between credible and confidence intervals, the Bayesian estimate has the advantage of marginalizing over the posterior distribution of the system matrix parameters and thus accounting for the  uncertainty in the estimates of the other parameters.
+The maximum likelihood method simply evaluates the auxiliary residuals at the mode of the other parameters.
 
 \section{Monte Carlo}
 \label{sec:monte-carlo}
+
+Since this would be computationally expensive, I've been working on both Stan code and a new R package for Kalman filters in order to be able to do these.
 
 \section{Examples}
 \label{sec:examples}
@@ -309,7 +372,9 @@ Figure \ref{fig:nile_innovations} plots the mean and 95 percent HPD interval of 
 \footnote{For $M_{nile,normal2}$, the posterior distribution $p(\omega_{t} + \delta (x_{t} - x_{t-1}) | y)$ is used.}
 The normal model $M_{nile,nomral}$ shows no structural breaks, while the intervention model $M_{nile,normal2}$ shows a clear structural break at 1899.
 In the horseshoe model, the estimated mean of $p(\omega_{1899} | y)$ is large, suggesting a structural break, although its 95 percent credible interval does not cross zero.
-As noted before, this seems to be due to small, although highly variable estimates, of $\omega$ in 1897 and 1898.
+As noted before, this seems to be due to small, although highly variable estimates, of $\omega$ in 1897 and 1898, suggesting small probabilities that the structural break occurred in those years.
+Note that the observed data in those years is consistent with the upper tail of the distribution after 1899.
+The reason that there is near certainty of a structural break in 1899 as opposed to the two earlier years is due to outside data, the knowledge that the dam was built in that year.
 However, the second method, using the values of $w_{t}$ classifies 1899 as a structural break, giving the $\Pr(\omega_{1899} \neq 0) \approx 0.55$.
 
 % \begin{figure}[htpb]
@@ -375,11 +440,14 @@ In the case of a dynamic linear model, this means that to estimate parameters in
 The likelihood of the DLM can be efficiently calculated using the Kalman filter. 
 And the Kalman filter can be written in the Stan modeling language.
 
+\section{Implementation}
+\label{sec:implementation}
+
 \clearpage{}
 
 \subsubsection{Other Examples}
 
-This paper needs a political science example.
+This paper needs some / good examples.
 
 \begin{itemize}
 \item Presidential approval for George W. Bush. \parencites{RatkovicEng2010}

@@ -85,7 +85,40 @@ In the case that :math:`\mu_0 = 0` (shrinkage prior),
 
    E(\mu|y) = (1 - \lambda) \bar{y}
 
-Thus :math:`\lambda` is a shrinkage parameter. When :math:`\lambda \to 1`, :math:`E(\mu|y) \to 0` and when :math:`\lambda \to 0`, :math:`E(\mu|y) \to \bar{y}`.
+Thus :math:`\lambda` is a shrinkage parameter. When :math:`\lambda \to
+1`, :math:`E(\mu|y) \to 0` and when :math:`\lambda \to 0`,
+:math:`E(\mu|y) \to \bar{y}`.
+
+Multivariate
+=======================
+
+Rearrange the state space model
+
+.. math::
+
+   Z(\alpha_t - d - T \alpha_{t-1}) = Z \eta
+   
+   y - c - Z(d - T \alpha_{t - 1}) = Z(\alpha_t - d - T \alpha_{t - 1}) + \epsilon
+
+Define, :math:`\tilde \eta = Z \eta`, and :math:`\tilde y = y - c - Z(d - T \alpha_{t - 1})`,
+and :math:`\tilde Q = Z R Q R' Z'`.
+
+.. math::
+
+   \tilde \eta \sim N(0, \tilde Q)
+
+   \tilde y \sim N(\tilde \eta, H)
+
+The mean of the posterior distribution is thus,
+
+.. math::
+
+   E \tilde \eta | y = W \tilde y
+
+   W = (\tilde Q^{-1} + H^{-1})^{-1} H^{-1} \tilde y
+
+where W is a weight. 
+
 
 Identifying Structural Breaks
 ==============================
@@ -107,6 +140,8 @@ Given that the parameter is
 3. Similar to Petris / Petrone. However, calculate the probability of the 
    parameter if it were distributed normal, without the mixture term.
    :math:`N(0, \tau)`.
+
+
 
 Indices and tables
 ==================
