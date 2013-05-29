@@ -12,11 +12,12 @@ auxfile = $(SRC:%.tex=%.aux)
 all: $(obj)
 
 makeplots:
-	make -C plots
+	@echo 'did not run plots'
+	# make -C plots
 
 $(obj): $(SRC) $(BIBFILE) makeplots $(depends)
 	$(LATEX) $<
-	$(JABREF) -n true -a $(auxfile),local.bib $(BIBFILE)
+	#$(JABREF) -n true -a $(auxfile),local.bib $(BIBFILE)
 	$(BIBTEX) $(auxfile)
 	$(LATEX) $<
 	$(LATEX) $<

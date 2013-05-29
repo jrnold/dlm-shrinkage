@@ -9,14 +9,15 @@
 \usepackage[style=authoryear]{biblatex}
 \usepackage{graphicx}
 \usepackage{subcaption}
-\addbibresource{local}
+\addbibresource{default}
 \usepackage{setspace}
 \doublespace
 
+\usepackage{todo}
+
 \author{Jeffrey B. Arnold}
 % Seeing a Shrink about Structural Breaks
-\title{Scale-Mixture of Normal Innovation Models: \\
-  A Flexible and Robust Model of Time-Varying Parameters with Structural Breaks}
+\title{Sparse State Distrurbance Dynamic Linear Models for Structural Breaks}
 
 \newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
 \newcommand{\dnorm}[1]{\ensuremath{\mathcal{N}\paren{#1}}}
@@ -36,8 +37,8 @@
 \newcommand{\R}{\ensuremath{\mathbb{R}}} %real
 
 \DeclareMathOperator{\E}{E}
-\DeclareMathOperator{\var}{Var}
-\DeclareMathOperator{\cov}{Cov}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
 
 \include{pygments}
 \begin{document}
@@ -70,6 +71,8 @@ These shrinkage priors are able more aggressively shrink non-signals towards zer
 In particular, this paper will use the horseshoe prior distribution introduced in \textcite{CarvalhoPolsonScott2010} and \textcite{CarvalhoPolsonScott2009} to model the innovations.
 Although the horseshoe prior distribution is continuous, it behaves quite similarly to the discrete mixture model.
 
+
+
 \section{TVP and Large-p Problems}
 \label{sec:tvp-large-p}
 
@@ -95,198 +98,85 @@ However, the methods presented in this paper will be able to account for the spa
 \item Even in the case of two-group models of innovations (assuming they put some positive probability on a break at all time periods), the posterior distribution of the innovations is continuous.
 In the converse of the previous point, even it the underlying data generating process is a two-group model, the posterior distribution will be continuous, thus estimating the innovations with a one-group model may be convenient (and potentially computationally efficient?) approximation.
 \item Estimating and sampling from discrete mixtures is often more challenging and computationally difficult than estimating and sampling from continuous distributions.
-=======
-Political processes vary over time, and this variation is often marked by sparse changes, many periods of stability interruped by possible large changes \parencite{RatkovicEng2010}.
-However, standard smoothing approaches to time varying parameters such as smoothing splines and the Kalman filter, do not model sparse innovations well.
-Because of that, there has been an interest in structural break, often called change-point, approaches to time-varying parameters in political science \textcite{Park2011}.
-These are often modeled within a discrete state space approach, e.g. Hidden Markov Models.
-
-Structural break and smoothing models are both models of estimating time-varying parameters, but they are often thought of as distinct, and researchers need to choose between using one or the other.
-However, structural break methods and smoothing approaches can both be nested within continuous state space models.
-The fundamental difference between structural break models and smoothing approaches is in the assumption that they make about the distribution of the innovations, where innovations refers to the one period difference in the time-varying parameter.
-Structural break models assume that the innovations are a discrete mixture between zero and a usually fat-tailed distribution.
-Smoothing approaches assume a continuous distribution on the innovations, usually one which penalizes large deviations from zero.
-However, both of these models can be represented in a continuous state space model, and differ only in the distribution placed on the innovations.
-
-This paper shows how time-varying parameters with potential structural breaks can be easily and flexibly modeled within the continuous state space (dynamic linear) model fraamework.
-Structural breaks in parameters can be modeled within DLMs by using sparsity promoting distributions for the distribution of the innovations (changes in parameters).
-
-% \begin{itemize}
-% \item Structural break methods (change-points) and smoothing methods can both be estimated within continuous state space models. 
-% They are often treated as distinct, but can be considered different distributions (or equivalently regularization penalties) on the innovations (changes in parameters).
-% \item Scale mixtures of normal distributions are able to model the type of sparse innovations often seen in political science processes (many periods of stability, and a few periods with large changes).
-% They are able so without assuming a specific number of non-zero innovations (structural breaks), without implausibly assuming that there are periods in which the innovations are zero, and in a manner which is fairly robust to the case in which the underlying DGP has non-sparse innovations (smoothly varying TVP)
-% \item Scale mixture of normal distributions have several additional favorable characteristics that follow from the fact that they are a cases of (conditional) Gaussian dynamic linear models.
-%   \begin{enumerate}
-%   \item First, they are flexible.
-%     DLMs include a variety of common models, including SARIMA, structural time-series, cubic splines, TVP regressions, stocahstic volatility. 
-%     An advantage of DLMs is that they can easily be extended and include different methods. 
-%     These models can generally be altered with minimal effort so that the innovations use scale mixture of normal distributions, and thus potentiall include structural breaks.
-%   \item Second, they are easily coded.
-%     They can be easily coded in general purpose Bayesian software, such as Stan, BUGS, JAGS, or PyMC.
-%     Example Stan code is provided.
-%   \item Third, they are computationally efficient.
-%     Although in general, time-varying parameters are difficult to estimate.
-%     However, in the case of DLMs, there are computationally efficient algorithms for maximization (Kalman filter) and sampling.
-%   \end{enumerate}
-% \end{itemize}
+\end{itemize}
 
 \section{Dynamic Linear Models}
 \label{sec:dynam-line-models}
 
 A Dynamic Linear Model (DLM), also called a Linear Gaussian state space model, for a $n$-dimensional observation sequence $y_{1}, \dots, y_{n}$ is defined by the following set of equations.%
-\footnote{This paper follows the notation used in \textcite{DurbinKoopman2001}.}
+\footnote{This paper follows the notation used in \textcite{DurbinKoopman2001}. See \textcite{PetrisPetroneEtAl2009} for a concordance with the notation used in \textcite{WestHarrison1997}.}
 For $t = 1:n$,
 \begin{align}
   \label{eq:8}
-  y_t &= Z_{t} \alpha_t + \eta_t & \varepsilon_{t} &\sim \dmvnorm{0, H_{t}}{p} \\
+  y_t &= Z_{t} \alpha_t + \varepsilon_t & \varepsilon_{t} &\sim \dmvnorm{0, H_{t}}{p} \\
   \label{eq:14}
   \alpha_{t+1} &= T_{t} \alpha_{t} + R_{t} \eta_{t} & \eta_{t} &\sim \dmvnorm{0, Q_{t}}{r} \\
   \label{eq:2}
   \alpha_{1} & \sim \dmvnorm{a_{1}, P_{1}}{m}
 \end{align}
-where $\alpha_{t}$ is the (latent) state vector, 
-$\varepsilon$ are the observation disturbances, 
-$\eta$ are the innovations, 
-and $Z_{t}$, $H_{t}$, $T_{t}$, $R_{t}$, and $Q_{t}$ are referred to as the system matrices.
-$y_{t}$ and $\varepsilon_{t}$ are length $p$ vectors,
-$\eta_{t}$, $a_{1}$, and $\eta_{t}$ are length $m$ vectors,
-$R_{t}$ is a $m \times r$ matrix, $Q_{t}$ is an $r \times r$ matrix.
+
+Equation \eqref{eq:8} is the \textit{observation equation} which relates the \textit{observation vector} $y_{t}$ to the \textit{state vector} $\alpha_{t}$.
+Equation \eqref{eq:14} is the \textit{state equation} which describes the Markovian evolution of the state vector.
+Equation \eqref{eq:2} is the \textit{initial state equation} which is a prior distribution for the initial state $\alpha_{1}$.
+The vectors $\varepsilon_{t}$ and $\eta_{t}$ are referred to as the \textit{observation} and \textit{state disturbances}, respectively.
+The matrices $Z_{t}$, $H_{t}$, $T_{t}$, $R_{t}$, and $Q_{t}$ are referred to as the \textit{system matrices}.
+The matrix $Z_{t}$ is the design matrix, $T_{t}$ is the transition matrix, $H_{t}$ is the observation covariance matrix, and $R_{t} Q_{t} R'_{t}$ is the state covariance matrix.
+For the purposes of the estimation of $\alpha$, they are considered fixed and known, but in a larger model they can include parameters to be estimated.
+Let $p$ be the dimension of the observation vector (number of variables), $m$ be the dimension of the state vector, and $r$ be the dimension of the state disturbances, then the dimensions of the elements in the DLM are show in Table \ref{tab:state_space_dim}.
+\begin{table}[!]
+  \centering
+\begin{tabular}{llll}
+  Vectors & dimension & Matrices & dimension \\
+\hline
+  $y_t$     & $p, 1$ & $Z_{t}$  & $p, m$ \\
+  $\alpha_{t}$ & $m, 1$ & $H_{t}$  & $p, p$ \\
+  $\varepsilon_t$ & $p, 1$ & $T_{t}$ & $m, m$ \\
+  $\eta$ & $r, 1$ & $R_t$ & $m, r$ \\
+   &  & $Q_t$ & $r, r$ \\
+  $a_{1}$ & $m, 1$ & $P_{1}$ & $m, m$
+\end{tabular}
+  \caption{The imensions of the elements in DLM (Equations \eqref{eq:8}, \eqref{eq:14}, and \eqref{eq:2})}
+  \label{tab:state_space_dim}
+\end{table}
 
 DLMs nest a large number of common models, including ARIMA, stochastic volatility, (time-varying parameter) regressions,
 and cubic splines \parencites{WestHarrison1997}{DurbinKoopman2001}\parencite{PetrisPetroneEtAl2009}{CommandeurKoopman2007}.%
 \footnote{See \textcite{CommandeurKoopmanOoms2011} for a review of statistical software to estimate state space models.}
 This flexibility is important because the methods presented below can be applied to a wide range of models with little modification.
 
-Perhaps the most simple non-trivial DLM is the the univariate local level model, which will be used to motivate this paper's approach to time varying parameters and structural breaks.
-\begin{align}
-  \label{eq:15}
-  y_t &= \alpha_t + \varepsilon_t & \varepsilon_{t} &\sim \dnorm{0, H_{t}} \\
-  \label{eq:16}
-  \alpha_t &= \alpha_{t-1} + \eta_{t} & \eta_{t} &\sim \dnorm{0, Q_{t}} \\
-\end{align}
-where $y_{t}$ and $\alpha_{t}$ are scalars.
-The univariate local level model describes the case in which $y_{t}$ are distributed normal with a mean $\alpha_{t}$ that is varying over time.
+For now, I will restrict my attention to the case of a single univariate observation vector $y_{1:n}$, with a time-varying mean.
+This can be represented as a dynamic linear model as follows,
+\begin{equation}
+  \label{eq:5}
+  \begin{aligned}[t]
+    y_{t} &= \alpha_{t} + \varepsilon_{t} & \varepsilon & \sim \dnorm{0, H_{t}}
+    alpha_{t + 1} &= \alpha_{t} + \eta_{t} & \varepsilon & \sim \dnorm{0, Q_{t}}
+  \end{aligned}
+\end{equation}
+Equation \eqref{eq:5} is simply a DLM with $p = m = r = 1$, and $Z_{t} = T_{t} = 1$.
+The model in Equation \eqref{eq:5} is commonly called a \textit{local level model} or a \textit{random walk with noise}. (Add citations to textbooks)
+
+Note that given an initial $\alpha_{1}$, changes in the level of $y_{t}$ are determined by the random variable $\eta_{t}$, and thus its distribution.
+Thus the values of $Q_{t}$ are going to determine how much the parameter can change per period, i.e. $\alpha_{t + 1} - \alpha_{t}$
+Also note that if $H$ and $Q$ are to be estimated, there are more parameters than observations. 
 
 A common approach is to assume that the innovations have a constant variance over time, $Q_{t} = Q$  for all $t \in 1:n$.
-If $\omega_{t}$ are distributed i.i.d. normal, then large changes in $\alpha$ are penalized and the evolution of $\alpha$ over time is smoothed.
-As will be shown in examples later, in the case of sparse innovations this results in oversmoothing around large innovations, and under smoothing elsewhere.
-The problem with assuming $\omega_{t} \sim \dnorm{0, Q}$ is that it does not incorporate handle sparsity and large values well, two features which are expected in many data generating processes encounted in political science.
+If $\eta_{t} \sim N(0, Q)$ then large values of $\eta_{t}$ ($\alpha_{t} - \alpha_{t-1}$) are penalized and thus the  estimated $\eta_{t}$ are shrunk towards zero. 
+By penalizing large values of $\eta$, this smooths $\alpha$ over time.
 
+However, assuming $Q_{t} = Q$ for all time periods will not work for many political science problems and data.
+Many political processes, namely those in which the researcher believes there may  structural breaks, are characterized by long spells of stability and a few periods of dramatic change.
+Translated into the \eqref{eq:5}, this means that the researcher expects that the vector $\eta$ is sparse. 
+In other words, for most periods $\eta_{t} = 0$, but there are a few periods in which $\eta_{t} \neq 0$, and, possibly,  $|\eta_{t}| \gg 0$.
 
-\section{Time Varying Parameters and Sparse State Disturbances}
+Recasting the problem in this way, shows that the time-varying parameters problem is 
+The problem with using $\eta_{t} \sim dnorm(0, Q)$ if the true $\eta$ are sparse.
 
-Consider a sequence of observations $y_{t} \sim N(\alpha_{t}, \sigma)$ for $t = 1:n$.
-
-\subsection{Discrete Scale Mixtures}
-\label{sec:discr-mixt-distr}
-
-The first approach are selection approaches, in which the estimation technique selects which $\alpha_{t}$ are non-zero (usually a small number), and then estimates the values of the non-zero innovations.
-Models within this approach are usually formulated and estimated as discrete state-space Hidden Markov Models, \parencites{Chib1998}{spirling2007bayesian}{Park2011}{Park2010}{Blackwell2012}.
-A downside of these methods is that they often require the number of discrete states to be set \parencite{Chib1998}, and although methods exist that relax that assumption, they are often not straighforward.
-
-The intutition behind structural break models is that per period changes in the parameters are divided into two groups: structural breaks in which the change is non-zero, and non-structural breaks in which there is no change.
-Thus structural breaks can be incorporated within the DLM model by replacing the normal distribution of $\alpha_{t}$ with a mixture of normal distributions.
-\begin{equation}
-  \label{eq:1}
-  \alpha_{t} \sim p \eta_{t}  + (1 - p) \delta_{0} \\
-  \eta_{t} & \sim \dnorm{0, \tau} 
-\end{equation}
-where $p$ is the prior probability that $\alpha_{t}$ is a structural break ($\alpha_{t} \neq 0$).
-Equation \eqref{eq:1} can also be rewritten so that $\alpha_{t}$ is conditionally gaussian,
-\begin{equation}
-  \label{eq:7}
-  \begin{aligned}[t]
-    \alpha_{t} & \sim N(0, \lambda_{t} \tau) \\
-    \lambda_{t} = & 
-    \begin{cases}
-      1 & \text{with probability $p$} \\
-      0 & \text{with probability $1 - p$}
-    \end{cases}
-  \end{aligned}
-\end{equation}
-with the convention that $N(0, 0) = \delta_{0}$. 
-
-The number of breaks is not fixed \textit{ex ante} but is itself random variable.
-The value of $p$ determines the prior sparsity of changes and thus the expected number of structural breaks,
-and can either be fixed by the researcher or given a prior distribution and estimated.
-Prior regime duration distributed geometric with mean $(1 - p) / p$ and variance $\sqrt{1 - p} / p$ \parencite[68]{GiordaniKohn2008}, the same as in the original \textcite{Chib1998} HMM model.
-If $p = 1$, then then the model is equivalent to a dynamic linear model with constant innovation variance.
-
-The intutition behind structural break models is that per period changes in the parameters are divided into two groups: structural breaks in which the change is non-zero, and non-structural breaks in which there is no change.
-Thus structural breaks can be incorporated within the DLM model by replacing the normal distribution of $\omega_{t}$ with a mixture of normal distributions.
-\begin{equation}
-  \label{eq:1}
-  \begin{aligned}[t]
-    \omega_{t} \sim p \eta_{t}  + (1 - p) \delta_{0} \\
-    \eta_{t} & \sim \dnorm{0, \tau} 
-  \end{aligned}
-\end{equation}
-where $p$ is the prior probability that $\omega_{t}$ is a structural break ($\omega_{t} \neq 0$).
-Equation \eqref{eq:1} can also be rewritten so that $\omega_{t}$ is conditionally gaussian,
-\begin{equation}
-  \label{eq:7}
-  \begin{aligned}[t]
-    \omega_{t} & \sim N(0, \lambda_{t} \tau) \\
-    \lambda_{t} = & 
-    \begin{cases}
-      1 & \text{with probability $p$} \\
-      0 & \text{with probability $1 - p$}
-    \end{cases}
-  \end{aligned}
-\end{equation}
-with the convention that $N(0, 0) = \delta_{0}$. 
-
-The number of breaks is not fixed \textit{ex ante} but is itself random variable.
-The value of $p$ determines the prior sparsity of changes and thus the expected number of structural breaks,
-and can either be fixed by the researcher or given a prior distribution and estimated.
-Prior regime duration distributed geometric with mean $(1 - p) / p$ and variance $\sqrt{1 - p} / p$ \parencite[68]{GiordaniKohn2008}, the same as in the original \textcite{Chib1998} HMM model.
-If $p = 1$, then then the model is equivalent to a dynamic linear model with constant innovation variance.
-
-\subsection{Continuous Scale Mixtures and the Horseshoe Prior Distribution}
-\label{sec:shrinkage}
-
-\begin{equation}
-  \label{eq:4}
-  \begin{aligned}[t]
-    \varepsilon_{t} &\sim \dnorm{0, \lambda_{t}^{2} \tau^{2}} \\
-    \lambda_{t} &\sim p(\lambda_{t})
-  \end{aligned}
-\end{equation}
-
-Since many computationally efficient forms of maximization and sampling of the dynamic linear model require the errors and innovations be distributed normal, I will focus on a class of shrinkage distributions that are scale mixtures of normal distributions, i.e. each $\omega_{t}$ will be distributed normal, but the variances of these normal distributions are drawn from a hierarchical distribution.
-\begin{equation}
-  \label{eq:6}
-  \begin{aligned}[t]
-    \omega_{t} | \tau^{2}, \lambda^{2} & \sim \dnorm{0, \sigma^{2} \lambda^{2}} \\
-    \lambda_{t}^{2} & \sim p(\lambda^{2}_{t})
-  \end{aligned}
-\end{equation}
-where $\tau^{2}$ is called the global shrinkage parameter, and $\lambda_{t}^{2}$ are called the local shrinkage parameters.
-The $t$-distribution is an example of a scale mixture of normal distributions, and has been suggested for dynamic linear model estimation that is robust to structural breaks \parencites{HarveyKoopman2000}{PetrisPetroneEtAl2009}.
-The $t$-distribution in its most extreme form (Cauchy), has very flat tails, which allows for structural breaks.
-However, it does not have a large spike at zero, and thus may not shrink noise enough.
-
-However, as noted before, the problem of estimating $\omega$ is an example of a large-p problem and there are many proposed distributions for shrinkage parameters.
-The class of scale-normal mixtures includes many Bayesian shrinkage priors, such as the student-\textit{t} \parencite{Tipping2001}, double-exponential prior (Bayesian LASSO) \parencites{LiGoel2006}{ParkCasella2008}{Hans2009}, normal-Jeffreys \parencites{FigueiredoMember2003}{BaeMallick2004}, Strawderman-Berger \parencites{Strawderman1971}{Berger1980}, double Pareto \parencite{ArmaganDunsonLee2011},  and normal-exponential-gamma \parencite{BrownGriffin2005}, normal/gamma and normal/inverse-gamma \parencites{CaronDoucet2008}{BrownGriffin2010}.
-
-The distribution of $\omega$ which will be used in this paper is the horseshoe prior distribution, introduced in \textcites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}.
-The horseshoe prior distribution does not have an analytical form, but is formed when the $\lambda_{t}$ in equation \eqref{eq:6} are independently distributed half-Cauchy,
-\begin{align}
-  \label{eq:13}
-  \lambda_{t} &\sim \dhalfcauchy{0, 1}
-\end{align}
-where $\dhalfcauchy{0, \gamma}$ is the standard half-Cauchy distribution with support on the positive real numbers, and scale $\gamma$.%
-\footnote{
-  This implies that $p(\lambda^{2})$ is distributed inverse-beta, $IB(a, b)$ where $a = b = \frac{1}{2}$ \parencite[4]{PolsonScott2010}. 
-}
-
-The horseshoe prior distribution has two features that make it useful as a shrinkage prior for sparse parameters.
-It has flat Cauchy-like tails, which mean that structural breaks are not shrunk \textit{a posteriori}.
-It also has an infinitely tall spike at zero which aggressively shrinks non-structural breaks to zero.
-Figure \ref{fig:horseshoe} compares the density of the horseshoe prior distribution against the normal, Cauchy, and Laplacian (Baysian LASSO) distributions.
-The Laplacian distribution is commonly used in sparse regularized regression.
-However, the horseshoe prior distribution has both a taller spike at zero and fatter tails than the Laplacian distribution.
+What is needed to be able to capture sparse innovations $\eta$ is a distribution with 
+\begin{enumerate}
+\item an infinitely high spike near 0
+\item fat Cauchy like tails
+\end{enumerate}
 
 % \begin{figure}
 %   \centering
@@ -337,45 +227,45 @@ Since this would be computationally expensive, I've been working on both Stan co
 \section{Examples}
 \label{sec:examples}
 
-\subsection{Nile Flow Data}
-\label{sec:nile}
+% \subsection{Nile Flow Data}
+% \label{sec:nile}
 
-The first example is the Nile river flow data, which is a classic dataset in the  \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}
-The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970.
-It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
-Since in this example, there is only one clear change point, it is not fully exploiting the flexibility of this method, but is instead a sanity check.
-It will illustrate important differences between the adaption of the HPDLM and GDLM to a structural break,
-and it will show how, the HPDLM can approximate an intervention without any \textit{ex ante} input from the analyst.
+% The first example is the Nile river flow data, which is a classic dataset in the  \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}
+% The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970.
+% It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
+% Since in this example, there is only one clear change point, it is not fully exploiting the flexibility of this method, but is instead a sanity check.
+% It will illustrate important differences between the adaption of the HPDLM and GDLM to a structural break,
+% and it will show how, the HPDLM can approximate an intervention without any \textit{ex ante} input from the analyst.
 
-I compare the performance of the horseshoe prior innovations model ($M_{nile,HS}$) with two alternative models.
-The first model has a uses a normal distribution with a time-invariant variance for the innovations ($M_{nile,normal}$).
-The second model extends $M_{nile,normal}$ to include a single parameter that represents change in the level after 1899 ($M_{nile,normal2}$).
-The details of these models is given in Section \ref{sec:nile-1}.
-Figure \ref{fig:nile} plots the original data, and the mean of the posterior predictive distributions for each of these models.
-The  shows a sharp drop 1899 and stability before and after the break.
-The normal model $M_{nile,normal}$ shows a smother adjustment with the decline in the level beginning a few years before 1899 and continuing a few years thereafter.
-Model $M_{nile,normal}$ also shows more variability in the level before and after 1899.
-This variability illustrates the importance of using a scale mixtures of normal distributions with local shrinkage parameters ($\lambda_{t}$) in addition to a global shrinkage parameter ($\tau$).
-Since the normal model has only a single global shrinkage parameter ($\tau$). 
-In order to accommodate the large change in the level in 1899, the estimated value of $\tau$ must increase.
-However, increasing $\tau$ will result in less smoothing in the other observations.
-The normal model must trade off shrinking the non-structural breaks and not shrinking the structural break with only a single parameter, resulting in over-smoothing around the break and under-smoothing elsewhere.
+% I compare the performance of the horseshoe prior innovations model ($M_{nile,HS}$) with two alternative models.
+% The first model has a uses a normal distribution with a time-invariant variance for the innovations ($M_{nile,normal}$).
+% The second model extends $M_{nile,normal}$ to include a single parameter that represents change in the level after 1899 ($M_{nile,normal2}$).
+% The details of these models is given in Section \ref{sec:nile-1}.
+% Figure \ref{fig:nile} plots the original data, and the mean of the posterior predictive distributions for each of these models.
+% The  shows a sharp drop 1899 and stability before and after the break.
+% The normal model $M_{nile,normal}$ shows a smother adjustment with the decline in the level beginning a few years before 1899 and continuing a few years thereafter.
+% Model $M_{nile,normal}$ also shows more variability in the level before and after 1899.
+% This variability illustrates the importance of using a scale mixtures of normal distributions with local shrinkage parameters ($\lambda_{t}$) in addition to a global shrinkage parameter ($\tau$).
+% Since the normal model has only a single global shrinkage parameter ($\tau$). 
+% In order to accommodate the large change in the level in 1899, the estimated value of $\tau$ must increase.
+% However, increasing $\tau$ will result in less smoothing in the other observations.
+% The normal model must trade off shrinking the non-structural breaks and not shrinking the structural break with only a single parameter, resulting in over-smoothing around the break and under-smoothing elsewhere.
 
-It is also remarkable that the horseshoe prior model's posterior predictive means closely match those of the intervention model ($M_{nile,normal2}$) without any \textit{ex ante} knowledge of the presence of the structural break in 1899.
-There is a slight difference in the two models in that the horseshoe prior model puts some weight on the possibility that the structural break occurred in 1897 or 1898.
-This is most likely due to the low signal to noise ratio in the data; note that the observations in 1897 and 1898 are consistent with, although high for, the distribution of flows after 1899.
-The Nile model is an easy case in that the series has a single, large level change with a clear causal event, and thus easy to include a dummy variable.
-However, in many applications, the presence of the structural break will not be known, and in fact estimating the presence and location of the structural breaks will be the purpose of the application.
+% It is also remarkable that the horseshoe prior model's posterior predictive means closely match those of the intervention model ($M_{nile,normal2}$) without any \textit{ex ante} knowledge of the presence of the structural break in 1899.
+% There is a slight difference in the two models in that the horseshoe prior model puts some weight on the possibility that the structural break occurred in 1897 or 1898.
+% This is most likely due to the low signal to noise ratio in the data; note that the observations in 1897 and 1898 are consistent with, although high for, the distribution of flows after 1899.
+% The Nile model is an easy case in that the series has a single, large level change with a clear causal event, and thus easy to include a dummy variable.
+% However, in many applications, the presence of the structural break will not be known, and in fact estimating the presence and location of the structural breaks will be the purpose of the application.
 
-Figures \ref{fig:nile_innovations} and \ref{fig:nile_w} show the results of the two methods that could be used to identify structural breaks. 
-Figure \ref{fig:nile_innovations} plots the mean and 95 percent HPD interval of each $p(\omega_{t} | y)$.%
-\footnote{For $M_{nile,normal2}$, the posterior distribution $p(\omega_{t} + \delta (x_{t} - x_{t-1}) | y)$ is used.}
-The normal model $M_{nile,nomral}$ shows no structural breaks, while the intervention model $M_{nile,normal2}$ shows a clear structural break at 1899.
-In the horseshoe model, the estimated mean of $p(\omega_{1899} | y)$ is large, suggesting a structural break, although its 95 percent credible interval does not cross zero.
-As noted before, this seems to be due to small, although highly variable estimates, of $\omega$ in 1897 and 1898, suggesting small probabilities that the structural break occurred in those years.
-Note that the observed data in those years is consistent with the upper tail of the distribution after 1899.
-The reason that there is near certainty of a structural break in 1899 as opposed to the two earlier years is due to outside data, the knowledge that the dam was built in that year.
-However, the second method, using the values of $w_{t}$ classifies 1899 as a structural break, giving the $\Pr(\omega_{1899} \neq 0) \approx 0.55$.
+% Figures \ref{fig:nile_innovations} and \ref{fig:nile_w} show the results of the two methods that could be used to identify structural breaks. 
+% Figure \ref{fig:nile_innovations} plots the mean and 95 percent HPD interval of each $p(\omega_{t} | y)$.%
+% \footnote{For $M_{nile,normal2}$, the posterior distribution $p(\omega_{t} + \delta (x_{t} - x_{t-1}) | y)$ is used.}
+% The normal model $M_{nile,nomral}$ shows no structural breaks, while the intervention model $M_{nile,normal2}$ shows a clear structural break at 1899.
+% In the horseshoe model, the estimated mean of $p(\omega_{1899} | y)$ is large, suggesting a structural break, although its 95 percent credible interval does not cross zero.
+% As noted before, this seems to be due to small, although highly variable estimates, of $\omega$ in 1897 and 1898, suggesting small probabilities that the structural break occurred in those years.
+% Note that the observed data in those years is consistent with the upper tail of the distribution after 1899.
+% The reason that there is near certainty of a structural break in 1899 as opposed to the two earlier years is due to outside data, the knowledge that the dam was built in that year.
+% However, the second method, using the values of $w_{t}$ classifies 1899 as a structural break, giving the $\Pr(\omega_{1899} \neq 0) \approx 0.55$.
 
 % \begin{figure}[htpb]
 %   \centering
@@ -415,7 +305,7 @@ However, the second method, using the values of $w_{t}$ classifies 1899 as a str
 Although state space models are often estimated using Bayesian MCMC methods, methods to efficiently sapmle from DLMs are not supported by most general purpose Bayesian software (OpenBUGS, JAGS, and PyMC).
 While, the  equations of the dynamic linear model (~\eqref{eq:8} and \eqref{eq:14}) can be easily translated into the BUGS language, it is difficult to efficiently estimate the models.
 That is because, BUGS and JAGS treat each $\alpha_{t}$ as a seperate parameter, and sample $\alpha_{t}$ conditional on the values of the other $\alpha_{-t}$.
-Due to the high correlation between $\alpha_{t}$ and $\alpha_{t+1}$, this sampling procedure will generally result in poor mixing \parencite[477]{Jackman2008}.
+Due to the high correlation between $\alpha_{t}$ and $\alpha_{t+1}$, this sampling procedure will generally result in poor mixing \parencite[477]{Jackman2009}.
 
 To avoid this poor mixing, more efficient, specialized methods to sample from joint distribution of $\alpha_{1:n}$ have been developed.
 A standard method for sampling from the joing distribution of $\alpha$ is the Forward-Filter Backward Sampler (FFBS), independently developed by \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}.
@@ -440,11 +330,6 @@ In the case of a dynamic linear model, this means that to estimate parameters in
 The likelihood of the DLM can be efficiently calculated using the Kalman filter. 
 And the Kalman filter can be written in the Stan modeling language.
 
-\section{Implementation}
-\label{sec:implementation}
-
-\clearpage{}
-
 \subsubsection{Other Examples}
 
 This paper needs some / good examples.
@@ -457,6 +342,7 @@ This paper needs some / good examples.
 \item Interest Rates, Inflation, and GDP growth are common economics examples, e.g. \textcite{GiordaniKohn2008}.
 \end{itemize}
 
+\clearpage{}
 \section{Appendix}
 \label{sec:appendix}
 
@@ -477,7 +363,7 @@ The initial state is given a semi-informative prior, a normal distribution with 
     \theta_{t} &\sim \dnorm{\theta_{t - 1}, \sigma^{2} \tau^{2}} \\
     p(\sigma^{2}) &= \frac{1}{\sigma^{2}} \\
     \tau &\sim \dhalfcauchy{0, 1} \\
-    p(\theta_{1}) &\sim \dnorm{y_{1}, \var{y}}
+    p(\theta_{1}) &\sim \dnorm{y_{1}, \Var{y}}
   \end{aligned}
 \end{equation}
 
@@ -495,12 +381,14 @@ the innovations,
 Model $M_{nile,HS}$ differs from $M_{nile,normal}$ by adding an intervention parameter $\delta$ to the observation equation to model the level shift. 
 The data $x_{t}$ is a binary vector equal to 0 before 1899, and 1 thereafter.
 \begin{equation}
-  \label{eq:18}
+  \label{eq:19}
   \begin{aligned}[t]
     y_{t} &\sim \dnorm{\theta_{t} + \delta x_{t}, \sigma^{2}} \\
     \delta &\sim \dunif{-\infty, \infty}
   \end{aligned}
 \end{equation}
+
+\clearpage{}
 
 \printbibliography{}
 
