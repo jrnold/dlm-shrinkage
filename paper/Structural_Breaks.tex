@@ -144,7 +144,10 @@ and cubic splines \parencites{WestHarrison1997}{DurbinKoopman2001}\parencite{Pet
 \footnote{See \textcite{CommandeurKoopmanOoms2011} for a review of statistical software to estimate state space models.}
 This flexibility is important because the methods presented below can be applied to a wide range of models with little modification.
 
-For now, I will restrict my attention to the case of a single univariate observation vector $y_{1:n}$, with a time-varying mean.
+\subsection{Structural Breaks in a State Space Model}
+\label{sec:struct-breaks-state}
+
+For simplicity of exposition, I will restrict my attention to the case of a single univariate observation vector $y_{1:n}$, with a time-varying mean.
 This can be represented as a dynamic linear model as follows,
 \begin{equation}
   \label{eq:5}
@@ -156,21 +159,29 @@ This can be represented as a dynamic linear model as follows,
 Equation \eqref{eq:5} is simply a DLM with $p = m = r = 1$, and $Z_{t} = T_{t} = 1$.
 The model in Equation \eqref{eq:5} is commonly called a \textit{local level model} or a \textit{random walk with noise}. (Add citations to textbooks)
 
-Note that given an initial $\alpha_{1}$, changes in the level of $y_{t}$ are determined by the random variable $\eta_{t}$, and thus its distribution.
-Thus the values of $Q_{t}$ are going to determine how much the parameter can change per period, i.e. $\alpha_{t + 1} - \alpha_{t}$
-Also note that if $H$ and $Q$ are to be estimated, there are more parameters than observations. 
-
-A common approach is to assume that the innovations have a constant variance over time, $Q_{t} = Q$  for all $t \in 1:n$.
-If $\eta_{t} \sim N(0, Q)$ then large values of $\eta_{t}$ ($\alpha_{t} - \alpha_{t-1}$) are penalized and thus the  estimated $\eta_{t}$ are shrunk towards zero. 
-By penalizing large values of $\eta$, this smooths $\alpha$ over time.
-
-However, assuming $Q_{t} = Q$ for all time periods will not work for many political science problems and data.
-Many political processes, namely those in which the researcher believes there may  structural breaks, are characterized by long spells of stability and a few periods of dramatic change.
+In equation \eqref{eq:5}, changes in the state are equal to the value of the state disturbance $\eta_{t} = \alpha_{t+1} - \alpha_{t}$. 
+Thus the pattern of changes is going to be determined by the distribution on $\eta_{t}$.
+In many problems in political science, the evolution of a parameter is expectedffer from to to be stable for long periods of time, with a few, possibly large, changes (the structural breaks).
 Translated into the \eqref{eq:5}, this means that the researcher expects that the vector $\eta$ is sparse. 
 In other words, for most periods $\eta_{t} = 0$, but there are a few periods in which $\eta_{t} \neq 0$, and, possibly,  $|\eta_{t}| \gg 0$.
 
-Recasting the problem in this way, shows that the time-varying parameters problem is 
-The problem with using $\eta_{t} \sim dnorm(0, Q)$ if the true $\eta$ are sparse.
+Recasting the problem in this way, the problem of estimating structural breaks within a dynamic linear model is essentially a problem of estimating a sparse parameter vector $\eta$.
+Estimating sparse parameter vectors, especially in the context of $p \gg n$ (which many DLM's fall into), is a problem that has received and is currently receiving much attention.
+\textit{Insert citations}
+
+In Bayesian estimation, there are two classes of models for estimating sparse parameter vectors.
+The first are \textit{selection} approaches, which model the sparse parameters with a discrete mixture of a point mass at zero and a continuous distribution.
+In this framework a structural break model can be estimated 
+
+
+\textcite{GiordaniKohn2008} 
+The set of periods with structural breaks is selected, and then the value of the parameter within each region is estimated. 
+
+The second is to use shrinkage priors, continuous distributions.
+
+% A common approach is to assume that the innovations have a constant variance over time, $Q_{t} = Q$  for all $t \in 1:n$.
+% If $\eta_{t} \sim N(0, Q)$ then large values of $\eta_{t}$ ($\alpha_{t} - \alpha_{t-1}$) are penalized and thus the  estimated $\eta_{t}$ are shrunk towards zero. 
+% By penalizing large values of $\eta$, this smooths $\alpha$ over time.
 
 What is needed to be able to capture sparse innovations $\eta$ is a distribution with 
 \begin{enumerate}
@@ -186,25 +197,14 @@ What is needed to be able to capture sparse innovations $\eta$ is a distribution
 %   \label{fig:horseshoe}
 % \end{figure}
 
-To summarize, a local level model 
-\begin{equation}
-  \label{eq:3}
-  \begin{aligned}[t]
-    y_{t} & \sim \dnorm{\theta_{t}, \sigma^{2}} \\
-    \theta_{t} & \sim \dnorm{\theta_{t - 1}, \sigma^{2} \tau^{2} \lambda^{2}} \\
-    \lambda_{t} & \sim \dhalfcauchy{0, 1}
-  \end{aligned}
-\end{equation}
-The values $\sigma$ and $\tau$ can be estimated as parameters. 
-In which case, the following prior distributions are suggested in \textcite{CarvalhoPolsonScott2010}{DattaGhosh2012},
-\begin{align}
-  \label{eq:9}
-  \begin{aligned}[t]
-    p(\sigma^{2}) & \frac{1}{\sigma^{2}}  \\
-    \tau &\sim \dhalfcauchy{0, 1} \text{.}
-  \end{aligned}
-\end{align}
+\subsection{Identifying Structural Breaks}
 
+The probability of a structural breaks can be estimated from the posterior distribution of $\eta$.
+
+The first method is not try to identify structural breaks ($p(\eta \neq 0)$) at all.
+Instead, the inference should be on the effect sizes.
+
+The second method.
 \textcite{DurbinKoopman2012} suggest identifying structural breaks from from the auxiliary residuals of the state disturbances (see also, \textcite{JongPenzer1998})
 The \textit{auxiliary residuals} of the state innovations are defined as,
 \begin{equation}
@@ -218,6 +218,10 @@ Thus a rule for identifying structural breaks using a 95\% confidence interval i
 The Bayesian equivalent of the auxiliary residual test is to categorize observations as structural breaks if the highest posterior density region of $p(\eta_{t} | y)$ excludes zero.
 Apart from other differences between credible and confidence intervals, the Bayesian estimate has the advantage of marginalizing over the posterior distribution of the system matrix parameters and thus accounting for the  uncertainty in the estimates of the other parameters.
 The maximum likelihood method simply evaluates the auxiliary residuals at the mode of the other parameters.
+
+The third method is to note that if $\lambda_{t} = 1$, then the state disturbance is distributed normal with global scale $\eta_{t} \sim N(0, \tau)$.
+Thus the local shrinkage values $\lambda_{t}$ are a measure of the non-normality of $\eta_{t}$.
+Values of $\lambda_{t} < 1$ are underdispersed, and those with $\lambda_{t} > 1$ are overdispersed and likely structural breaks.
 
 \section{Monte Carlo}
 \label{sec:monte-carlo}
