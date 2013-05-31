@@ -146,16 +146,14 @@ These a commonly called spike-and-slab priors.
 In the context of estimating TVP, $\eta_{t}$ is given the following distribution,
 \begin{equation}
   \label{eq:1}
-  \eta_{t} &= p \delta_{0} +  (1 - p) g(\eta_{t})
+  \eta_{t} = p \delta_{0} +  (1 - p) g(\eta_{t})
 \end{equation}
 where $p \in [0, 1]$, $\delta_{0}$ is the point mass distribution on 0, and $g(\eta_{t})$ is the distribution if $\eta \neq 0$.
 \textcite{GiordaniKohn2008} propose using \eqref{eq:1} to model structural breaks within a continuous state space framework.
 
-<<<<<<< HEAD
 The second approach are shrinkage priors, which are absolutely continuous distributions centered at zero.
 These shrinkage priors correspond to likelihood penalties; most notably, the popular Lasso/L1 regularization corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the parameters.
 Examples of these priors include ... 
-=======
 Recasting the problem in this way, the problem of estimating structural breaks within a dynamic linear model is essentially a problem of estimating a sparse parameter vector $\eta$.
 Estimating sparse parameter vectors, especially in the context of $p \gg n$ (which many DLM's fall into), is a problem that has received and is currently receiving much attention.
 \textit{Insert citations}
@@ -163,7 +161,6 @@ Estimating sparse parameter vectors, especially in the context of $p \gg n$ (whi
 In Bayesian estimation, there are two classes of models for estimating sparse parameter vectors.
 The first are \textit{selection} approaches, which model the sparse parameters with a discrete mixture of a point mass at zero and a continuous distribution.
 In this framework a structural break model can be estimated 
-
 
 \textcite{GiordaniKohn2008} 
 The set of periods with structural breaks is selected, and then the value of the parameter within each region is estimated. 
@@ -174,7 +171,6 @@ The second is to use shrinkage priors, continuous distributions.
 % If $\eta_{t} \sim N(0, Q)$ then large values of $\eta_{t}$ ($\alpha_{t} - \alpha_{t-1}$) are penalized and thus the  estimated $\eta_{t}$ are shrunk towards zero. 
 % By penalizing large values of $\eta$, this smooths $\alpha$ over time.
 
->>>>>>> 19ef1453abd877df9e41b93109e9d335ddd6bc7d
 What is needed to be able to capture sparse innovations $\eta$ is a distribution with 
 \begin{enumerate}
 \item an infinitely high spike near 0
@@ -184,8 +180,10 @@ What is needed to be able to capture sparse innovations $\eta$ is a distribution
 Importantly for the computational efficiency of these approaches, almost all of these shrinkage priors can be represented as global-local mixture of normal distributions.
 \begin{equation}
   \label{eq:3}
-  \eta_{t} &= N(0, \tau \lambda_{t})
-  \lambda_{t} &\sim p(\lambda_{t})
+  \begin{aligned}[t]
+    \eta_{t} &= N(0, \tau \lambda_{t})
+    \lambda_{t} &\sim p(\lambda_{t})
+  \end{aligned}
 \end{equation}
 The $\tau$ is referred to as the global variance component,%
 \footnote{This is equivalent to the regularization parameter in penalized-likelihood.}
@@ -203,7 +201,7 @@ However, this performs poorly under those criteria.
 The normal distribution does not have a large mass at zero, and thus undershrinks noise, and it has very thin tails, and thus overshrinks signals.
 
 The $t$-distribution is also an example of a scale-mixture of normal distributions and a shrinkage prior.
-The use of the $t$-distribution has a long history in robust Bayesian statistics and \textcite\textcite[184][]{DurbinKoopman2001}{PetrisPetroneEtAl2009} suggest using a $t$-distribution as a prior distribution for $\eta$ to model structural breaks.
+The use of the $t$-distribution has a long history in robust Bayesian statistics and \textcite{HarveyKoopman2000}[184][]{DurbinKoopman2001}{PetrisPetroneEtAl2009} suggest using a $t$-distribution as a prior distribution for $\eta$ to model structural breaks.
 While the $t$-distribution has heavy tails, it does not have a substantial mass near zero, and thus will undershrink noise.
 
 Discussion of the Horseshoe prior distribution
@@ -216,39 +214,19 @@ Discussion of the Horseshoe prior distribution
 %   \label{fig:horseshoe}
 % \end{figure}
 
-<<<<<<< HEAD
-This is not to suggest that the Horseshoe Prior is the best. 
-There have been a recent plethora of shrinkage priors, but formal properties of these are lagging.
-This paper will show that the Horseshoe Prior performs reasonably well in real situations and Monte-Carlos.
+% This is not to suggest that the Horseshoe Prior is the best. 
+% There have been a recent plethora of shrinkage priors, but formal properties of these are lagging.
+% This paper will show that the Horseshoe Prior performs reasonably well in real situations and Monte-Carlos.
 
 \subsection{Identifying Structural Breaks}
-=======
-\subsection{Identifying Structural Breaks}
 
-The probability of a structural breaks can be estimated from the posterior distribution of $\eta$.
-
-The first method is not try to identify structural breaks ($p(\eta \neq 0)$) at all.
-Instead, the inference should be on the effect sizes.
-
-The second method.
-\textcite{DurbinKoopman2012} suggest identifying structural breaks from from the auxiliary residuals of the state disturbances (see also, \textcite{JongPenzer1998})
-The \textit{auxiliary residuals} of the state innovations are defined as,
-\begin{equation}
-  \label{eq:12}
-  e^{*}_{t} = \frac{\hat \eta_{t}}{\Var (\hat \eta_{t})}
-\end{equation}
-where $\hat \eta_{t}$ and $\Var \hat \eta_{t}$ is the mean and variance of the smoothed esitmate of $\eta$, $\eta_{t} | y_{1:T}$.
-Each auxiliary residual can be considered a t-test that there was no unobserved structural change in the systemtic component of the time series.
-Thus a rule for identifying structural breaks using a 95\% confidence interval is if $|e^{*}_{t}| > 1.96$.
->>>>>>> 19ef1453abd877df9e41b93109e9d335ddd6bc7d
-
-The probability of a structural breaks can be estimated from the posterior distribution of the estimates in a couple of ways.
-The first method is to use the posterior distribution of $p(\eta_{t} | y, .)$.
-Observations with a 95\% HPD credible interval which excludes zero can be categorized as structural breaks.
+Structural breaks can be detected from the estimates of the  posterior distribution in a couple of ways.
+The first method is simply to check whether the credible interval of the posterior distribution of the state disturbances $p(\eta_{t} | y, .)$ crosses zero.
 This is the Bayesian equivalent of the auxiliary residual test in \textcite{JongPenzer1998}{DurbinKoopman2001}.%
 Apart from other differences between credible and confidence intervals, the Bayesian estimate has the advantage of marginalizing over the posterior distribution of the system matrix parameters and thus accounting for the  uncertainty in the estimates of the other parameters.
 The maximum likelihood method simply evaluates the auxiliary residuals at the mode of the other parameters.%
 \footnote{Depending on the application it may be more appropriate to directly analyze $p(\alpha_{t} - \alpha_{t-1})$, which also includes the linear transformations in the system matrices $Z_{t}$ and $c_{t}$ which may include parameters.}
+However, it may be better to calculate one sided probability statements, such as $\Pr(\eta_{t} | y > 0)$ or $\Pr(\eta_{t} | y <0)$.
 
 The second method, suggested by \textcite[179-180]{PetrisPetroneEtAl2009} is to use $\lambda_{t}$ identify structural breaks.
 If $\lambda_{t} = 1$, then the state disturbance is distributed normal with global scale $\eta_{t} \sim N(0, \tau)$.
@@ -256,11 +234,8 @@ Thus, the local shrinkage values $\lambda_{t}$ are a roughly measure of the shri
 Values of $\lambda_{t} < 1$ are observations that are shrunk
 Values of $\lambda_{t} > 1$ put a higher prior probability on larger absolute values of $\lambda_{t}$.
 
-Alternatively, the researcher can choose not to try to classify the periods as structural breaks or not, but rather directly focus on the magnitudes of $\eta_{t}$
-
-The third method is to note that if $\lambda_{t} = 1$, then the state disturbance is distributed normal with global scale $\eta_{t} \sim N(0, \tau)$.
-Thus the local shrinkage values $\lambda_{t}$ are a measure of the non-normality of $\eta_{t}$.
-Values of $\lambda_{t} < 1$ are underdispersed, and those with $\lambda_{t} > 1$ are overdispersed and likely structural breaks.
+Alternatively, the researcher can choose not to try to classify the periods as structural breaks or not, but rather directly focus on the magnitudes of $\eta_{t}$.
+For example, it may be of more practical interest to order the $\eta_{t}$ by their absolute values.
 
 \section{Monte Carlo}
 \label{sec:monte-carlo}
