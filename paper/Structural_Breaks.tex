@@ -168,6 +168,7 @@ In the context of estimating TVP, $\eta_{t}$ is given the following distribution
 where $p \in [0, 1]$, $\delta_{0}$ is the point mass distribution on 0, and $g(\eta_{t})$ is the distribution if $\eta \neq 0$.
 \textcite{GiordaniKohn2008} propose using \eqref{eq:1} to model structural breaks within a continuous state space framework.
 
+\end{document}
 The second approach are shrinkage priors, which are absolutely continuous distributions centered at zero.
 These shrinkage priors correspond to likelihood penalties; most notably, the popular Lasso/L1 regularization corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the parameters.
 Examples of these priors include ... 
@@ -254,7 +255,9 @@ This model could be completed with the noninformative priors,
     \tau & \dhalfcauchy{0, H}
   \end{aligned}
 \end{equation}
-$H$ is given its Jeffrey's prior, while $\tau$ is distributed Cauchy on the same scale as $H$.
+$H$ is given its Jeffrey's prior, while $\tau$ is distributed Cauchy
+on the same scale as $H$.
+
 
 \subsection{Identifying Structural Breaks}
 
@@ -274,6 +277,18 @@ Values of $\lambda_{t} > 1$ put a higher prior probability on larger absolute va
 
 Alternatively, the researcher can choose not to try to classify the periods as structural breaks or not, but rather directly focus on the magnitudes of $\eta_{t}$.
 For example, it may be of more practical interest to order the $\eta_{t}$ by their absolute values.
+
+\subsection{Multivariate}
+\label{sec:multivariate}
+
+The sparse state disturbances can also be extended to multivariate state spaces.
+In the case of a state space $|\eta_{t}| > 1$, the state covariance matrix is
+\begin{equation}
+  \label{eq:12}
+  \eta_{t} & \sim \dmvnorm(\Lambda_{t} \Sigma \Lambda_{t}'){m}
+\end{equation}
+$\Sigma$ is the global scale covariance matrix.
+$\Lambda_{t}$ is the local scale covariance matrix.
 
 \section{Monte Carlo}
 \label{sec:monte-carlo}
