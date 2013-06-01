@@ -40,6 +40,7 @@
 \DeclareMathOperator{\E}{E}
 \DeclareMathOperator{\Var}{Var}
 \DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\diag}{diag}
 \newcommand{\tran}{^\top}
 
 \include{pygments}
@@ -141,7 +142,7 @@ This can be represented as a dynamic linear model as follows,
   \label{eq:5}
   \begin{aligned}[t]
     y_{t} &= \alpha_{t} + \varepsilon_{t} & \varepsilon & \sim \dnorm{0, H_{t}} \\
-    alpha_{t + 1} &= \alpha_{t} + \eta_{t} & \eta & \sim \dnorm{0, Q_{t}}
+    \alpha_{t + 1} &= \alpha_{t} + \eta_{t} & \eta & \sim \dnorm{0, Q_{t}}
   \end{aligned}
 \end{equation}
 Equation \eqref{eq:5} is simply a DLM with $p = m = r = 1$, and $Z_{t} = T_{t} = 1$.
@@ -168,7 +169,6 @@ In the context of estimating TVP, $\eta_{t}$ is given the following distribution
 where $p \in [0, 1]$, $\delta_{0}$ is the point mass distribution on 0, and $g(\eta_{t})$ is the distribution if $\eta \neq 0$.
 \textcite{GiordaniKohn2008} propose using \eqref{eq:1} to model structural breaks within a continuous state space framework.
 
-\end{document}
 The second approach are shrinkage priors, which are absolutely continuous distributions centered at zero.
 These shrinkage priors correspond to likelihood penalties; most notably, the popular Lasso/L1 regularization corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the parameters.
 Examples of these priors include ... 
@@ -216,7 +216,7 @@ The idea of using the $t$-distribution to model structural breaks has been previ
 While the $t$-distribution has heavy tails as it tends towards the Cauchy distribution, it does not have a substantial mass near zero, and thus will not shrink noise disturbances.
 
 While there are an increasing number of proposed shrinkage priors, this paper will use the Horseshoe Prior distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
-The Horseshoe Prior distribution has no analytical form, but can be represented as a scale-mixture of normal distributions (as in \eqref{eq:3}) in which the local sscale components $\lambda$ are distributed half-Cauchy,
+The Horseshoe Prior distribution has no analytical form, but can be represented as a scale-mixture of normal distributions (as in \eqref{eq:3}) in which the local scale components $\lambda$ are distributed half-Cauchy,
 \begin{equation}
   \label{eq:6}
   \lambda \sim \dhalfcauchy{0, 1}
@@ -243,16 +243,16 @@ To summarize, the proposed local level model that is robust to structural breaks
   \label{eq:10}
   \begin{aligned}[t]
     y_{t} &\sim N(\alpha_{t}, H) \\
-    alpha_{t + 1} &\sim N(\alpha_{t}, \tau^{2} \lambda^{2}_{t}) \\
-    \lambda^{2}_{t} & \sim \dhalfcauchy(0, 1) 
+    \alpha_{t + 1} &\sim N(\alpha_{t}, \tau^{2} \lambda^{2}_{t}) \\
+    \lambda^{2}_{t} & \sim \dhalfcauchy{0, 1}
   \end{aligned}
 \end{equation}
 This model could be completed with the noninformative priors,
 \begin{equation}
   \label{eq:7}
   \begin{aligned}[t]
-    p(H) & \frac{1}{H} \\
-    \tau & \dhalfcauchy{0, H}
+    p(H) &= \frac{1}{H} \\
+    \tau &\sim \dhalfcauchy{0, H}
   \end{aligned}
 \end{equation}
 $H$ is given its Jeffrey's prior, while $\tau$ is distributed Cauchy
@@ -278,17 +278,41 @@ Values of $\lambda_{t} > 1$ put a higher prior probability on larger absolute va
 Alternatively, the researcher can choose not to try to classify the periods as structural breaks or not, but rather directly focus on the magnitudes of $\eta_{t}$.
 For example, it may be of more practical interest to order the $\eta_{t}$ by their absolute values.
 
-\subsection{Multivariate}
+\subsection{Multivariate States}
 \label{sec:multivariate}
 
-The sparse state disturbances can also be extended to multivariate state spaces.
-In the case of a state space $|\eta_{t}| > 1$, the state covariance matrix is
+Sparsity can also be imposed on the  state disturbances can also be extended to multivariate state spaces.
+Scale mixture of normal distributions can be extended to the multivariate case as follows,%
+\footnote{
+  This seems intuitive, but I cannot find any one who has done this.
+  I may need to characterize the properties of this class of distributions.
+}
 \begin{equation}
   \label{eq:12}
-  \eta_{t} & \sim \dmvnorm(\Lambda_{t} \Sigma \Lambda_{t}'){m}
+  \eta_{t} \sim \dmvnorm{0, \Lambda_{t} \Sigma \Lambda_{t}'}{m} \\
 \end{equation}
-$\Sigma$ is the global scale covariance matrix.
-$\Lambda_{t}$ is the local scale covariance matrix.
+where $\Sigma$ is the global covariance component, and $\Lambda_{t}$ is a lower triangular matrix such that 
+$\Lambda_{t} \Lambda_{t}'$ is the local covariance matrix.
+
+To get a multivariate version of the Horseshoe Prior distribution, decompose the local covariance matrix into a standard deviation vector and a correlation matrix.%
+\begin{align}
+  \label{eq:16}
+  \Lambda_{t} \Lambda_{t}' &= \diag(\lambda_{t}) R_{t} \diag(\lambda_{t})' \\
+  \label{eq:17}
+  \lambda_{t,i} &= \dhalfcauchy{0, 1} & \text{for $i \in 1:p$}
+\end{align}
+where $R_{t}$ is a correlation matrix.
+
+\subsection{Outliers}
+\label{sec:outliers}
+
+Robustness to and detection of outliers is analagous to that of time-varying parameters.
+In a model outliers, the DGP may generate $\varepsilon_{t} \gg 0$
+Outliers are modeled by assigning a scale mixture of normal distribution to $H_{t}$, either univariate or multivariate.
+\textit{Discuss use of the t-distribution}
+Unlike structural breaks, there is often less concern about the sparsity of $\varepsilon$ than the possibility of very large values of $\varepsilon$. 
+Thus, the $t$-distribution, which has fat tails, but not a spike at zero, will likely work well in many applications.
+
 
 \section{Monte Carlo}
 \label{sec:monte-carlo}
