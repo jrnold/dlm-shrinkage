@@ -19,19 +19,21 @@
 % Seeing a Shrink about Structural Breaks
 \title{Sparse State Distrurbance Dynamic Linear Models for Structural Breaks}
 
+
+\newcommand{\dist}[1]{\mathcal{#1}}
 \newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
-\newcommand{\dnorm}[1]{\ensuremath{\mathcal{N}\paren{#1}}}
-\newcommand{\dmvnorm}[2]{\ensuremath{\mathcal{N}_{#2}\paren{#1}}}
-\newcommand{\dt}[2]{\ensuremath{\mathcal{T}_{#1}\paren{#2}}}
-\newcommand{\dcauchy}[1]{\ensuremath{\mathcal{C}\paren{#1}}}
-\newcommand{\dhalfcauchy}[1]{\ensuremath{\mathcal{C}^{+}\paren{#1}}}
-\newcommand{\dbeta}[1]{\ensuremath{\mathcal{B}\paren{#1}}}
-\newcommand{\dinvbeta}[1]{\ensuremath{\mathcal{IB}\paren{#1}}}
-\newcommand{\dgamma}[1]{\ensuremath{\mathcal{G}\paren{#1}}}
-\newcommand{\dinvgamma}[1]{\ensuremath{\mathcal{IG}\paren{#1}}}
-\newcommand{\dwishart}[1]{\ensuremath{\mathcal{W}\paren{#1}}}
-\newcommand{\dinvwishart}[1]{\ensuremath{\mathcal{IW}\paren{#1}}}
-\newcommand{\dunif}[1]{\ensuremath{\mathcal{U}\paren{#1}}}
+\newcommand{\dnorm}[1]{\ensuremath{\dist{N}\paren{#1}}}
+\newcommand{\dmvnorm}[2]{\ensuremath{\dist{N}_{#2}\paren{#1}}}
+\newcommand{\dt}[2]{\ensuremath{\dist{T}_{#1}\paren{#2}}}
+\newcommand{\dcauchy}[1]{\ensuremath{\dist{C}\paren{#1}}}
+\newcommand{\dhalfcauchy}[1]{\ensuremath{\dist{C}^{+}\paren{#1}}}
+\newcommand{\dbeta}[1]{\ensuremath{\dist{B}\paren{#1}}}
+\newcommand{\dinvbeta}[1]{\ensuremath{\dist{IB}\paren{#1}}}
+\newcommand{\dgamma}[1]{\ensuremath{\dist{G}\paren{#1}}}
+\newcommand{\dinvgamma}[1]{\ensuremath{\dist{IG}\paren{#1}}}
+\newcommand{\dwishart}[1]{\ensuremath{\dist{W}\paren{#1}}}
+\newcommand{\dinvwishart}[1]{\ensuremath{\dist{IW}\paren{#1}}}
+\newcommand{\dunif}[1]{\ensuremath{\dist{U}\paren{#1}}}
 
 \newcommand{\RLang}{\textsf{R}}
 \newcommand{\Stan}{Stan}
@@ -258,7 +260,6 @@ This model could be completed with the noninformative priors,
 $H$ is given its Jeffrey's prior, while $\tau$ is distributed Cauchy
 on the same scale as $H$.
 
-
 \subsection{Identifying Structural Breaks}
 
 Structural breaks can be detected from the estimates of the  posterior distribution in a couple of ways.
@@ -294,7 +295,7 @@ Scale mixture of normal distributions can be extended to the multivariate case a
 where $\Sigma$ is the global covariance component, and $\Lambda_{t}$ is a lower triangular matrix such that 
 $\Lambda_{t} \Lambda_{t}'$ is the local covariance matrix.
 
-To get a multivariate version of the Horseshoe Prior distribution, decompose the local covariance matrix into a standard deviation vector and a correlation matrix.%
+To get a multivariate version of the Horseshoe Prior distribution, decompose the local covariance matrix into a standard deviation vector and a correlation matrix,
 \begin{align}
   \label{eq:16}
   \Lambda_{t} \Lambda_{t}' &= \diag(\lambda_{t}) R_{t} \diag(\lambda_{t})' \\
@@ -302,93 +303,91 @@ To get a multivariate version of the Horseshoe Prior distribution, decompose the
   \lambda_{t,i} &= \dhalfcauchy{0, 1} & \text{for $i \in 1:p$}
 \end{align}
 where $R_{t}$ is a correlation matrix.
+Each element in $\lambda_{.,i}$ for all $t \in 1:n$ share a common prior distribution, shrinking the values across time.
 
 \subsection{Outliers}
 \label{sec:outliers}
 
 Robustness to and detection of outliers is analagous to that of time-varying parameters.
-In a model outliers, the DGP may generate $\varepsilon_{t} \gg 0$
-Outliers are modeled by assigning a scale mixture of normal distribution to $H_{t}$, either univariate or multivariate.
-\textit{Discuss use of the t-distribution}
-Unlike structural breaks, there is often less concern about the sparsity of $\varepsilon$ than the possibility of very large values of $\varepsilon$. 
+The observation disturbances $\varepsilon$ are modeled by assigning a scale mixture of normal distributions to $H_{t}$.
+However, unlike structural breaks, there is often less concern about the sparsity of $\varepsilon$ than the possibility of very large values of $\varepsilon$.
 Thus, the $t$-distribution, which has fat tails, but not a spike at zero, will likely work well in many applications.
 
+% \section{Monte Carlo}
+% \label{sec:monte-carlo}
 
-\section{Monte Carlo}
-\label{sec:monte-carlo}
-
-Since this would be computationally expensive, I've been working on both Stan code and a new R package for Kalman filters in order to be able to do these.
+% Since this would be computationally expensive, I've been working on both Stan code and a new R package for Kalman filters in order to be able to do these.
 
 \section{Examples}
 \label{sec:examples}
 
-% \subsection{Nile Flow Data}
-% \label{sec:nile}
+\subsection{Nile Flow Data}
+\label{sec:nile}
 
-% The first example is the Nile river flow data, which is a classic dataset in the  \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}
-% The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970.
-% It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
-% Since in this example, there is only one clear change point, it is not fully exploiting the flexibility of this method, but is instead a sanity check.
-% It will illustrate important differences between the adaption of the HPDLM and GDLM to a structural break,
-% and it will show how, the HPDLM can approximate an intervention without any \textit{ex ante} input from the analyst.
+The first example is the Nile river flow data, which is a classic dataset in the  \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}
+The data consist of annual observations of the flow of the Nile river at Ashwan between 1871 and 1970.
+It is well known that there was a level shift in 1899, both due to the construction of a damn at Ashwan and weather changes.
+Since in this example, there is only one clear change point, it is not fully exploiting the flexibility of this method, but is instead a sanity check.
+It will illustrate important differences between the adaption of the HPDLM and GDLM to a structural break,
+and it will show how, the HPDLM can approximate an intervention without any \textit{ex ante} input from the analyst.
 
-% I compare the performance of the horseshoe prior innovations model ($M_{nile,HS}$) with two alternative models.
-% The first model has a uses a normal distribution with a time-invariant variance for the innovations ($M_{nile,normal}$).
-% The second model extends $M_{nile,normal}$ to include a single parameter that represents change in the level after 1899 ($M_{nile,normal2}$).
-% The details of these models is given in Section \ref{sec:nile-1}.
-% Figure \ref{fig:nile} plots the original data, and the mean of the posterior predictive distributions for each of these models.
-% The  shows a sharp drop 1899 and stability before and after the break.
-% The normal model $M_{nile,normal}$ shows a smother adjustment with the decline in the level beginning a few years before 1899 and continuing a few years thereafter.
-% Model $M_{nile,normal}$ also shows more variability in the level before and after 1899.
-% This variability illustrates the importance of using a scale mixtures of normal distributions with local shrinkage parameters ($\lambda_{t}$) in addition to a global shrinkage parameter ($\tau$).
-% Since the normal model has only a single global shrinkage parameter ($\tau$). 
-% In order to accommodate the large change in the level in 1899, the estimated value of $\tau$ must increase.
-% However, increasing $\tau$ will result in less smoothing in the other observations.
-% The normal model must trade off shrinking the non-structural breaks and not shrinking the structural break with only a single parameter, resulting in over-smoothing around the break and under-smoothing elsewhere.
+I compare the performance of the horseshoe prior innovations model ($M_{nile,HS}$) with two alternative models.
+The first model has a uses a normal distribution with a time-invariant variance for the innovations ($M_{nile,normal}$).
+The second model extends $M_{nile,normal}$ to include a single parameter that represents change in the level after 1899 ($M_{nile,normal2}$).
+The details of these models is given in Section \ref{sec:nile-1}.
+Figure \ref{fig:nile} plots the original data, and the mean of the posterior predictive distributions for each of these models.
+The  shows a sharp drop 1899 and stability before and after the break.
+The normal model $M_{nile,normal}$ shows a smother adjustment with the decline in the level beginning a few years before 1899 and continuing a few years thereafter.
+Model $M_{nile,normal}$ also shows more variability in the level before and after 1899.
+This variability illustrates the importance of using a scale mixtures of normal distributions with local shrinkage parameters ($\lambda_{t}$) in addition to a global shrinkage parameter ($\tau$).
+Since the normal model has only a single global shrinkage parameter ($\tau$). 
+In order to accommodate the large change in the level in 1899, the estimated value of $\tau$ must increase.
+However, increasing $\tau$ will result in less smoothing in the other observations.
+The normal model must trade off shrinking the non-structural breaks and not shrinking the structural break with only a single parameter, resulting in over-smoothing around the break and under-smoothing elsewhere.
 
-% It is also remarkable that the horseshoe prior model's posterior predictive means closely match those of the intervention model ($M_{nile,normal2}$) without any \textit{ex ante} knowledge of the presence of the structural break in 1899.
-% There is a slight difference in the two models in that the horseshoe prior model puts some weight on the possibility that the structural break occurred in 1897 or 1898.
-% This is most likely due to the low signal to noise ratio in the data; note that the observations in 1897 and 1898 are consistent with, although high for, the distribution of flows after 1899.
-% The Nile model is an easy case in that the series has a single, large level change with a clear causal event, and thus easy to include a dummy variable.
-% However, in many applications, the presence of the structural break will not be known, and in fact estimating the presence and location of the structural breaks will be the purpose of the application.
+It is also remarkable that the horseshoe prior model's posterior predictive means closely match those of the intervention model ($M_{nile,normal2}$) without any \textit{ex ante} knowledge of the presence of the structural break in 1899.
+There is a slight difference in the two models in that the horseshoe prior model puts some weight on the possibility that the structural break occurred in 1897 or 1898.
+This is most likely due to the low signal to noise ratio in the data; note that the observations in 1897 and 1898 are consistent with, although high for, the distribution of flows after 1899.
+The Nile model is an easy case in that the series has a single, large level change with a clear causal event, and thus easy to include a dummy variable.
+However, in many applications, the presence of the structural break will not be known, and in fact estimating the presence and location of the structural breaks will be the purpose of the application.
 
-% Figures \ref{fig:nile_innovations} and \ref{fig:nile_w} show the results of the two methods that could be used to identify structural breaks. 
-% Figure \ref{fig:nile_innovations} plots the mean and 95 percent HPD interval of each $p(\omega_{t} | y)$.%
-% \footnote{For $M_{nile,normal2}$, the posterior distribution $p(\omega_{t} + \delta (x_{t} - x_{t-1}) | y)$ is used.}
-% The normal model $M_{nile,nomral}$ shows no structural breaks, while the intervention model $M_{nile,normal2}$ shows a clear structural break at 1899.
-% In the horseshoe model, the estimated mean of $p(\omega_{1899} | y)$ is large, suggesting a structural break, although its 95 percent credible interval does not cross zero.
-% As noted before, this seems to be due to small, although highly variable estimates, of $\omega$ in 1897 and 1898, suggesting small probabilities that the structural break occurred in those years.
-% Note that the observed data in those years is consistent with the upper tail of the distribution after 1899.
-% The reason that there is near certainty of a structural break in 1899 as opposed to the two earlier years is due to outside data, the knowledge that the dam was built in that year.
-% However, the second method, using the values of $w_{t}$ classifies 1899 as a structural break, giving the $\Pr(\omega_{1899} \neq 0) \approx 0.55$.
+Figures \ref{fig:nile_innovations} and \ref{fig:nile_w} show the results of the two methods that could be used to identify structural breaks. 
+Figure \ref{fig:nile_innovations} plots the mean and 95 percent HPD interval of each $p(\omega_{t} | y)$.%
+\footnote{For $M_{nile,normal2}$, the posterior distribution $p(\omega_{t} + \delta (x_{t} - x_{t-1}) | y)$ is used.}
+The normal model $M_{nile,nomral}$ shows no structural breaks, while the intervention model $M_{nile,normal2}$ shows a clear structural break at 1899.
+In the horseshoe model, the estimated mean of $p(\omega_{1899} | y)$ is large, suggesting a structural break, although its 95 percent credible interval does not cross zero.
+As noted before, this seems to be due to small, although highly variable estimates, of $\omega$ in 1897 and 1898, suggesting small probabilities that the structural break occurred in those years.
+Note that the observed data in those years is consistent with the upper tail of the distribution after 1899.
+The reason that there is near certainty of a structural break in 1899 as opposed to the two earlier years is due to outside data, the knowledge that the dam was built in that year.
+However, the second method, using the values of $w_{t}$ classifies 1899 as a structural break, giving the $\Pr(\omega_{1899} \neq 0) \approx 0.55$.
 
-% \begin{figure}[htpb]
-%   \centering
-%   \includegraphics{plots/fig-nile.pdf}
-%   \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
-%   \label{fig:nile}
-% \end{figure}
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-nile.pdf}
+  \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
+  \label{fig:nile}
+\end{figure}
 
-% \begin{figure}[htpb]
-%   \centering
-%   \includegraphics{plots/fig-nile_w.pdf}
-%   \caption{Plot of estimated probability of a structural break, calculated as $w_{i} = 1 - \E(\hat{\kappa})$}
-%   \label{fig:nile_w}
-% \end{figure}
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-nile_w.pdf}
+  \caption{Plot of estimated probability of a structural break, calculated as $w_{i} = 1 - \E(\hat{\kappa})$}
+  \label{fig:nile_w}
+\end{figure}
 
-% \begin{figure}[htpb]
-%   \centering
-%   \includegraphics{plots/fig-nile_innovations.pdf}
-%   \caption{Plot of innovations}
-%   \label{fig:nile_innovations}
-% \end{figure}
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-nile_innovations.pdf}
+  \caption{Plot of innovations}
+  \label{fig:nile_innovations}
+\end{figure}
 
-% \begin{table}[htpb]
-%   \centering
-%   \input{plots/tab-nile.tex}
-%   \caption{Model summary statistics of Nile models.}
-%   \label{tab:nile}
-% \end{table}
+\begin{table}[htpb]
+  \centering
+  \input{plots/tab-nile.tex}
+  \caption{Model summary statistics of Nile models.}
+  \label{tab:nile}
+\end{table}
 
 \section{Implementation}
 \label{sec:implementation}
