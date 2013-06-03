@@ -55,7 +55,7 @@
 \label{sec:introduction}
 
 Political and social processes are rarely, if ever, constant over time.
-Thus political scientists often have a need to estimate time-varying parameters.
+Thus political scientists often have a need to estimate time-varying parameters (TVP).
 There exist two broad approaches to estimating time-varying parameters: structural break approaches, including dummy variables and change point models, and smoothing approaches, including dynamic linear models and smoothing splines.
 These two approaches are viewed as distinct and estimated using different methods, forcing the researcher to choose between the models.
 Since in many processes the changes in the process are characterized by many periods of stability and a few periods of possibly rapid and large, change \parencite{RatkovicEng2010},
@@ -141,7 +141,7 @@ For the purposes of the estimation of $\alpha$, they are considered fixed and kn
 %   \label{tab:state_space_dim}
 % \end{table}
 
-Many commonly used models, including ARIMA and structural time-series, regressions with time-varying coefficients, cubic splines, and stochastic volatility models can be represented as DLMs. 
+Many common models, including ARIMA and structural time-series, regressions with time-varying coefficients, cubic splines, and stochastic volatility models can be represented as DLMs. 
 See \parencites{WestHarrison1997}{DurbinKoopman2001}{PetrisPetroneEtAl2009}{CommandeurKoopman2007}.%
 \footnote{See \textcite{CommandeurKoopmanOoms2011} for a review of statistical software to estimate state space models.}
 This flexibility is important because the methods presented below can be applied to a wide range of models.
@@ -150,7 +150,7 @@ Any model in which the parameter of interest can be represented as a state in a 
 \subsection{Structural Breaks in a State Space Model}
 \label{sec:struct-breaks-state}
 
-For simplicity of exposition, I will restrict my attention to the case of a single univariate observation vector $y_{1:n}$, with a time-varying mean.
+For simplicity of exposition, in this section I will restric my attention to a univariate observation vector $y_{1:n}$ with a time-varying mean.
 This can be represented as a dynamic linear model as follows,
 \begin{equation}
   \label{eq:5}
@@ -160,57 +160,43 @@ This can be represented as a dynamic linear model as follows,
   \end{aligned}
 \end{equation}
 Equation \eqref{eq:5} is simply a DLM with $p = m = r = 1$, and $Z_{t} = T_{t} = 1$.
-The model in Equation \eqref{eq:5} is commonly called a \textit{local level model} or a \textit{random walk with noise}. (Add citations to textbooks)
+The model in Equation \eqref{eq:5} is commonly called the \textit{local level model} or a \textit{random walk with noise}.
 
-In equation \eqref{eq:5}, changes in the state are equal to the value of the state disturbance $\eta_{t} = \alpha_{t+1} - \alpha_{t}$. 
-Thus the pattern of changes is going to be determined by the distribution on $\eta_{t}$.
-In many problems in political science, the evolution of a parameter is expectedffer from to to be stable for long periods of time, with a few, possibly large, changes (the structural breaks).
+In equation \eqref{eq:5}, changes in the state are equal to the value of the state disturbance, $\eta_{t} = \alpha_{t+1} - \alpha_{t}$. 
+Thus, the distribution of parameter changes is simply the distribution of $\eta_{t}$.
+In many problems in political and social science, the evolution of a parameter is expected to to be stable for long periods of time, with a few changes of possibly large magnitude, i.e. the structural breaks.
 Translated into the \eqref{eq:5}, this means that the researcher expects that the vector $\eta$ is sparse. 
-In other words, for most periods $\eta_{t} = 0$, but there are a few periods in which $\eta_{t} \neq 0$, and, possibly,  $|\eta_{t}| \gg 0$.
+For most periods $\eta_{t} = 0$, but there are a few periods in which $\eta_{t} \neq 0$, and, possibly,  $|\eta_{t}| \gg 0$.
 When recast in this way, the problem of estimating structural breaks within a dynamic linear model is essentially a problem of estimating a sparse parameter vector $\eta$.
-Estimating sparse parameter vectors, especially in the context of $p \gg n$, is a problem that has received and is currently receiving much attention.
-I will refer to $\eta_{t} \approx 0$ as ``noise'', and $|\eta_{t}| \gg 0$ as ``signals''. 
-In sparse estimation problems, the researcher wants to classify noise and signals; in the case of the structural breaks, the structural breaks are the signals, and the non-structural break periods are noise.
+Estimating sparse parameters, especially when the number of observations is less than the number of parameters (the large-p, small-n situtation) is a problem that has received and is currently receiving much attention.
+Following the convention in that literature, I will refer $\eta_{t} \approx 0$ as ``noise'' and $|\eta_{t}| \gg 0$ as ``signals''.
+In sparse estimation problems, the researcher wants to classify signals from noise in the parameters, which in structural break applications is to classify structural breaks (signals) and non-structural breaks (noise).
 
-In Bayesian estimation, there are two main approaches for finding sparse solutions of a parameter vector: discrete mixtures and shrinkage priors.
-The first approach is models each parameter with a prior consisting of a discrete mixture over a point mass at zero and a continuous distribution.
-These a commonly called spike-and-slab priors.
-In the context of estimating TVP, $\eta_{t}$ is given the following distribution,
+In Bayesian estimation, there are two main approaches for estimating sparse parameters: discrete mixtures and shrinkage priors.
+The first approach models each parameter with a prior consisting of a discrete mixture of a point mass at zero and a continuous distribution.
+This mixture distribution is a commonly called a spike-and-slab prior.
+This approach includes variable selection priors and Bayesian model selection and averaging.
+In the context of estimating TVP, structural breaks can be estimated if $\eta$ has a spike-and-slab prior distribution,
 \begin{equation}
   \label{eq:1}
   \eta_{t} = p \delta_{0} +  (1 - p) g(\eta_{t})
 \end{equation}
-where $p \in [0, 1]$, $\delta_{0}$ is the point mass distribution on 0, and $g(\eta_{t})$ is the distribution if $\eta \neq 0$.
-\textcite{GiordaniKohn2008} propose using \eqref{eq:1} to model structural breaks within a continuous state space framework.
+where $p \in [0, 1]$, $\delta_{0}$ is the point mass distribution at 0, and $g(\eta_{t})$ is the distribution if $\eta \neq 0$.
+\textcite{GiordaniKohn2008} propose using \eqref{eq:1} as a flexible model of structural breaks within a continuous state space framework.
 
-The second approach are shrinkage priors, which are absolutely continuous distributions centered at zero.
-These shrinkage priors correspond to likelihood penalties; most notably, the popular Lasso/L1 regularization corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the parameters.
-Examples of these priors include ... 
-Recasting the problem in this way, the problem of estimating structural breaks within a dynamic linear model is essentially a problem of estimating a sparse parameter vector $\eta$.
-Estimating sparse parameter vectors, especially in the context of $p \gg n$ (which many DLM's fall into), is a problem that has received and is currently receiving much attention.
-\textit{Insert citations}
-
-In Bayesian estimation, there are two classes of models for estimating sparse parameter vectors.
-The first are \textit{selection} approaches, which model the sparse parameters with a discrete mixture of a point mass at zero and a continuous distribution.
-In this framework a structural break model can be estimated 
-
-\textcite{GiordaniKohn2008} 
-The set of periods with structural breaks is selected, and then the value of the parameter within each region is estimated. 
-
-The second is to use shrinkage priors, continuous distributions.
-
-% A common approach is to assume that the innovations have a constant variance over time, $Q_{t} = Q$  for all $t \in 1:n$.
-% If $\eta_{t} \sim N(0, Q)$ then large values of $\eta_{t}$ ($\alpha_{t} - \alpha_{t-1}$) are penalized and thus the  estimated $\eta_{t}$ are shrunk towards zero. 
-% By penalizing large values of $\eta$, this smooths $\alpha$ over time.
-
-For a shrinkage prior to work well it must,\parencite[5]{PolsonScott2010}
+The second approach to estimating sparse parameters is shrinkage priors. 
+Shrinkage priors are absolutely continuous distributions centered at zero.
+Although shrinkage priors do not mix between signal and noise groups, they are able to approximate the mixture distribution if they have the following features,
 \begin{itemize}
-\item $p(\lambda_{t}^{2})$ should have heavy tails,
-\item $p(\tau^{2})$ should have a substantial mass near zero
+\item a large mass near zero to shrink noise observations
+\item heavy tails to keep signals unshrunk.
 \end{itemize}
-Global shrinkage via $\tau$ handles shrinks noise, while local values of $\lambda_{t}$ act to detect the signals.\parencite[5]{PolsonScott2010}
+Shrinkage priors are the Bayesian posterior estimation equivalent of penalized likelihood for posterior mode-finding.
+For example, the popular Lasso/L1 regularization corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the parameters.
+Other prior distributions correspond to other, sometimes implicit and lacking analytic form, likelihood penalties.
 
-Importantly for the computational efficiency of these approaches, almost all of these shrinkage priors can be represented as global-local mixture of normal distributions.
+Almost all of these shrinkage priors can be represented as scale mixtures of normal distributions \parencite{PolsonScott2010}.
+The scale mixtures are generally of the product of a global variance component $\tau^{2}$ and a local variance component $\lambda^{2}$,
 \begin{equation}
   \label{eq:3}
   \begin{aligned}[t]
@@ -218,16 +204,15 @@ Importantly for the computational efficiency of these approaches, almost all of 
     \lambda_{t}^{2} &\sim p(\lambda_{t}^{2})
   \end{aligned}
 \end{equation}
-The $\tau$ is referred to as the global variance component,%
-\footnote{This is equivalent to the regularization parameter in penalized-likelihood.}
-and the $\lambda_{t}$ are referred to as local variance components \parencite{PolsonScott2010}.
-
+Shrinkage priors differ in the distribution of the local variance component.%
+Global shrinkage via $\tau$ handles shrinks noise, while local values of $\lambda_{t}$ act to detect the signals.\parencite[5]{PolsonScott2010}
+\footnote{
 Note that the commonly used $\eta_{t} \sim N(0, Q)$ is trivially a scale-mixture of normals ($\lambda_{t}^{2} = \delta_{1}$).
 However, it does not impose sparsity. 
 The normal distribution does not have a large mass at zero, and thus undershrinks noise, and it has very thin tails, and thus overshrinks signals.
-
-The idea of using the $t$-distribution to model structural breaks has been previously suggested in \textcite{HarveyKoopman2000}[184][]{DurbinKoopman2001}{PetrisPetroneEtAl2009} suggest using a $t$-distribution as a prior distribution for $\eta$ to model structural breaks.
-While the $t$-distribution has heavy tails as it tends towards the Cauchy distribution, it does not have a substantial mass near zero, and thus will not shrink noise disturbances.
+}
+That $\eta$ is distributed as a scale mixture of normal distributions is important is important because that means altough $\eta$ is not distributed normal, conditional on $\lambda_{t}$, $\eta_{t}$ is distributed normal, and thus the entire system is a Conditional Gaussian DLM.
+This means that conditional on the values of $\lambda$, the DLM can still be estimated using the efficient methods developed for DLMs.
 
 While there are an increasing number of proposed shrinkage priors, this paper will use the Horseshoe Prior distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
 The Horseshoe Prior distribution has no analytical form, but can be represented as a scale-mixture of normal distributions (as in \eqref{eq:3}) in which the local scale components $\lambda$ are distributed half-Cauchy,
@@ -252,6 +237,10 @@ Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior 
   \label{fig:horseshoe}
 \end{figure}
 
+Using shrinkage priors to model structural breaks extends and generalizes the use of the $t$-distribution for modeling structural breaks \textcite{HarveyKoopman2000}[184][]{DurbinKoopman2001}{PetrisPetroneEtAl2009}.
+While the $t$-distribution has heavy tails, it does not have a substantial mass near zero, and thus will not shrink noise disturbances.
+Many more recently discovered sparse prior distributions, including the Horseshoe Prior, have better sparsity properties than the $t$-distribution.
+
 To summarize, the proposed local level model that is robust to structural breaks is as follows,
 \begin{equation}
   \label{eq:10}
@@ -271,6 +260,7 @@ This model could be completed with the noninformative priors,
 \end{equation}
 $H$ is given its Jeffrey's prior, while $\tau$ is distributed Cauchy
 on the same scale as $H$.
+
 
 \subsection{Identifying Structural Breaks}
 
@@ -294,20 +284,21 @@ For example, it may be of more practical interest to order the $\eta_{t}$ by the
 \subsection{Multivariate States}
 \label{sec:multivariate}
 
-Sparsity can also be imposed on the  state disturbances can also be extended to multivariate state spaces.
-Scale mixture of normal distributions can be extended to the multivariate case as follows,%
+Sparse priors distributions on the state disturbances can be applied to multivariate distributions.
+If the state disturbances are independent, then each state disturbance can be given its own shrinkage prior.
+However, often the state disturbances can be correlated. In that case, scale mixture of normal distributions can be extended to the multivariate case as follows,%
 \footnote{
-  This seems intuitive, but I cannot find any one who has done this.
-  I may need to characterize the properties of this class of distributions.
+  This extension seems intuitive, but I cannot find any one who has done this.
+  Am I doing something crazy or stupid here? 
 }
-\begin{equation}
+\begin{align}
   \label{eq:12}
-  \eta_{t} \sim \dmvnorm{0, \Lambda_{t} \Sigma \Lambda_{t}'}{m} \\
-\end{equation}
-where $\Sigma$ is the global covariance component, and $\Lambda_{t}$ is a lower triangular matrix such that 
-$\Lambda_{t} \Lambda_{t}'$ is the local covariance matrix.
-
-To get a multivariate version of the Horseshoe Prior distribution, decompose the local covariance matrix into a standard deviation vector and a correlation matrix,
+  \eta_{t} \sim \dmvnorm{0, \Lambda_{t} \Gamma \Lambda_{t}'}{m} \\
+  \label{eq:13}
+  \Lambda \Lambda' & \sim p(\Lambda \Lambda')
+\end{align}
+where $\Gamma$ is the global covariance component, and $\Lambda_{t}$ is a lower triangular matrix such that  $\Lambda_{t} \Lambda_{t}'$ is the local covariance matrix.
+I generalize the Horseshoe Prior distribution to matrix variates by decomposing the local covariance matrix into a standard deviation vector and a correlation matrix,
 \begin{align}
   \label{eq:16}
   \Lambda_{t} \Lambda_{t}' &= \diag(\lambda_{t}) R_{t} \diag(\lambda_{t})' \\
@@ -317,21 +308,22 @@ To get a multivariate version of the Horseshoe Prior distribution, decompose the
 where $R_{t}$ is a correlation matrix.
 Each element in $\lambda_{.,i}$ for all $t \in 1:n$ share a common prior distribution, shrinking the values across time.
 
+
 \subsection{Outliers}
 \label{sec:outliers}
 
-Robustness to and detection of outliers is analagous to that of time-varying parameters.
-The observation disturbances $\varepsilon$ are modeled by assigning a scale mixture of normal distributions to $H_{t}$.
-However, unlike structural breaks, there is often less concern about the sparsity of $\varepsilon$ than the possibility of very large values of $\varepsilon$.
-Thus, the $t$-distribution, which has fat tails, but not a spike at zero, will likely work well in many applications.
+This paper is primarily concerned with structural breaks, but scale-mixture of normal distribution shrinkage priors can also be used to model outliers simply
+by placing shrinkage priors on the observation disturbances, $\varepsilon$.
+A major difference between observation disturbances and state disturbances, is that there is often more concern about sparsity in the state disturbances than in the observation disturbances.
+For example, many statistical models are estimated with non-time varying parameters, but none are estimated without any observation variance.
+The primary concern with outliers is not sparsity, but the possibility of $\varepsilon \gg 0$.
+Thus, the $t$-distribution, which has fat tails but not a spike at zero, will likely work well in many applications.
+The use of the $t$-distribution to model outliers has a long history in Bayesian models generally (CITE), and has been suggested for DLMs (CITE).
 
-% \section{Monte Carlo}
-% \label{sec:monte-carlo}
-
-% Since this would be computationally expensive, I've been working on both Stan code and a new R package for Kalman filters in order to be able to do these.
 
 \section{Examples}
 \label{sec:examples}
+
 
 \subsection{Nile Flow Data}
 \label{sec:nile}
