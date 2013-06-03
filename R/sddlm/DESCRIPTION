@@ -1,11 +1,10 @@
-Package: smgdlm
+Package: sddlm
 Maintainer: Jeffrey Arnold <jeffrey.arnold@gmail.com>
 Author: Jeffrey Arnold <jeffrey.arnold@gmail.com>
 Version: 0.0.1
 License: GPL-3
-Title: Code for Scale Mixture of Gaussian DLMs
-Description: Code used in Scale Mixture of
-    Gaussian DLMs for Structural Breaks paper
+Title: Code for Sparse Disturbance DLM
+Description: Code used in paper on Sparse Disturbance for DLMs
 Depends:
     methods,
 Imports:
@@ -18,13 +17,7 @@ Collate:
     'smgdlm-package.R'
     'McmcdbNormal.R'
     'misc.R'
-    'McmcdbHorseshoe.R'
-    'McmcdbNormal2.R'
-    'McmcdbHorseshoe2.R'
-    'McmcdbHorseshoe4.R'
     'dhp.R'
     'crosszero.R'
-    'McmcdbHorseshoe1a.R'
-    'McmcdbNormal1a.R'
     'rbernoulli.R'
     'sim_struc_break.R'

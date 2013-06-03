@@ -7,7 +7,8 @@ data {
   real<lower=0.0> P1;
   // data
   real y[n]; // rows = variables; cols = observations
-  vector<lower=1.0>[n] tdist;
+  vector<lower=1.0>[n] Q_a;
+  vector<lower=1.0>[n] Q_b;
 }
 parameters {
   // system matrices
@@ -18,7 +19,7 @@ parameters {
 transformed parameters {
   vector<lower=0.0>[n] Q;
   for (i in 1:n) {
-    Q[i] <- tdist[i] * pow(lambda[i], 2) * pow(tau, 2) * H;
+    Q[i] <- Q_a[i] + Q_b[i] * pow(lambda[i], 2) * pow(tau, 2) * H;
   }
 }
 model {

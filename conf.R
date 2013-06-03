@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
   library("mcmcstats")
   library("stanmisc")
   # local
-  library("smgdlm")
+  library("sddlm")
 })
 
 ROOT_DIR <- normalizePath(".")

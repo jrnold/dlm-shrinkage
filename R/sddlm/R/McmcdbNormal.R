@@ -2,9 +2,9 @@
 #' @exportClass McmcdbNormal
 NULL
 
-setClass("McmcdbNormal", contains = "McmcdbWide")
+setClass("McmcdbLocalLevelNormal", contains = "McmcdbWide")
 
-summary.McmcdbNormal <- function(object, y) {
+summary.McmcdbLocalLevelNormal <- function(object, y) {
   ret <- list()
   f <- function(x) rnorm(length(x$theta), x$theta, x$sigma)
   yrep <- simplify2array(mcmcdb_samples_iter(object, FUN = f))
@@ -25,4 +25,5 @@ summary.McmcdbNormal <- function(object, y) {
   ret
 }
 
-setMethod("summary", "McmcdbNormal", summary.McmcdbNormal)
+setMethod("summary", "McmcdbLocalLevelNormal",
+          summary.McmcdbLocalLevelNormal)
