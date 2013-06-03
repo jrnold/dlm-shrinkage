@@ -12,7 +12,11 @@ data {
 parameters {
   // system matrices
   real<lower=0.0> H;
+  real<lower=0.0> tau;
+}
+transformed parameters {
   real<lower=0.0> Q;
+  Q <- pow(tau, 2.0) * H;
 }
 model {
   // log-lilelihood
@@ -45,6 +49,8 @@ model {
         P <- (1 - K ) * P;
         loglik_obs[i] <- -0.5 * (log(2 * pi()) 
                                  + log(F) + Finv * pow(v, 2.0));
+      } else {
+        loglik_obs[i] <- 0.0;
       }
       // // predict
       // a <- a;
@@ -53,6 +59,5 @@ model {
   }
   lp__ <- lp__ + sum(loglik_obs);
   lp__ <- lp__ + 1.0 / H;
-  Q ~ cauchy(0, H);
+  tau ~ cauchy(0, 1);
 }
-

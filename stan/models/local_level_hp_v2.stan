@@ -13,13 +13,18 @@ parameters {
   // system matrices
   real<lower=0.0> H;
   real<lower=0.0> tau;
-  vector<lower=0.0>[n] lambda;
+  vector<lower=0.0,upper=0.5 * pi()>[n] lambda_tmp;
 }
 transformed parameters {
   vector<lower=0.0>[n] Q;
+  // reparameterize half-Cauchy distribution
+  // F(x) = (2 / pi) * atan(x) -> F^{-1}(x) = tan(pi / 2 * x)
+  vector<lower=0.0>[n] lambda;
   for (i in 1:n) {
-    Q[i] <- pow(lambda[i], 2.0) * pow(tau, 2.0) * H;
+    lambda[i] <- tan(lambda_tmp[i]);
+    Q[i] <- pow(lambda[i], 2) * pow(tau, 2) * H;
   }
+
 }
 model {
   // log-lilelihood
@@ -53,8 +58,6 @@ model {
         P <- (1 - K ) * P;
         loglik_obs[i] <- -0.5 * (log(2 * pi()) 
                                  + log(F) + Finv * pow(v, 2.0));
-      } else {
-        loglik_obs[i] <- 0.0;
       }
       // // predict
       // a <- a;

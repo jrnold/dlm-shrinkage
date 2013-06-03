@@ -3,23 +3,25 @@
 data {
   // dimensions
   int n; // number of observations
+  int k; // number of regression variables
   real a1;
   real<lower=0.0> P1;
   // data
   real y[n]; // rows = variables; cols = observations
   int missing[n]; // rows = variables; cols = observations
+  matrix[n, k] X;
 }
 parameters {
   // system matrices
   real<lower=0.0> H;
   real<lower=0.0> tau;
-  vector<lower=0.0>[n] lambda;
+  vector[k] beta;
 }
 transformed parameters {
-  vector<lower=0.0>[n] Q;
-  for (i in 1:n) {
-    Q[i] <- pow(lambda[i], 2.0) * pow(tau, 2.0) * H;
-  }
+  real<lower=0.0> Q;
+  vector[n] cc;
+  cc <- X * beta;
+  Q <- pow(tau, 2.0) * H;
 }
 model {
   // log-lilelihood
@@ -35,7 +37,6 @@ model {
     // state predictions a_{t}, P_{t}
     real a;
     real P;
-    // temp variables
     // real M;
     real F;
     
@@ -44,7 +45,7 @@ model {
     for (i in 1:n) {
       if (! missing[i]) {
         // filter
-        v <- y[i] - a;
+        v <- y[i] - cc[i] - a;
         // M <- P;
         F <- P + H;
         Finv <- 1 / F;
@@ -53,20 +54,14 @@ model {
         P <- (1 - K ) * P;
         loglik_obs[i] <- -0.5 * (log(2 * pi()) 
                                  + log(F) + Finv * pow(v, 2.0));
-      } else {
-        loglik_obs[i] <- 0.0;
       }
       // // predict
       // a <- a;
-      P <- P + Q[i];
+      P <- P + Q;
     }
   }
-  lp__ <- sum(loglik_obs);
-
-  // prior on obs var
+  lp__ <- lp__ + sum(loglik_obs);
   lp__ <- lp__ + 1.0 / H;
-  // Horseshoe prior
-  lambda ~ cauchy(0, 1);
   tau ~ cauchy(0, 1);
 }
 

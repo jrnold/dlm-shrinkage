@@ -7,7 +7,7 @@ data {
   real<lower=0.0> P1;
   // data
   real y[n]; // rows = variables; cols = observations
-  int missing[n]; // rows = variables; cols = observations
+  vector<lower=1.0>[n] tdist;
 }
 parameters {
   // system matrices
@@ -18,7 +18,7 @@ parameters {
 transformed parameters {
   vector<lower=0.0>[n] Q;
   for (i in 1:n) {
-    Q[i] <- pow(lambda[i], 2.0) * pow(tau, 2.0) * H;
+    Q[i] <- tdist[i] * pow(lambda[i], 2) * pow(tau, 2) * H;
   }
 }
 model {
@@ -42,20 +42,16 @@ model {
     a <- a1;
     P <- P1;
     for (i in 1:n) {
-      if (! missing[i]) {
-        // filter
-        v <- y[i] - a;
-        // M <- P;
-        F <- P + H;
-        Finv <- 1 / F;
-        K <- P * Finv;
-        a <- a + K * v;
-        P <- (1 - K ) * P;
-        loglik_obs[i] <- -0.5 * (log(2 * pi()) 
-                                 + log(F) + Finv * pow(v, 2.0));
-      } else {
-        loglik_obs[i] <- 0.0;
-      }
+      // filter
+      v <- y[i] - a;
+      // M <- P;
+      F <- P + H;
+      Finv <- 1 / F;
+      K <- P * Finv;
+      a <- a + K * v;
+      P <- (1 - K ) * P;
+      loglik_obs[i] <- -0.5 * (log(2 * pi()) 
+                               + log(F) + Finv * pow(v, 2.0));
       // // predict
       // a <- a;
       P <- P + Q[i];

@@ -9,7 +9,8 @@
 \usepackage[style=authoryear]{biblatex}
 \usepackage{graphicx}
 \usepackage{subcaption}
-\addbibresource{default}
+%\addbibresource{default}
+\addbibresource{local}
 \usepackage{setspace}
 \doublespace
 
@@ -234,8 +235,8 @@ This allows it to aggressively shrink noise towards zero, while leaving signals 
 Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior to the normal, Cauchy, and Laplacian (double-exponential) distributions, both around zero and in the tails.
 \begin{figure}
   \centering
-  % \includegraphics{plots/fig-horseshoe1.pdf}
-  % \includegraphics{plots/fig-horseshoe2.pdf}
+  \includegraphics{plots/fig-horseshoe1.pdf}
+  \includegraphics{plots/fig-horseshoe2.pdf}
   \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
   \label{fig:horseshoe}
 \end{figure}
@@ -366,13 +367,6 @@ However, the second method, using the values of $w_{t}$ classifies 1899 as a str
   \includegraphics{plots/fig-nile.pdf}
   \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
   \label{fig:nile}
-\end{figure}
-
-\begin{figure}[htpb]
-  \centering
-  \includegraphics{plots/fig-nile_w.pdf}
-  \caption{Plot of estimated probability of a structural break, calculated as $w_{i} = 1 - \E(\hat{\kappa})$}
-  \label{fig:nile_w}
 \end{figure}
 
 \begin{figure}[htpb]

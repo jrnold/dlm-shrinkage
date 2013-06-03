@@ -6,18 +6,18 @@ LATEX = pdflatex -interaction batchmode
 
 depends = $(wildcard plots/*.tex) $(wildcard plots/*.pdf)
 
-obj = $(SRC:%.tex=%.pdf)
-auxfile = $(SRC:%.tex=%.aux)
+# obj = $(SRC:%.tex=%.pdf)
+# auxfile = $(SRC:%.tex=%.aux)
 
-all: $(obj)
+# all: $(obj)
 
-makeplots:
-	@echo 'did not run plots'
-	# make -C plots
+# makeplots:
+# 	#@echo 'did not run plots'
+# 	make -C plots
 
 $(obj): $(SRC) $(BIBFILE) makeplots $(depends)
 	$(LATEX) $<
-	#$(JABREF) -n true -a $(auxfile),local.bib $(BIBFILE)
+	$(JABREF) -n true -a $(auxfile),local.bib $(BIBFILE)
 	$(BIBTEX) $(auxfile)
 	$(LATEX) $<
 	$(LATEX) $<

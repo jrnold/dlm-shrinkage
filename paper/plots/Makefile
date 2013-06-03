@@ -5,7 +5,7 @@ CODE = code-normal.tex code-horseshoe.tex
 RSCRIPT = Rscript
 PYGMENTIZE = pygmentize
 
-all: build-pygments build-figs build-tables
+all: build-figs build-tables
 
 build-pygments: $(CODE)
 
