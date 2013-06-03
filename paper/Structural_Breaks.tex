@@ -18,7 +18,7 @@
 
 \author{Jeffrey B. Arnold}
 % Seeing a Shrink about Structural Breaks
-\title{Sparse State Distrurbance Dynamic Linear Models for Structural Breaks}
+\title{Sparse State Disturbance Dynamic Linear Models for Structural Breaks}
 
 
 \newcommand{\dist}[1]{\mathcal{#1}}
@@ -51,45 +51,54 @@
 
 \maketitle{}
 
-\begin{abstract}
-  In estimating problems with time-varying parameters, researchers often have to choose between methods that smooth the change over time and methods that model the change as discrete breaks.
-  This paper proposes using dynamic linear models with scale-mixture of gaussians a model time-varying processes that can account for either or both smoothly time-varying processes and processes with large discrete jumps.
-  The problem of estimating time-varying parameters is a special case of the ``large-p'' problem, and this paper applies recent advances in that literature to the time-varying parameter problem.
-  This provides a robust and flexible method. 
-\end{abstract}
-
 \section{Introduction}
 \label{sec:introduction}
 
 Political and social processes are rarely, if ever, constant over time.
-Moreover, many of these processes the changes in the process are characterized by many periods of stability and a few periods of possibly rapid and large, change \parencite{RatkovicEng2010}.
-Because most smoothing methods such as splines and Kalman filters cannot account for the sparsity and scale differences in the parameter changes
-\footnote{\textcite{RatkovicEng2010} is the notable exception in that their method combines both smoothly varying sections with structural breaks.}
+Thus political scientists often have a need to estimate time-varying parameters.
+There exist two broad approaches to estimating time-varying parameters: structural break approaches, including dummy variables and change point models, and smoothing approaches, including dynamic linear models and smoothing splines.
+These two approaches are viewed as distinct and estimated using different methods, forcing the researcher to choose between the models.
+Since in many processes the changes in the process are characterized by many periods of stability and a few periods of possibly rapid and large, change \parencite{RatkovicEng2010},
+which 
 structural break (change point) models are often used \parencites{CalderiaZorn1998}{Spirling2007}{Spirling2007a}{Park2010}{Park2011}.%
+\footnote{\textcite{RatkovicEng2010} is the notable exception in that their method combines both smoothly varying sections with structural breaks.}
+However, many in general the structural break methods become more difficult to formulate and estimate as the number of breaks goes from known to estimated.
 
 This paper presents a simple and flexible method to estimate time-varying parameters that may be subject to structural breaks.
-Time-varying parameters with possible structural breaks can be estimated within the continuous state-space framework by using a shrinkage prior on the distribution of the state disturbances.
-Suppose there is a sequence of data $y_{1}, \dots, y_{n}$ drawn from a normal distribution with a time varying mean, $\alpha_{1:n}$. This can be represented within a state space model as follows,
-\begin{align}
+Time-varying parameters with possible structural breaks can be estimated within a continuous state-space (dynamic linear model) model by placing a shrinkage prior on the distribution of the state disturbances.
+The intuition behind this can be illustrated with a simple model.
+Suppose there is a vector of observed data, $y_{1}, \dots, y_{n}$, drawn from a normal distribution with a time varying mean, $\alpha_{1:n}$. 
+This can be represented within a state space model as follows,
+\begin{equation}
   \label{eq:4}
-  y_{t} &= \alpha_{t} + \varepsilon_{t} & \varepsilon_{t} \sim N(0, \sigma^{2}) \\
-  \alpha_{t + 1} &= \alpha_{t} + \eta_{t}
-\end{align}
-A data generating process with a structural break is simply one in which the state disturbance vector, $\eta$, is sparse, meaning most $\eta_{t}$ are 0.
-Estimating sparse parameters is a general problem that has received much attention lately, and this paper takes advantage of advances in that literature.
-Estimating $\alpha$ in which there are possible structural breaks can be done by placing a shrinkage prior on $\eta$.
-This paper will use the Horseshoe Prior distribution introduced in \textcite{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}.
+  \begin{aligned}[t]
+    y_{t} &= \alpha_{t} + \varepsilon_{t} & \varepsilon_{t} \sim N(0, \sigma^{2}) \\
+    \alpha_{t + 1} &= \alpha_{t} + \eta_{t}
+  \end{aligned}
+\end{equation}
+The difference between "structural breaks" and "smoothing" data-generating processes and estimation techniques is whether the $\eta$ vector is assumed (estimated) to be sparse (most $\eta_{t} = 0$) or dense (most $\eta_{t} \neq 0$).
+The commonly estimated local level dynamic linear model specifies a common normal distribution for $\eta$.
+While this can estimate change over time, it cannot capture sparse $\eta$, as it will tend to oversmooth the breaks and undersmooth the periods of stability.
+However, estimating sparse parameter vectors is a general problem that has received considerable attention lately in large-p, small-n problems (include citations).
+This paper applies some of those advances to estiamting time-varying parameters, such as \eqref{eq:4}.
+Instead of using a prior normal distribution on $\eta$, a shrinkage prior is used instead.
+While there are a large number of Bayesian shrinkage priors proposed, this paper will use the Horseshoe Prior distribution introduced in \textcites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}.
 
-This method has several appealing features.
-First, while structural breaks and smoothly varying parameters are often treated with seperate models and researchers forced to choose between them, the can be nested within the continuous state space model.
-They simply differ in the prior distribution (or equivalently penalty) they place on the state disturbances.
-Second, and following from the nesting of structural breaks and smoothing methods, this method also does not require the researcher to specify \textit{ex ante} the number of structural breaks.
-But, If the researcher has prior information about the number of structural breaks (or equivalently, the sparsity of the state disturbances)
-Third, because this method is a subclass of the dynamic linear models, it inherits much of the flexibility of those models.
-With only minor modifications, this method can be applied to problems in which the structural break is in the slope, regression coefficients, seasonal and cylical effects.
-This allows the researcher to focus on specifying a model that makes sense rather than adjusting the model to one in which there is an existing test.
-Fourth, because most shrinkage prior distributions, including the Horseshoe Prior distribution used in this paper, this state space part of this model can still be sampled using the computationally efficient methods developed for Gaussian Dynamic Linear Models.
-This paper shows how these models can be estimated using \Stan and \RLang.
+Using a sparse distrurbance representation of TVP models has multiple favorable characteristics.
+\begin{enumerate}
+\item This method does not require specifying the number of structural breaks ex ante.
+Structural breaks can be detected from $\eta$ using several rules.
+The sparsity of $\eta$ will determine the number of structural breaks, and this sparsity can be 
+Not only do the number of structural breaks need not be specified beforehand, this method will work reasonable well even if the underlying data-generating process has the parameter changing in each period.
+\item This method is flexible.
+Dynamic linear models incorporate a wide variety of models, including ARIMA and structural time-series, cubic splines, and regressions with time-varying coefficients.
+Any model in which the parameter of interest can be expressed as a latent state in a dynamic linear model can be altered to assign a shrinkage prior to the state disturbance in order to make it robust to or to detect structural breaks for that parameter.
+\item The method allows for easy estimation of structural breaks in multiple parameters which can be either independent or correlated.
+\item This method can be altered to detect outliers, simply by applying shrinkage priors to the observation disturbances instead of the state disturbances in the dynamic linear model.
+\item This method is efficient in both programmer and computational time, while still retaining the flexibility to estimate a wide variety of models.
+Since many most shrinkage priors, including the Horseshoe Prior used in the paper, are scale-mixture of normal distributions, this method can take advantage of the computationally efficient methods of mode finding and sampling from dynamic linear models, such as the Kalman filter and Forward-Filter Backwards-Sample.
+This paper shows how a combination of \Stan, a general purpose Bayesian software prgram, and \RLang can be used to easily estimate and sample from the posterior of dynamic linear models.
+\end{enumerate}
 
 \section{Dynamic Linear Models}
 \label{sec:dynam-line-models}
@@ -111,9 +120,10 @@ Equation \eqref{eq:14} is the \textit{state equation} which describes the Markov
 Equation \eqref{eq:2} is the \textit{initial state equation} which is a prior distribution for the initial state $\alpha_{1}$.
 The vectors $\varepsilon_{t}$ and $\eta_{t}$ are referred to as the \textit{observation} and \textit{state disturbances}, respectively.
 The matrices $Z_{t}$, $H_{t}$, $T_{t}$, $R_{t}$, and $Q_{t}$ are referred to as the \textit{system matrices}.
+Let $\mathcal{S}_{t}$ refer to the set of system matrices.
 The matrix $Z_{t}$ is the design matrix, $T_{t}$ is the transition matrix, $H_{t}$ is the observation covariance matrix, and $R_{t} Q_{t} R'_{t}$ is the state covariance matrix.
 For the purposes of the estimation of $\alpha$, they are considered fixed and known, but in a larger model they can include parameters to be estimated.
-Let $p$ be the dimension of the observation vector (number of variables), $m$ be the dimension of the state vector, and $r$ be the dimension of the state disturbances.
+%Let $p$ be the dimension of the observation vector (number of variables), $m$ be the dimension of the state vector, and $r$ be the dimension of the state disturbances.
 %then the dimensions of the elements in the DLM are show in Table \ref{tab:state_space_dim}.
 % \begin{table}[!]
 %   \centering
@@ -131,10 +141,11 @@ Let $p$ be the dimension of the observation vector (number of variables), $m$ be
 %   \label{tab:state_space_dim}
 % \end{table}
 
-DLMs nest a large number of common models, including ARIMA, stochastic volatility, (time-varying parameter) regressions,
-and cubic splines \parencites{WestHarrison1997}{DurbinKoopman2001}\parencite{PetrisPetroneEtAl2009}{CommandeurKoopman2007}.%
+Many commonly used models, including ARIMA and structural time-series, regressions with time-varying coefficients, cubic splines, and stochastic volatility models can be represented as DLMs. 
+See \parencites{WestHarrison1997}{DurbinKoopman2001}{PetrisPetroneEtAl2009}{CommandeurKoopman2007}.%
 \footnote{See \textcite{CommandeurKoopmanOoms2011} for a review of statistical software to estimate state space models.}
-This flexibility is important because the methods presented below can be applied to a wide range of models with little modification.
+This flexibility is important because the methods presented below can be applied to a wide range of models.
+Any model in which the parameter of interest can be represented as a state in a DLM, can be estimated using the following method to detect structural breaks.
 
 \subsection{Structural Breaks in a State Space Model}
 \label{sec:struct-breaks-state}
@@ -235,8 +246,8 @@ This allows it to aggressively shrink noise towards zero, while leaving signals 
 Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior to the normal, Cauchy, and Laplacian (double-exponential) distributions, both around zero and in the tails.
 \begin{figure}
   \centering
-  \includegraphics{plots/fig-horseshoe1.pdf}
-  \includegraphics{plots/fig-horseshoe2.pdf}
+  % \includegraphics{plots/fig-horseshoe1.pdf}
+  % \includegraphics{plots/fig-horseshoe2.pdf}
   \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
   \label{fig:horseshoe}
 \end{figure}
@@ -362,26 +373,26 @@ Note that the observed data in those years is consistent with the upper tail of 
 The reason that there is near certainty of a structural break in 1899 as opposed to the two earlier years is due to outside data, the knowledge that the dam was built in that year.
 However, the second method, using the values of $w_{t}$ classifies 1899 as a structural break, giving the $\Pr(\omega_{1899} \neq 0) \approx 0.55$.
 
-\begin{figure}[htpb]
-  \centering
-  \includegraphics{plots/fig-nile.pdf}
-  \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
-  \label{fig:nile}
-\end{figure}
+% \begin{figure}[htpb]
+%   \centering
+%   \includegraphics{plots/fig-nile.pdf}
+%   \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
+%   \label{fig:nile}
+% \end{figure}
 
-\begin{figure}[htpb]
-  \centering
-  \includegraphics{plots/fig-nile_innovations.pdf}
-  \caption{Plot of innovations}
-  \label{fig:nile_innovations}
-\end{figure}
+% \begin{figure}[htpb]
+%   \centering
+%   \includegraphics{plots/fig-nile_innovations.pdf}
+%   \caption{Plot of innovations}
+%   \label{fig:nile_innovations}
+% \end{figure}
 
-\begin{table}[htpb]
-  \centering
-  \input{plots/tab-nile.tex}
-  \caption{Model summary statistics of Nile models.}
-  \label{tab:nile}
-\end{table}
+% \begin{table}[htpb]
+%   \centering
+%   \input{plots/tab-nile.tex}
+%   \caption{Model summary statistics of Nile models.}
+%   \label{tab:nile}
+% \end{table}
 
 \section{Implementation}
 \label{sec:implementation}
