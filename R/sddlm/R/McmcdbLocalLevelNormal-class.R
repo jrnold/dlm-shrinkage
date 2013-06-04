@@ -4,8 +4,6 @@ NULL
 
 setClass("McmcdbLocalLevelNormal", contains = "McmcdbWide")
 
-setGeneric("ssm_sim", function(object, data, ...) standardGeneric("ssm_sim"))
-
 ssm_sim.McmcdbLocalLevelNormal <- function(object, data) {
   f <- function(H, Q, ...) {
     model <- SSModel(data$y,

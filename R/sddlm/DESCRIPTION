@@ -25,3 +25,5 @@ Collate:
     'McmcdbLocalLevelNormal-class.R'
     'sddlm-package.R'
     'McmcdbLocalLevelHp-class.R'
+    'McmcdbLocalLevelNormalInter-class.R'
+    'McmcdbLocalLevelNormalReg-class.R'
