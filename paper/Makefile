@@ -17,7 +17,7 @@ all: $(obj)
 
 $(obj): $(SRC) $(BIBFILE)
 	$(LATEX) $<
-	$(JABREF) -n true -a $(auxfile),local.bib $(BIBFILE)
+	#$(JABREF) -n true -a $(auxfile),local.bib $(BIBFILE)
 	$(BIBTEX) $(auxfile)
 	$(LATEX) $<
 	$(LATEX) $<

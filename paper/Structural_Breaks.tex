@@ -9,8 +9,8 @@
 \usepackage[style=authoryear]{biblatex}
 \usepackage{graphicx}
 \usepackage{subcaption}
-%\addbibresource{default}
-\addbibresource{local}
+\addbibresource{default}
+%\addbibresource{local}
 \usepackage{setspace}
 \doublespace
 
@@ -21,6 +21,7 @@
 \title{Sparse State Disturbance Dynamic Linear Models for Structural Breaks}
 
 
+% Used to typeset distributions
 \newcommand{\dist}[1]{\mathcal{#1}}
 \newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
 \newcommand{\dnorm}[1]{\ensuremath{\dist{N}\paren{#1}}}
@@ -50,6 +51,7 @@
 \begin{document}
 
 \maketitle{}
+
 
 \section{Introduction}
 \label{sec:introduction}
@@ -100,6 +102,7 @@ Since many most shrinkage priors, including the Horseshoe Prior used in the pape
 This paper shows how a combination of \Stan, a general purpose Bayesian software prgram, and \RLang can be used to easily estimate and sample from the posterior of dynamic linear models.
 \end{enumerate}
 
+
 \section{Dynamic Linear Models}
 \label{sec:dynam-line-models}
 
@@ -146,6 +149,7 @@ See \parencites{WestHarrison1997}{DurbinKoopman2001}{PetrisPetroneEtAl2009}{Comm
 \footnote{See \textcite{CommandeurKoopmanOoms2011} for a review of statistical software to estimate state space models.}
 This flexibility is important because the methods presented below can be applied to a wide range of models.
 Any model in which the parameter of interest can be represented as a state in a DLM, can be estimated using the following method to detect structural breaks.
+
 
 \subsection{Structural Breaks in a State Space Model}
 \label{sec:struct-breaks-state}
@@ -281,6 +285,7 @@ Values of $\lambda_{t} > 1$ put a higher prior probability on larger absolute va
 Alternatively, the researcher can choose not to try to classify the periods as structural breaks or not, but rather directly focus on the magnitudes of $\eta_{t}$.
 For example, it may be of more practical interest to order the $\eta_{t}$ by their absolute values.
 
+
 \subsection{Multivariate States}
 \label{sec:multivariate}
 
@@ -389,37 +394,37 @@ However, the second method, using the values of $w_{t}$ classifies 1899 as a str
 \section{Implementation}
 \label{sec:implementation}
 
-% There are a wide variety of sofware that can estimate state space models.
-% See the special issue of the \textit{Journal of Statistical Software} provides an overview of the software available to estimate state space models, including in R, Stata, and Matlab.%
-% \footnote{Also see \textcite{Tusell2011} for a review of R packages for Kalman filtering and smoothing.}
+MCMC sampling from a dynamic linear model is challenging due to the temporal dependence of the latent state parameters $\lambda_{t}$ \parencite{ReisSalazarGamerman2006}.
+Although full conditional distributions for a Gibbs sampler can be easily specified (Carlin et al 1992), in practice sampling component-wise will almost always result in slow convergence and highly correlated posterior samples.
+However, in the case of dynamic linear models there exist more efficient block sampling algorithms which sample from $\alpha_{t}$ in a single block.
+These methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}.%
+\footnote{Also see \textcite{ReisSalazarGamerman2006} for a comparison of the efficiency of various sampling methods, and \textcite{migon2005dynamic} for an overview of the various sampling methods.}
+Additionally, since in the case of a Gaussian dynamic linear models the posterior $p(\alpha | y)$ is multivariate normal with a sparse, block diagonal covariance matrix, samples can be drawn directly from the posterior distribution \parencites{migon2005dynamic}{ChanJeliazkov2009}).
 
-Although state space models are often estimated using Bayesian MCMC methods, methods to efficiently sapmle from DLMs are not supported by most general purpose Bayesian software (OpenBUGS, JAGS, and PyMC).
-While, the  equations of the dynamic linear model (~\eqref{eq:8} and \eqref{eq:14}) can be easily translated into the BUGS language, it is difficult to efficiently estimate the models.
-That is because, BUGS and JAGS treat each $\alpha_{t}$ as a seperate parameter, and sample $\alpha_{t}$ conditional on the values of the other $\alpha_{-t}$.
-Due to the high correlation between $\alpha_{t}$ and $\alpha_{t+1}$, this sampling procedure will generally result in poor mixing \parencite[477]{Jackman2009}.
+However, the efficient algorithms are not included in the commonly used general-purpose Bayesian software programs (BUGS, JAGS, and PyMc).
+Thus, to estimate and sample from dynamic linear models in a computationally efficient manner, the researcher must write a custom MCMC sampler.
+While there exists many software implementaitons of filters and smoothers for Dynamic Linear Models, sampling from other parameters may require additional sampling tricks due to the correlation between the states and the parameters (Weis, and citations, Chan Jeliazkov).
 
-To avoid this poor mixing, more efficient, specialized methods to sample from joint distribution of $\alpha_{1:n}$ have been developed.
-A standard method for sampling from the joing distribution of $\alpha$ is the Forward-Filter Backward Sampler (FFBS), independently developed by \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}.
-Subsequently, more efficient sampling methods have been developed by \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}, and \textcite{ChanJeliazkov2009}.
-However, the methods for sampling from the joing distribution of $\alpha$ are not included in the general purpose software (OpenBUGS, JAGS, PyMC), and thus a researcher interested in estimating dynamic linear models has had to write a custom samplers for each application.
+To estimate the models in this paper, I used a combination of Stan and R.
 
-This paper shows a method for easily and efficiently estimating the posterior distribution of the state space model using Stan and R.
-This paper shows how Stan can be used to easily and efficiently estimate the posterior distribution of these models.
-Like BUGS, Stan \textcite{Stan2013}{Stan2013a} is a general purpose Bayesian software with a domain specific language that hides the details of the sampling from the user.
-Howeer, rather than using Gibbs Sampling like BUGS and JAGS, Stan implements a variant of Hamiltonian Monte Carlo (HMC) algorithm, the details of which are in \textcite{HoffmanGelman2013}.
+Stan is a general purpose Bayesian software program.
+Like BUGS, it has a domain specific language that lets the user specify the statistical model without specifying the steps used to sample from the model.
+Unlike BUGS, Stan is not based on Gibbs sampling, but instead uses a variant of Hamiltonian Monte Carlo (citation).
+While as of the time of the writing, a distribution for dynamic linear models is not included in the software, but a method for efficiently sampling the other parameters while margininalizing over the latent states can be implemented within the Stan modeling language.
+The objective in the Stan step is draw posterior samples from (any parameters in) the state matrices $S_{t}$.
+Think of dynamic linear model as  $p(y | S_{t})$. 
+To sample from a distribution not built into Stan, all that is required is the computation of the log likelihood of that distribution, which is added to the log-posterior.
+In the case of dynamic linear models, the log-likelihood of $p(y | S_{t})$ can be efficiently calculated with the Kalman filter (citations).
 
-The posterior distribution of a dynamic linear model can be sampled from using Stan and R.
-This method proceeds in two steps.
+Thus, to get a sample from the
 \begin{enumerate}
-\item First, the system matrices ($\mathcal{S}_{t} = \{T_{t}, Z_{t}, H_{t}, Q_{t}, R_{t}\}$, or rather any parameters in them are sampled within Stan. This can be done efficiently within Stan without sampling from $\alpha_{1:n}$ by adding the likelihood $p(y_{1:n} | \mathcal{S})$ to the log-posterior of the model.
-The likelihood of $p(y_{1:n} | .)$ conditional on the system 
-\item Second, to sample from $\alpha$, for each sample of the posterior distribution of $\mathcal{S}$, draw a sample of $\alpha$ using FFBS or a simulation smoother. In this paper, I use the R package \textbf{KFAS}.
+\item Sample $k$ iterations from the posterior distriubtion of $p(S_{t} | y_{t})$ by using a Kalman filter implemented in Stan to calculate $\log p(y_{t} | S_{t})$.
+\item For each sample from the posterior distribution of $p(S_{t} | y_{t})$, draw $\alpha | y_{t}, S_{t}$ using an efficient sampling algorithm.
+This paper used the R package KFAS (cite).
 \end{enumerate}
 
-A useful feature of Stan's programming language is that custom distributions can be implemented by simply adding their contribution to the log posterior distribution.
-In the case of a dynamic linear model, this means that to estimate parameters in the system matrices  $p(y_{1:n} | T_{1:n}, Z_{1:n}, Q_{1:n}, R_{1:n}, H_{1:n})$.
-The likelihood of the DLM can be efficiently calculated using the Kalman filter. 
-And the Kalman filter can be written in the Stan modeling language.
+Separating the steps in this manner allows for efficient sampling of parameters in $S$ with HMC, while marginalizing over $\alpha$.
+If samples from $\alpha$ are needed, then they can be sampled after, possibly in parallel.
 
 \subsubsection{Other Examples}
 
