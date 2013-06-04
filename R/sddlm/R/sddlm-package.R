@@ -1,9 +1,11 @@
-#' smgdlm
+#' sddlm package
 #'
-#' @name smgdlm
+#' @name sddlm
 #' @docType package
 #' @import mcmcdb
 #' @import mcmcstats
+#' @import plyr
+#' @import KFAS
 #' @exportMethod summary
 NULL
 

@@ -20,6 +20,6 @@ STAN_MODEL_DIR <- file.path(ROOT_DIR, "stan/models")
 FILEHASH_DB <- file.path(ROOT_DIR, "rdata")
 RDATA <- dbInit(FILEHASH_DB, "RDS")
 
-STAN_MODELS <-
-  sapply(gsub("\\.stanx$", "", dir(STAN_MODEL_DIR, pattern="\\.stanx")),
-         function(x) file.path(STAN_MODEL_DIR, sprintf("%s.stanx", x)))
+STAN_MODELS <- function(key) {
+  file.path(STAN_MODEL_DIR, sprintf("%s.stanx", key))
+}

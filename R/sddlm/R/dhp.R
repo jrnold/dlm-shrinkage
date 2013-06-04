@@ -1,4 +1,3 @@
-#' @include smgdlm-package.R
 #' @export dhp
 NULL
 

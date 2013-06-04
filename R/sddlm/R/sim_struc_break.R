@@ -23,7 +23,7 @@ NULL
 #' Simultates from the system
 #' \deqn{y \sim N(0, 1)}
 #' \deqn{a_{t + 1} \sim N(0, \lambda_t H)}
-#' where \code{\lambda_t} equals 1 with probabilty \code{prob}, and 0 with
+#' where \eqn{\lambda_t} equals 1 with probabilty \code{prob}, and 0 with
 #' probability \code{1 - prob}.
 sim_struc_break <- function(prob = 1, H = 1, T = 101, df = Inf, a1 = 0) {
   if (prob %in% c(1, 0)) {

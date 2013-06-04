@@ -14,32 +14,6 @@ nile_data <- list(n = nrow(nile),
                   a1 = nile$flow[1],
                   P1 = var(nile$flow))
 
-init <- list()
-init$nile_normal_1 <-
-  list(H = 15099, tau = 1469 / 15099)
-init$nile_normal_2 <-
-  c(init$nile_normal_1, list(beta = -249))
-init$nile_hp_v2 <- 
-  within(init$nile_normal_1, {
-    lambda_tmp <- atan(rep(0.001, nile_data$n))
-    lambda_tmp[28] <- atan(2.1)
-  })
-init$nile_hp_v1 <- 
-  within(init$nile_normal_1, {
-    lambda <- rep(0.001, nile_data$n)
-    lambda[28] <- 2.1
-  })
-
-
-
-RDATA[["mcmcdb_nile_normal_1"]] <-
-  mcmcdb_wide_from_stan(run_stan_model(STAN_MODELS["local_level_normal"],
-                                       data = nile_data, seed=SEED,
-                                       init = init$nile_normal_1,
-                                       iter = ITER,
-                                       warmup = WARMUP,
-                                       thin = THIN))
-
 RDATA[["mcmcdb_nile_hp"]] <-
   mcmcdb_wide_from_stan(run_stan_model(STAN_MODELS["local_level_hp"],
                                        data = nile_data, seed=SEED,
@@ -68,7 +42,7 @@ sampler_local_lvl <- function(H, Q, ...) {
   as.numeric(simulateSSM(model, "state")[["states"]])
 }
 alpha <- mcmcdb_samples_iter(RDATA[["mcmcdb_nile_normal_1"]],
-                             FUN = splat(sampler_local_lvl),
+                             FUN = gsplat(sampler_local_lvl),
                              return_type = "a")
 plot(nile$flow); points(apply(alpha, 2, mean), type="l"); points(apply(alpha, 2, quantile, prob=0.975), type="l"); points(apply(alpha, 2, quantile, prob=0.025), type="l")
 

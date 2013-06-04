@@ -18,7 +18,7 @@ parameters {
 transformed parameters {
   vector<lower=0.0>[n] Q;
   for (i in 1:n) {
-    Q[i] <- pow(lambda[i], 2.0) * pow(tau, 2.0) * H;
+    Q[i] <- pow(lambda[i], 2.0) * pow(tau, 2.0);
   }
 }
 model {
@@ -67,6 +67,6 @@ model {
   lp__ <- lp__ + 1.0 / H;
   // Horseshoe prior
   lambda ~ cauchy(0, 1);
-  tau ~ cauchy(0, 1);
+  tau ~ cauchy(0, sqrt(H));
 }
 

@@ -34,7 +34,7 @@
 \section{Details}{
   Simultates from the system \deqn{y \sim N(0, 1)}
   \deqn{a_{t + 1} \sim N(0, \lambda_t H)} where
-  \code{\lambda_t} equals 1 with probabilty \code{prob},
-  and 0 with probability \code{1 - prob}.
+  \eqn{\lambda_t} equals 1 with probabilty \code{prob}, and
+  0 with probability \code{1 - prob}.
 }
 

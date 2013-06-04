@@ -7,7 +7,7 @@ build: build-sddlm
 build-sddlm: library/sddlm/DESCRIPTION
 
 library/sddlm/DESCRIPTION: sddlm/DESCRIPTION $(wildcard sddlm/R/*.R)
-	$(R) CMD INSTALL --build --library=./library sddlmg	
+	$(R) CMD INSTALL --build --library=./library sddlm
 
 library:
 	-mkdir library

@@ -21,7 +21,7 @@ transformed parameters {
   real<lower=0.0> Q;
   vector[n] cc;
   cc <- X * beta;
-  Q <- pow(tau, 2.0) * H;
+  Q <- pow(tau, 2.0);
 }
 model {
   // log-lilelihood
@@ -62,6 +62,6 @@ model {
   }
   lp__ <- lp__ + sum(loglik_obs);
   lp__ <- lp__ + 1.0 / H;
-  tau ~ cauchy(0, 1);
+  tau ~ cauchy(0, sqrt(H));
 }
 

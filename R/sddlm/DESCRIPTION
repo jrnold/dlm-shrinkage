@@ -9,15 +9,19 @@ Depends:
     methods,
 Imports:
     mcmcdb,
-    mcmcstats
+    mcmcstats,
+    KFAS,
+    plyr
 Suggests:
     testthat,
     roxygen2
 Collate:
-    'smgdlm-package.R'
-    'McmcdbNormal.R'
     'misc.R'
     'dhp.R'
     'crosszero.R'
     'rbernoulli.R'
     'sim_struc_break.R'
+    'sim_ssm-method.R'
+    'McmcdbLocalLevelNormal-class.R'
+    'sddlm-package.R'
+    'McmcdbLocalLevelHp-class.R'
