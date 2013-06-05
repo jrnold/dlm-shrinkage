@@ -7,8 +7,8 @@ data {
   real<lower=0.0> P1;
   // data
   real y[n]; // rows = variables; cols = observations
-  vector<lower=1.0>[n] Q_a;
-  vector<lower=1.0>[n] Q_b;
+  vector[n] Q_a;
+  vector<lower=0.0>[n] Q_b;
 }
 parameters {
   // system matrices

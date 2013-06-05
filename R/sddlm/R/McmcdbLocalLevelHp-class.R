@@ -55,6 +55,11 @@ summary.McmcdbLocalLevelHp <- function(object, data) {
   ret[["waic"]] <- waic(ret[["loglik"]])
   ret[["mse"]] <- discrepancy(y, yrep, "mse")
   ret[["chisq"]] <- discrepancy(y, yrep, "chisq")
+  ret[["mean"]] <- mcmcdb_samples_flatpars(object, FUN = mean)
+  ret[["sd"]] <- mcmcdb_samples_flatpars(object, FUN = sd)
+  ret[["rhat_split"]] <- mcmcdb_samples_flatpars(object, FUN = rhat_split)
+  ret[["ess"]] <- mcmcdb_samples_flatpars(object, FUN = ess)
+  ret[["mcmcse"]] <- mcmcdb_samples_flatpars(object, FUN = mcmcse)
   ret
 }
 

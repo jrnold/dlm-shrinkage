@@ -1,13 +1,13 @@
 nile <- RDATA[["nile"]]
 source(".nile_data.R")
 
-KEY <- "nile_hp"
+KEY <- "nile_hp_3"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
-MODEL <- "local_level_hp"
+MODEL <- "local_level_hp_v3"
 
 SEED <- c(43542530304)
-ITER <- 2^15
+ITER <- 2^14
 WARMUP <- 2^12
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
@@ -15,8 +15,8 @@ THIN <- (ITER - WARMUP) / NSAMPLES
 init <-
   within(list(), {
     H <- 15099
-    tau <- sqrt(1469)
-    lambda <- rep(1, length(nile_data$y))
+    tau <- sqrt(1469 / H)
+    lambda <- rep(1, nile_data$n)
   })
 
 timing <-

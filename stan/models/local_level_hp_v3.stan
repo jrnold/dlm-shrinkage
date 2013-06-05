@@ -13,16 +13,12 @@ parameters {
   // system matrices
   real<lower=0.0> H;
   real<lower=0.0> tau;
-  vector<lower=0.0,upper=0.5 * pi()>[n] lambda_tmp;
+  vector<lower=0.0>[n] lambda;
 }
 transformed parameters {
   vector<lower=0.0>[n] Q;
-  // reparameterize half-Cauchy distribution
-  // F(x) = (2 / pi) * atan(x) -> F^{-1}(x) = tan(pi / 2 * x)
-  vector<lower=0.0>[n] lambda;
   for (i in 1:n) {
-    lambda[i] <- tan(lambda_tmp[i]);
-    Q[i] <- pow(lambda[i], 2) * pow(tau, 2);
+    Q[i] <- pow(lambda[i], 2.0) * pow(tau, 2.0) * H;
   }
 }
 model {
@@ -57,6 +53,8 @@ model {
         P <- (1 - K ) * P;
         loglik_obs[i] <- -0.5 * (log(2 * pi()) 
                                  + log(F) + Finv * pow(v, 2.0));
+      } else {
+        loglik_obs[i] <- 0.0;
       }
       // // predict
       // a <- a;
@@ -67,6 +65,8 @@ model {
 
   // prior on obs var
   lp__ <- lp__ + 1.0 / H;
-  tau ~ cauchy(0, sqrt(H));
+  // Horseshoe prior
+  lambda ~ cauchy(0, 1);
+  tau ~ cauchy(0, 1);
 }
 
