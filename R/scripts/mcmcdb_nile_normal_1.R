@@ -45,7 +45,6 @@ make_ssm.McmcdbLocalLevelNormal <- function(iter, data) {
           P1 = data$P1)
 }
 
-ssmodels <- mcmcdb:::mcmcdb_samples_iter.McmcdbWide(object, FUN = make_ssm.McmcdbLocalLevelNormal, data = mcmcdb_data(object))
 
 states.McmcdbLocalLevelNormal <- function(iter, data) {
   simulateSSM(make_ssm.McmcdbLocalLevelNormal(iter, data),
@@ -58,13 +57,8 @@ states.McmcdbLocalLevelNormal <- function(iter, data) {
   KFS(make_ssm.McmcdbLocalLevelNormal(iter, data), smoothing = "none")
 }
 
-ssmodels <- mcmcdb:::mcmcdb_samples_iter.McmcdbWide(object, FUN = states.McmcdbLocalLevelNormal, data = mcmcdb_data(object))
+ssmodels <- mcmcdb:::mcmcdb_samplesg_iter.McmcdbWide(object, FUN = states.McmcdbLocalLevelNormal, data = mcmcdb_data(object))
 
-## Calculate loglik from KFS
-loglik_from_SSM <- function(object) {
-  filt <- KFS(object, smooth = "none")
-  dnorm(filt$v, 0, sqrt(filt$F), log=TRUE)
-}
 
 # alpha: m x 1 x n
 # Z: p x m x n

@@ -7,23 +7,24 @@ data {
   real<lower=0.0> P1;
   // data
   real y[n]; // rows = variables; cols = observations
-  vector[n] Q_a; 
-  vector<lower=0.0>[n] Q_b; 
-  vector[n] H_a; 
+  vector[n] Q_a;
+  vector<lower=0.0>[n] Q_b;
+  vector[n] H_a;
   vector<lower=0.0>[n] H_b;
 }
 parameters {
   // system matrices
   real<lower=0.0> sigma2;
   real<lower=0.0> tau;
+  vector<lower=0.0>[n] lambda;
 }
 transformed parameters {
-  vector<lower=0.0>[n] Q;
   vector<lower=0.0>[n] H;
+  vector<lower=0.0>[n] Q;
   for (i in 1:n) {
-    Q[i] <- Q_a[i] + Q_b[i] * pow(tau, 2.0);
+    Q[i] <- Q_a[i] + Q_b[i] * pow(lambda[i], 2) * pow(tau, 2);
+    H[i] <- H_a[i] + H_b[i] * sigma2;
   }
-  H <- H_a + H_b * sigma2;
 }
 model {
   // log-lilelihood
@@ -39,6 +40,7 @@ model {
     // state predictions a_{t}, P_{t}
     real a;
     real P;
+    // temp variables
     // real M;
     real F;
     
@@ -60,7 +62,12 @@ model {
       P <- P + Q[i];
     }
   }
-  lp__ <- lp__ + sum(loglik_obs);
+  lp__ <- sum(loglik_obs);
+
+  // prior on obs var
   lp__ <- lp__ + 1.0 / sigma2;
   tau ~ cauchy(0, sqrt(sigma2));
+  // Horseshoe prior
+  lambda ~ cauchy(0, 1);
 }
+

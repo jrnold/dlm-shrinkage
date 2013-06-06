@@ -1,10 +1,14 @@
 nile <- RDATA[["nile"]]
 source(".nile_data.R")
 
-Q_a <- rep(0, nile_data[["n"]])
+n <- nile_data[["n"]]
+Q_a <- rep(0, n)
 Q_a[28] <- 10e6
 nile_data[["Q_a"]] <- Q_a
-nile_data[["Q_b"]] <- rep(0, nile_data[["n"]])
+nile_data[["Q_b"]] <- rep(0, n)
+nile_data[["H_a"]] <- rep(0, n)
+nile_data[["H_b"]] <- rep(0, n)
+
 
 KEY <- "nile_normal_3"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
