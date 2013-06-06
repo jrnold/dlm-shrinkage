@@ -2,16 +2,24 @@
 \alias{dhp}
 \title{The Horseshoe Prior Distribution}
 \usage{
-  dhp(x)
+  dhp(x, scale = 1, mu = 0)
 }
 \arguments{
   \item{x}{\code{numeric} vector of quantiles.}
+
+  \item{n}{\code{integer} number of observations.}
+
+  \item{scale}{\code{numeric}. Scale parameter, greater
+  than zero.}
+
+  \item{mu}{\code{numeric}. Location parameter.}
 }
 \value{
   \code{numeric} vector of density values.
 }
 \description{
-  Density function of the horseshoe prior distribution.
+  Density function and random generation for the horseshoe
+  prior distribution.
 }
 \section{Details}{
   There is no exact analytical form of the horseshoe prior

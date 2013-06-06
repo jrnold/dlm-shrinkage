@@ -15,6 +15,7 @@
 \doublespace
 
 \usepackage{todonotes}
+\usepackage{hyperref}
 
 \author{Jeffrey B. Arnold}
 % Seeing a Shrink about Structural Breaks
@@ -104,7 +105,10 @@ This paper shows how a combination of \Stan, a general purpose Bayesian software
 \end{enumerate}
 
 
-\section{Dynamic Linear Models}
+\section{Structural Breaks in a State Space Model}
+\label{sec:struct-breaks-state}
+
+\subsection{Dynamic Linear Models}
 \label{sec:dynam-line-models}
 
 A Dynamic Linear Model (DLM), also called a Linear Gaussian state space model, for a $n$-dimensional observation sequence $y_{1}, \dots, y_{n}$ is defined by the following set of equations.%
@@ -113,7 +117,7 @@ For $t = 1:n$,
 \begin{align}
   \label{eq:8}
   \underset{p \times 1}{y_t} &= \underset{p \times m}{Z_{t}} \, \underset{m \times 1}{\alpha_t} + \underset{p \times 1}{\varepsilon_t} & \varepsilon_{t} &\sim \dmvnorm{0, H_{t}}{p} \\
-  \lable{eq:14}
+  \label{eq:14}
   \underset{m \times 1}{\alpha_{t+1}} &= \underset{m \times m}{T_{t}} \, \underset{m \times 1}{\alpha_{t}} + \underset{m \times r}{R_{t}}  \underset{r \times 1}{\eta_{t}} & \eta_{t} &\sim \dmvnorm{0, Q_{t}}{r} \\
   \label{eq:2}
   \alpha_{1} & \sim \dmvnorm{a_{1}, P_{1}}{m}
@@ -150,11 +154,7 @@ For thorough treatments of DLMs and state space models see \textcites{WestHarris
 This flexibility is important because the methods presented below can be applied to a wide range of models.
 Any model in which the parameter of interest can be represented as a state in a DLM, can be estimated using the following method to detect structural breaks.
 
-
-\subsection{Structural Breaks in a State Space Model}
-\label{sec:struct-breaks-state}
-
-\subsubsection{Local Level Model}
+\subsection{Local Level Model}
 \label{sec:local-level-model}
 
 For simplicity of exposition, in this section I will restrict my attention to a univariate observation vector $y_{1:n}$ with a time-varying mean.
@@ -223,7 +223,7 @@ That most shrinkage priors can be represented as scale mixture of normal distrib
 This ensures that conditional on $\lambda_{t}$, the dynamic model is still a Gaussian dynamic linear model, although technically a Conditionally Gaussian Dynamic Linear Model (CGDLM) (CITE).
 As discussed in more detal in section \ref{sec:implementation}, this means that the dynamic linear model component of the model can be sampled using efficient block sampling methods that depend on $\eta_{t}$ and $\varepsilon_{t}$ being distributed normal.
 
-While there are a large number of proposed shrinkage priors \textcite{ArmaganDunsonLee2011}\textcite{BrownGriffin2010}\textcite{PolsonScott2010}, this paper will use the Horseshoe Prior distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
+While there are a large number of proposed shrinkage priors \parencites{ArmaganDunsonLee2011}{BrownGriffin2010}{PolsonScott2010}, this paper will use the Horseshoe Prior distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
 The Horseshoe Prior distribution has no analytical form, but can be represented as a scale-mixture of normal distributions (as in \eqref{eq:3}) in which the local scale components $\lambda$ are distributed half-Cauchy,%
 \footnote{
 The half-Cauchy prior on the scale components $\lambda_{t}$ implies an inverse-Beta (Beta prime) distribution on the variance components $\lambda_{t}^{2} = \dinvbeta{\frac{1}{2}, \frac{1}{2}}$, where $\dinvbeta{x; a, b} = \frac{x^{a - 1} (1 + x)^{-a - b}}{B(a, b)}$, where $B$ is the Beta function.
@@ -237,11 +237,11 @@ If $X \sim \dbeta{a, b}$, then $\frac{1}{1 + X} \sim \dinvbeta{a, b}$.
 The Horseshoe prior distribution has many appealing properties as a shrinkage prior distribution, which follow from its infinitely high spike at zero, and heavy Cauchy-like tails.
 This allows it to aggressively shrink noise towards zero, while not shrinking signals.%
 \footnote{See \textcite{CarvalhoPolsonScott2010}{CarvalhoPolsonScott2009}{DattaGhosh2012} for formal properties of the horseshoe prior.}
-Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior to the normal, Cauchy, and Laplacian (double-exponential) distributions, both around zero and in the tails.
+Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior to the normal, Cauchy, and Laplacian (double-exponential) distributions, both near zero and in the tail.
 \begin{figure}
   \centering
-  % \includegraphics{plots/fig-horseshoe1.pdf}
-  % \includegraphics{plots/fig-horseshoe2.pdf}
+  \includegraphics{plots/fig-horseshoe1.pdf}
+  \includegraphics{plots/fig-horseshoe2.pdf}
   \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
   \label{fig:horseshoe}
 \end{figure}
@@ -266,7 +266,8 @@ This model could be completed with the non-informative priors, suggested in \tex
     \tau &\sim \dhalfcauchy{0, H}
   \end{aligned}
 \end{equation}
-$H$ is given its Jeffrey's prior, while $\tau$ is distributed Cauchy on the same scale as $H$.
+$H$ is given its Jeffrey's prior, while $\tau$ is distributed half-Cauchy on the same scale as $H$.
+It is important that the prior distribution of the state variance global-component $\tau$ be distributed on the same scale as the observation varince $H$ \parencite{PolsonScott2012}.
 
 \subsection{General DLMs}
 \label{sec:multivariate}
@@ -395,14 +396,7 @@ By setting the variance of $\eta_{28}$ very large, the state discounts all previ
   where $x_{t}$ is an indicator variable such that $x_{t} = 1$ if $t \geq 28$ and 0 otherwise.
 }
 
-All models use the following priors distributions of $\tau$ and $\sigma$ (ADD CITATION AND EXPLANATION)
-\begin{align}
-  \label{eq:24}
-  p(\sigma) &= \frac{1}{\sigma} \\
-  \label{eq:25}
-  \tau &\sim \dhalfcauchy{0, \sigma}
-\end{align}
-All the models use an informative, empirical prior for the initial state,
+All models use the non-informative priors specified in \eqref{eq:7}, and an empirical prior for the initial state,
 \begin{align}
   \label{eq:13}
   \alpha_{1} &\sim N(y_{1}, \Var y_{1})
@@ -432,7 +426,7 @@ All the models use an informative, empirical prior for the initial state,
 \subsection{George W. Bush Approval Ratings}
 \label{sec:george-w.-bush}
 
-The motivating example in \textcite{RatkovicEng2010}.
+The motivating example of \textcite{RatkovicEng2010}.
 
 \subsection{Third Example: TBD}
 
@@ -447,38 +441,48 @@ The motivating example in \textcite{RatkovicEng2010}.
 \section{Implementation}
 \label{sec:implementation}
 
-MCMC sampling from a dynamic linear model is challenging due to the temporal dependence of the latent state parameters $\lambda_{t}$ \parencite{ReisSalazarGamerman2006}.
-Although full conditional distributions for a Gibbs sampler can be easily specified (Carlin et al 1992), in practice sampling component-wise will almost always result in slow convergence and highly correlated posterior samples.
-However, in the case of dynamic linear models there exist more efficient block sampling algorithms which sample from $\alpha_{t}$ in a single block.
-These methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}.%
-\footnote{Also see \textcite{ReisSalazarGamerman2006} for a comparison of the efficiency of various sampling methods, and \textcite{migon2005dynamic} for an overview of the various sampling methods.}
-Additionally, since in the case of a Gaussian dynamic linear models the posterior $p(\alpha | y)$ is multivariate normal with a sparse, block diagonal covariance matrix, samples can be drawn directly from the posterior distribution \parencites{migon2005dynamic}{ChanJeliazkov2009}).
+MCMC sampling from a dynamic linear model is challenging due to the temporal dependence of the latent state parameters $\alpha$ \parencite{ReisSalazarGamerman2006}.
+Although full conditional distributions for a Gibbs sampler can be easily specified \textcite{CarlinGelfandSmith1992}, in practice sampling component-wise will almost always result in slow convergence and highly correlated posterior samples.
+However, in the case of Gaussian dynamic linear models there exist more efficient block sampling algorithms which sample from $\alpha_{t}$ in a single block, which improves the mixing and convergence of the sampler.%
+\footnote{See \textcite{ReisSalazarGamerman2006} for a comparison of the efficiency of various sampling methods, and \textcite{migon2005dynamic} for an overview of the various sampling methods.}
+These block methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}.%
+Additionally, since in the case of a Gaussian dynamic linear models, the posterior $p(\alpha | y, S)$ is a multivariate normal distribution with a sparse, block diagonal covariance matrix, samples can be drawn directly from the posterior distribution \parencites{migon2005dynamic}{ChanJeliazkov2009}.
+However, none of these more efficient algorithms are included in the commonly used general-purpose Bayesian software programs (BUGS, JAGS, and PyMc).
+Thus a researcher needs to tradeoff computational time with programmer time to implement a custom MCMC sampler for a dynamic linear model in order to use one of these block samplers.
+While there exists many software implementations of filters and smoothers for Dynamic Linear Models,%
+\footnote{Reviewed in a special issue of the \textit{Journal of Statistical Sofware} \textcite{CommandeurKoopmanOoms2011} and \textcite{Tusell2011}.}
+writing an efficient sampler may require additional tricks in order to reduce to the correlation between the states and parameters in the system matrices, e.g. (CITE)
+This reduces the feasbility of using DLM models in applications despite their theoretical and intutitive advantages and flexibility for more specialized but already implemented methods.
 
-However, the efficient algorithms are not included in the commonly used general-purpose Bayesian software programs (BUGS, JAGS, and PyMc).
-Thus, to estimate and sample from dynamic linear models in a computationally efficient manner, the researcher must write a custom MCMC sampler.
-While there exists many software implementations of filters and smoothers for Dynamic Linear Models, sampling from other parameters may require additional sampling tricks due to the correlation between the states and the parameters (Weis, and citations, Chan Jeliazkov).
+This paper proposes and implements a practical method to estimate DLMs that uses Stan.  I divide the problem of sampling $p(\alpha, S_{t} | y_{t})$ into two steps.
+First, I sample from $p(\S_{t} | y_{t})$ using Stan's implementation of HMC.
+Then, given samples from $p(S_{t} | y_{t})$, I sample the latent states $p(\alpha_{t} | S_{t}, y_{t})$ using a simulation smoother discussed above.
+The reason for seperating the steps is that directly sampling $\alpha$ seems to cause problems for the HMC, while the log-likelihood contribution of $p(y_{t} | S_{t})$ can be easily and efficiently calculated.
 
-To estimate the models in this paper, I used a combination of Stan and R.
-
+First, sample from $p(S_{t} | y_{t})$ using Stan.
 Stan is a general purpose Bayesian software program.
 Like BUGS, it has a domain specific language that lets the user specify the statistical model without specifying the steps used to sample from the model.
-Unlike BUGS, Stan is not based on Gibbs sampling, but instead uses a variant of Hamiltonian Monte Carlo (citation).
+Unlike BUGS, Stan is not based on Gibbs sampling, but instead uses a variant of Hamiltonian Monte Carlo (HMC) called NUTS \parencite{HoffmanGelman2013}.
 While as of the time of the writing, a distribution for dynamic linear models is not included in the software, but a method for efficiently sampling the other parameters while marginalizing over the latent states can be implemented within the Stan modeling language.
-The objective in the Stan step is draw posterior samples from (any parameters in) the state matrices $S_{t}$.
-Think of dynamic linear model as  $p(y | S_{t})$. 
-To sample from a distribution not built into Stan, all that is required is the computation of the log likelihood of that distribution, which is added to the log-posterior.
-In the case of dynamic linear models, the log-likelihood of $p(y | S_{t})$ can be efficiently calculated with the Kalman filter (citations).
+In particular, in order to implement a custom distribution only its log-likelihood need to be calculated (CITE handbook).
+The log-likelihood $p(y_{t} | S_{t})$ of a DLM can be easily and efficiently calculated with a single pass through the data using the Kalman Filter (CITE ...).
+These Kalman Filter and log-likelihood calculations are written in Stan's modeling language.
+Essentially, $p(S_{t} | y_{t})$ are sampled while marginalizing over $\alpha$.
+\footnote{
+  I originally directly implemented the DLMs in Stan in a manner equivalent to directly transcribing the equations.
+  This works reasonably well, and Stan achieved better posterior mixing than JAGS.
+  However, there were two problems. 
+  First, this approach scaled poorly, and seemed to slow down dramatically as $n$ and $T$ increased, even using the standard methods to optimize Stan code.
+  Second, when sampling from the posterior, the posterior samplers would often get stuck in regions.
+  The exact reason for this is unknown, but this is likely due to the complex geometry of the posterior distribution and the inability of HMC in Euclidean geometry to adapt to different scales in different parts of the parameter space.
+  When Stan implements Riemann Manifold HMC, it may solve this problem.
+}
 
-Thus, to get a sample from the
-\begin{enumerate}
-\item Sample $k$ iterations from the posterior distribution of $p(S_{t} | y_{t})$ by using a Kalman filter implemented in Stan to calculate $\log p(y_{t} | S_{t})$.
-\item For each sample from the posterior distribution of $p(S_{t} | y_{t})$, draw $\alpha | y_{t}, S_{t}$ using an efficient sampling algorithm.
-This paper used the R package KFAS (cite).
-\end{enumerate}
-
-Separating the steps in this manner allows for efficient sampling of parameters in $S$ with HMC, while marginalizing over $\alpha$.
-If samples from $\alpha$ are needed, then they can be sampled after, possibly in parallel.
-
+Second, sample from $p(\alpha_{t} | y_{t}, S_{t})$ using a block sampler.
+For each sample of $S_{t}$ from the posterior distribution, I block sampled $\alpha$ using a 
+There are multiple options available for this step, but for this paper I used.
+In practice, the most difficult aspect of this step is munging the output from the first step back into the 
+For this purpose, and in general to make post-processing MCMC samples easier, I wrote and have made available the \RLang package \href{https://github.com/jrnold/mcmcdb}{mcmcdb}.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -489,6 +493,19 @@ The sparse disturbance approach is both intuitive and flexible, while remaining 
 \clearpage{}
 
 \printbibliography{}
+
+\section{Appendix}
+\label{sec:appendix}
+
+\subsection{code}
+\label{sec:code}
+
+This is an example \Stan model for a local level DLM with Horseshoe Prior distributions on the state innovations; this is the \Stan model used to estimate $M_{nile,hp}$ in Section \ref{sec:nile}. 
+The Kalman filter section of the \Stan code is specialized to the local level model case.
+
+\begin{singlespace}
+  \include{plots/code-local_level_hp}  
+\end{singlespace}
 
 \end{document}
 

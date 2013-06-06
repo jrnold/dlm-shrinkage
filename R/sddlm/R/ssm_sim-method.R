@@ -1,9 +1,9 @@
 #' @exportMethod ssm_sim
 NULL
 
-#' Simulate states from a model
+#' Simulate states
 #'
-#' @param object An object containing MCMC samples from a state space model.
+#' @param object An object containing MCMC samples from an object of class \code{SdDLM}
 #' @param data \code{list} Additional data needed by the method, usually
 #' the observations.
 #'
