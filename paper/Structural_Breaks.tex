@@ -15,6 +15,7 @@
 \doublespace
 
 \usepackage{todonotes}
+\usepackage{hyperref}
 
 \author{Jeffrey B. Arnold}
 % Seeing a Shrink about Structural Breaks
@@ -153,7 +154,7 @@ For thorough treatments of DLMs and state space models see \textcites{WestHarris
 This flexibility is important because the methods presented below can be applied to a wide range of models.
 Any model in which the parameter of interest can be represented as a state in a DLM, can be estimated using the following method to detect structural breaks.
 
-\subsubsection{Local Level Model}
+\subsection{Local Level Model}
 \label{sec:local-level-model}
 
 For simplicity of exposition, in this section I will restrict my attention to a univariate observation vector $y_{1:n}$ with a time-varying mean.
@@ -236,11 +237,11 @@ If $X \sim \dbeta{a, b}$, then $\frac{1}{1 + X} \sim \dinvbeta{a, b}$.
 The Horseshoe prior distribution has many appealing properties as a shrinkage prior distribution, which follow from its infinitely high spike at zero, and heavy Cauchy-like tails.
 This allows it to aggressively shrink noise towards zero, while not shrinking signals.%
 \footnote{See \textcite{CarvalhoPolsonScott2010}{CarvalhoPolsonScott2009}{DattaGhosh2012} for formal properties of the horseshoe prior.}
-Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior to the normal, Cauchy, and Laplacian (double-exponential) distributions, both around zero and in the tails.
+Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior to the normal, Cauchy, and Laplacian (double-exponential) distributions, both near zero and in the tail.
 \begin{figure}
   \centering
-  % \includegraphics{plots/fig-horseshoe1.pdf}
-  % \includegraphics{plots/fig-horseshoe2.pdf}
+  \includegraphics{plots/fig-horseshoe1.pdf}
+  \includegraphics{plots/fig-horseshoe2.pdf}
   \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
   \label{fig:horseshoe}
 \end{figure}
@@ -481,7 +482,7 @@ Second, sample from $p(\alpha_{t} | y_{t}, S_{t})$ using a block sampler.
 For each sample of $S_{t}$ from the posterior distribution, I block sampled $\alpha$ using a 
 There are multiple options available for this step, but for this paper I used.
 In practice, the most difficult aspect of this step is munging the output from the first step back into the 
-For this purpose, and in general to make post-processing MCMC samples easier, I wrote and have made available the \Rlang package \href{mcmcdb}{https://github.com/jrnold/mcmcdb}.
+For this purpose, and in general to make post-processing MCMC samples easier, I wrote and have made available the \RLang package \href{https://github.com/jrnold/mcmcdb}{mcmcdb}.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -492,6 +493,19 @@ The sparse disturbance approach is both intuitive and flexible, while remaining 
 \clearpage{}
 
 \printbibliography{}
+
+\section{Appendix}
+\label{sec:appendix}
+
+\subsection{code}
+\label{sec:code}
+
+This is an example \Stan model for a local level DLM with Horseshoe Prior distributions on the state innovations; this is the \Stan model used to estimate $M_{nile,hp}$ in Section \ref{sec:nile}. 
+The Kalman filter section of the \Stan code is specialized to the local level model case.
+
+\begin{singlespace}
+  \include{plots/code-local_level_hp}  
+\end{singlespace}
 
 \end{document}
 
