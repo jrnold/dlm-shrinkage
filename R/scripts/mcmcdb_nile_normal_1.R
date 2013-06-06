@@ -29,13 +29,13 @@ res <-
 res@metadata[["system_time"]] <- timing
 
 
-RDATA[[MCMCDB_KEY]] <- new("McmcdbLocalLevelNormal", res)
+RDATA[[MCMCDB_KEY]] <- new("DlmLocalLevelNormal", res)
 RDATA[[SUMMARY_KEY]] <- summary(RDATA[[MCMCDB_KEY]])
 
 object <- RDATA[[MCMCDB_KEY]]
-alpha <- sddlm:::ssm_sim.McmcdbLocalLevelNormal(object)
+alpha <- sddlm:::ssm_sim.DlmLocalLevelNormal(object)
 
-make_ssm.McmcdbLocalLevelNormal <- function(iter, data) {
+make_ssm.DlmLocalLevelNormal <- function(iter, data) {
   SSModel(data$y,
           Z = matrix(1),
           H = iter$H,
@@ -45,19 +45,18 @@ make_ssm.McmcdbLocalLevelNormal <- function(iter, data) {
           P1 = data$P1)
 }
 
-
-states.McmcdbLocalLevelNormal <- function(iter, data) {
-  simulateSSM(make_ssm.McmcdbLocalLevelNormal(iter, data),
+ssm_sim.DlmLocalLevelNormal <- function(iter, data) {
+  simulateSSM(make_ssm.DlmLocalLevelNormal(iter, data),
               sim = "states")[["states"]]
 }
 
-ssmodels <- mcmcdb:::mcmcdb_samples_iter.McmcdbWide(object, FUN = states.McmcdbLocalLevelNormal, data = mcmcdb_data(object))
+ssmodels <- mcmcdb:::mcmcdb_samples_iter.McmcdbWide(object, FUN = states.DlmLocalLevelNormal, data = mcmcdb_data(object))
 
-states.McmcdbLocalLevelNormal <- function(iter, data) {
-  KFS(make_ssm.McmcdbLocalLevelNormal(iter, data), smoothing = "none")
+states.DlmLocalLevelNormal <- function(iter, data) {
+  KFS(make_ssm.DlmLocalLevelNormal(iter, data), smoothing = "none")
 }
 
-ssmodels <- mcmcdb:::mcmcdb_samplesg_iter.McmcdbWide(object, FUN = states.McmcdbLocalLevelNormal, data = mcmcdb_data(object))
+ssmodels <- mcmcdb:::mcmcdb_samplesg_iter.McmcdbWide(object, FUN = states.DlmLocalLevelNormal, data = mcmcdb_data(object))
 
 
 # alpha: m x 1 x n
@@ -78,7 +77,7 @@ yrep1 <- function(alpha, Z, H) {
 
 
 yrep2 <- function(iter, data) {
-  alpha <- l(make_ssm.McmcdbLocalLevelNormal(iter, data),
+  alpha <- l(make_ssm.DlmLocalLevelNormal(iter, data),
                        sim = "states")[["states"]]
   yrep1(as.numeric(alpha), 1, iter[["H"]])
 }
@@ -88,16 +87,16 @@ yrep2 <- function(iter, data) {
 iter <- mcmcdb_samples_iter(object, yrep2, data = mcmcdb_data(object))
 
 loglike1 <- function(iter, data) {
-  loglik_from_SSM(make_ssm.McmcdbLocalLevelNormal(iter, data))
+  loglik_from_SSM(make_ssm.DlmLocalLevelNormal(iter, data))
 }
 
 iter <- mcmcdb_samples_iter(object, loglike1, data = mcmcdb_data(object))
 
-setMethod("ssm_sim", "McmcdbLocalLevelNormal", ssm_sim.McmcdbLocalLevelNormal)
+setMethod("ssm_sim", "DlmLocalLevelNormal", ssm_sim.DlmLocalLevelNormal)
 
 
 
-## ssm_yrep.McmcdbLocalLevelNormal <- function(object, alpha) {
+## ssm_yrep.DlmLocalLevelNormal <- function(object, alpha) {
 ##   fun <- function(alpha, H, ...) {
 ##     alpha <- unlist(alpha)
 ##     n <- length(alpha)
@@ -107,7 +106,7 @@ setMethod("ssm_sim", "McmcdbLocalLevelNormal", ssm_sim.McmcdbLocalLevelNormal)
 ##                                   H = as.numeric(object[["H"]])), fun))
 ## }
 
-## summary.McmcdbLocalLevelNormal <- function(object, data) {
+## summary.DlmLocalLevelNormal <- function(object, data) {
 ##   ret <- list()
 
 ##   y <- mcmcdb_data(object)$y
@@ -145,5 +144,5 @@ setMethod("ssm_sim", "McmcdbLocalLevelNormal", ssm_sim.McmcdbLocalLevelNormal)
 ##   ret
 ## }
 
-## setMethod("summary", "McmcdbLocalLevelNormal",
-##           summary.McmcdbLocalLevelNormal)
+## setMethod("summary", "DlmLocalLevelNormal",
+##           summary.DlmLocalLevelNormal)
