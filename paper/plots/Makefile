@@ -13,7 +13,7 @@ build-figs: $(PLOTS)
 
 build-tables: $(TABLES)
 
-code-%.tex: ../../stan/models/%.stan
+code-%.tex: ../../stan/%.stan
 	@echo $< $@
 	$(PYGMENTIZE) -O style=bw -f latex -o $@ $<
 
