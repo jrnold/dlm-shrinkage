@@ -25,4 +25,6 @@ Collate:
     'ssm_loglik-method.R'
     'ssm_yrep-method.R'
     'sddlm-package.R'
-    'McmcdbLocalLevelNormal-class.R'
+    'loglik_from_ssm.R'
+    'DLM-class.R'
+    'DlmLocalLevelNormal-class.R'
