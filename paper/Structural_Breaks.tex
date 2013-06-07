@@ -54,6 +54,13 @@
 
 \maketitle{}
 
+\begin{abstract}
+  This paper shows that structural breaks can be estimated in a Bayesian continuous state space approach with dynamic linear models by placing shrinkage priors on the distribution of the per-period differences in parameters.
+  This model nests many common structural break and smoothing time-varying parameter models.
+  This model does not require a specification of the number of structural breaks, and is flexible.
+  An efficient method to estimate these models in Stan is presented.
+  Applications of this method to several problems are presented.
+\end{abstract}
 
 \section{Introduction}
 \label{sec:introduction}
@@ -80,8 +87,8 @@ This can be represented within a state space model as follows,
     \alpha_{t + 1} &= \alpha_{t} + \eta_{t}
   \end{aligned}
 \end{equation}
-The difference between "structural breaks" and "smoothing" data-generating processes and estimation techniques is whether the $\eta$ vector is assumed (estimated) to be sparse (most $\eta_{t} = 0$) or dense (most $\eta_{t} \neq 0$).
-The commonly estimated local level dynamic linear model specifies a common normal distribution for $\eta$.
+The difference between "structural breaks" and "smoothing" data-generating processes and estimation techniques is whether the $\eta$ vector is be sparse (most $\eta_{t} = 0$) or dense (most $\eta_{t} \neq 0$).
+It is common to estimate to apply a normal distribution to $\eta_{t} \sim N(0, Q)$. 
 While this can estimate change over time, it cannot capture sparse $\eta$, as it will tend to over-smooth the breaks and under-smooth the periods of stability.
 However, estimating sparse parameter vectors is a general problem that has received considerable attention lately in large-p, small-n problems (include citations).
 This paper applies some of those advances to estimating time-varying parameters, such as \eqref{eq:4}.
@@ -150,8 +157,7 @@ For the purposes of the estimation of $\alpha$, they are considered fixed and kn
 % \end{table}
 
 Many common models, including ARIMA and structural time-series, regressions with time-varying coefficients, cubic splines, and stochastic volatility models can be represented as DLMs. 
-For thorough treatments of DLMs and state space models see \textcites{WestHarrison1997}{DurbinKoopman2001}{PetrisPetroneEtAl2009}{CommandeurKoopman2007}.
-This flexibility is important because the methods presented below can be applied to a wide range of models.
+\textcites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{PetrisPetroneEtAl2009}{ShumwayStoffer2010} provide thorough treatments of state space models and their applications.This flexibility is important because the methods presented below can be applied to a wide range of models.
 Any model in which the parameter of interest can be represented as a state in a DLM, can be estimated using the following method to detect structural breaks.
 
 \subsection{Local Level Model}
@@ -162,12 +168,12 @@ This can be represented as a dynamic linear model as follows,
 \begin{equation}
   \label{eq:5}
   \begin{aligned}[t]
-    y_{t} &= \alpha_{t} + \varepsilon_{t} & \varepsilon & \sim \dnorm{0, H_{t}} \\
-    \alpha_{t + 1} &= \alpha_{t} + \eta_{t} & \eta & \sim \dnorm{0, Q_{t}}
+    y_{t} &= \alpha_{t} + \varepsilon_{t} & \varepsilon_{t} & \sim \dnorm{0, H} \\
+    \alpha_{t + 1} &= \alpha_{t} + \eta_{t} & \eta_{t} & \sim \dnorm{0, Q_{t}}
   \end{aligned}
 \end{equation}
 Equation \eqref{eq:5} is the special case of the dynamic linear model in \eqref{eq:8} with $p = m = r = 1$, and $Z_{t} = T_{t} = 1$.
-The model in Equation \eqref{eq:5} is commonly called the \textit{local level model}, or a \textit{random walk with noise} \textcite[Chapter 2][]{DurbinKoopman2001}[Chapter 2][]{WestHarrison1997}.
+The model in Equation \eqref{eq:5} is commonly called the \textit{local level model}, or a \textit{random walk with noise} \parencites[Chapter 2][]{DurbinKoopman2001}[Chapter 2][]{WestHarrison1997}.
 
 In equation \eqref{eq:5}, first difference in the state are equal to the value of the state disturbance, $\Delta \alpha_{t} = \alpha_{t+1} - \alpha_{t} = \eta_{t}$.
 Thus, the distribution of parameter differences is the distribution of $\eta_{t}$.
@@ -176,13 +182,14 @@ Translated into the the language \eqref{eq:5}, this statement means that the res
 I will refer to a vector as sparse if most elements are 0, and dense if most elements are not zero.
 It is expected that for most periods $\eta_{t} = 0$, but there are a few periods in which $\eta_{t} \neq 0$, and, possibly even periods in which $|\eta_{t}| \gg 0$.
 When cast in this way, the problem of estimating structural breaks within a dynamic linear model is essentially a problem of estimating a sparse parameter vector $\eta$.
-Estimating sparse parameters, especially when the number of observations small relative to the number of observations (the large-p, small-n) is a problem that is presently receiving much attention in the areas of penalized or regularized regression, variable selection, and multiple-testing. (CITE)
+Estimating sparse parameters, especially when the number of observations small relative to the number of observations (the large-p, small-n) is a problem that is presently receiving much attention in the areas of penalized or regularized regression, variable selection, and multiple-testing \parencite{CarvalhoPolsonScott2010}.
 Following the convention in that literature, I will refer $\eta_{t} \approx 0$ as ``noise'' and $|\eta_{t}| \gg 0$ as ``signals''.
 In this application, the structural breaks are the signals, and the non-structural breaks are the noise.
 In sparse estimation problems, the researcher wants to classify parameters into signals and noise, and estimate the magnitude of the signals.
 
-In Bayesian estimation, there are two main approaches for estimating sparse parameters: discrete mixtures and shrinkage priors, which differ in the class of prior distributions placed on the parameters \textcite[73]{CarvalhoPolsonScott2009}.
-The first approach uses a discrete mixture of a point mass at zero and a continuous distribution, i.e. a spike-and-slab prior (Mithcell Beauchamp, George McCulloch).
+In Bayesian estimation, there are two main approaches for estimating sparse parameters: discrete mixtures and shrinkage priors \parencite[73]{CarvalhoPolsonScott2009}.
+These approaches essentially differ in the class of prior distributions placed on the parameters.
+The first approach uses a discrete mixture of a point mass at zero and a continuous distribution, i.e. a spike-and-slab prior \parencite{GeorgeMcCulloch1993}.
 This approach includes methods such as variable selection priors and Bayesian model selection and averaging.
 In the context of estimating TVP, structural breaks can be estimated by assigning each $\eta_{t}$ a discrete mixture distribution,
 \begin{equation}
@@ -192,15 +199,15 @@ In the context of estimating TVP, structural breaks can be estimated by assignin
 where $p \in [0, 1]$, $\delta_{0}$ is the degenerate distribution at 0, and $g(\eta_{t})$ is the distribution if $\eta_{t} \neq 0$.
 \textcite{GiordaniKohn2008} propose using \eqref{eq:1} as a flexible model of structural breaks within a continuous state space framework.
 
-The second approach to estimating sparse parameters is shrinkage priors (Tibishirami, Tipping)
+The second approach to estimating sparse parameters is shrinkage priors \textcite{Tibshirani1996}{Tipping2001}.
 Shrinkage priors are absolutely continuous distributions centered at zero.
 Although shrinkage priors do not mix between signal and noise groups, they are able to approximate the mixture distribution if they have the following features,
 \begin{itemize}
 \item a large mass near zero to shrink noise observations
 \item heavy tails to keep signals unshrunk.
 \end{itemize}
-Shrinkage priors are the Bayesian posterior estimation equivalent of penalized likelihood for posterior mode-finding.
-For example, the popular Lasso/L1 regularization corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the parameters.
+Shrinkage priors are the Bayesian posterior estimation equivalent of penalized likelihood for posterior mode-finding \parencites{PolsonScott2010}{PolsonScott2012a}.
+For example, the popular Lasso/L1 regularization \parencite{Tibshirani1996} corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the parameters \parencites{ParkCasella2008}{Hans2009}.
 Other prior distributions correspond to other, sometimes implicit and lacking analytic form, likelihood penalties.
 
 Almost all proposed and used shrinkage priors can be represented as scale mixtures of normal distributions \parencite{PolsonScott2010}.
@@ -209,18 +216,18 @@ Thus, the prior distribution on the state distribution can be represented a norm
   \label{eq:3}
   \begin{aligned}[t]
     \eta_{t} &= N(0, \tau^{2} \lambda_{t}^{2}) \\
-    \lambda_{t}^{2} &\sim p(\lambda_{t}^{2})
+    \lambda_{t}^{2} &\sim f(\lambda_{t}^{2})
   \end{aligned}
 \end{equation}
 Shrinkage priors differ in the distribution of the local variance component.%
-For example, commonly used shrinkage priors that are scale mixtures of normal distributions include the Student's t-distribution ($\lambda^{2}_{t} \sim \dinvgamma{a, b}$) and the double exponential distribution (Bayesian Lasso) ($\lambda^{2}_{t} \sim \dexp{2}$) \textcite[74]{CarvalhoPolsonScott2009}.
+For example, commonly used shrinkage priors that are scale mixtures of normal distributions include the Student's t-distribution, in which the mixing parameters are distributed inverse gammea $\lambda^{2}_{t} \sim \dinvgamma{a, b}$, and the double exponential distribution (Bayesian Lasso), in which the mixing parameters are distributed exponential $\lambda^{2}_{t} \sim \dexp{2}$ \textcite[74]{CarvalhoPolsonScott2009}.
 \footnote{
 Note that the commonly used $\eta_{t} \sim N(0, Q)$ is trivially a scale-mixture of normal distributions ($\lambda_{t}^{2} = \delta_{1}$).
 However, it does not impose sparsity as it neither has heavy tails nor does it have a large mass at zero.
 }
 
 That most shrinkage priors can be represented as scale mixture of normal distributions is essential for the computational efficiency in estimating DLMs with sparse disturbances.
-This ensures that conditional on $\lambda_{t}$, the dynamic model is still a Gaussian dynamic linear model, although technically a Conditionally Gaussian Dynamic Linear Model (CGDLM) (CITE).
+This ensures that conditional on $\lambda_{t}$, the dynamic linear model is still has Gaussian errors.
 As discussed in more detal in section \ref{sec:implementation}, this means that the dynamic linear model component of the model can be sampled using efficient block sampling methods that depend on $\eta_{t}$ and $\varepsilon_{t}$ being distributed normal.
 
 While there are a large number of proposed shrinkage priors \parencites{ArmaganDunsonLee2011}{BrownGriffin2010}{PolsonScott2010}, this paper will use the Horseshoe Prior distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
@@ -246,7 +253,7 @@ Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior 
   \label{fig:horseshoe}
 \end{figure}
 
-Using shrinkage priors to model structural breaks extends and generalizes the use of the $t$-distribution for modeling structural breaks \textcites{HarveyKoopman2000}[184][]{DurbinKoopman2001}{PetrisPetroneEtAl2009}.
+Using shrinkage priors to model structural breaks extends and generalizes the use of the $t$-distribution for modeling structural breaks \parencites{HarveyKoopman2000}[184][]{DurbinKoopman2001}{PetrisPetroneEtAl2009}.
 The $t$-distribution is also a scale-mixture of normal distributions and has heavy tails, but does not have a substantial mass near zero, and thus will insufficiently shrink noise distributions.
 
 To summarize, the proposed local level model that is robust to structural breaks is as follows,
@@ -262,20 +269,20 @@ This model could be completed with the non-informative priors, suggested in \tex
 \begin{equation}
   \label{eq:7}
   \begin{aligned}[t]
-    p(H) &= \frac{1}{H} \\
+    f(H) &= \frac{1}{H} \\
     \tau &\sim \dhalfcauchy{0, H}
   \end{aligned}
 \end{equation}
-$H$ is given its Jeffrey's prior, while $\tau$ is distributed half-Cauchy on the same scale as $H$.
 It is important that the prior distribution of the state variance global-component $\tau$ be distributed on the same scale as the observation varince $H$ \parencite{PolsonScott2012}.
 
 \subsection{General DLMs}
 \label{sec:multivariate}
 
-The previous section developed the sparse disturbance DLM for the local level case, but the use of shrinkage priors on the state disturbances can easily be extended to the more general DLM in section \ref{sec:dynam-line-models}.
+The previous section applied sparse disturbance for the local level model, but the use of shrinkage priors on the state disturbances can easily be extended to the more general DLM in section \ref{sec:dynam-line-models}.
 First, consider the case in which the state disturbances are uncorrelated; let $Q_{t} = \diag(q_{1}, \dots, q_{m})$.%
 \footnote{
-  For simplicity of exposition, I will assume that $m = r$ and $R_{t} = I_{m}$.
+  For simplicity, assume that $m = r$ and $R_{t} = I_{m}$.
+  In general, $R_{t}$ are sparse selection matrices.
 }
 \todo{Should I keep the $R Q R'$ notation or use a single covariance matrix?}
 Then, each $\eta_{t,i}$ is distributed,
@@ -292,14 +299,17 @@ The multivariate extension of equation \eqref{eq:3} is
 \begin{equation}
   \begin{aligned}[t]
     \eta_{t} &\sim \dmvnorm{0, \Lambda_{t} \Gamma \Lambda_{t}'}{m} \\
-    \Lambda \Lambda' & \sim p(\Lambda \Lambda')
+    \Lambda \Lambda' & \sim f(\Lambda \Lambda')
   \end{aligned}
 \end{equation}
 where $\Gamma$ is the global covariance component, and $\Lambda_{t}$ is a lower triangular matrix such that  $\Lambda_{t} \Lambda_{t}'$ is the local covariance matrix.
 The state disturbances $\eta_{t}$ can be correlated either at the global or local scale.
-A non-diagonal $\Lambda$ indicates that the incidence of structural breaks are correlated.
+$\Gamma$ determines the scale and correlation of the global shrinkage parameters.
+A non-diagonal $\Gamma$ implies that the sparsity of state innovations (stochastic number of structural breaks) are correlated.
+$\Lambda$ controls the scale and correlation of the local shrinkage parameters.
+A non-diagonal $\Lambda$ implies that the sizes of state innovations (probability of simultaneous structural breaks) are correlated.
 
-To generalize the Horseshoe Prior distribution to matrix variate random variables, I decompose $\Lambda_{t} \Lambda_{t}'$ into a standard deviation vector ($\lambda_{t}$) and a correlation matrix ($R_{t}$),%
+To generalize the Horseshoe Prior distribution to matrix variate random variables, decompose $\Lambda_{t} \Lambda_{t}'$ into a standard deviation vector ($\lambda_{t}$) and a correlation matrix ($R_{t}$),%
 \begin{align}
   \label{eq:16}
   \Lambda_{t} \Lambda_{t}' &= \diag(\lambda_{t}) R_{t} \diag(\lambda_{t})' \\
@@ -307,7 +317,6 @@ To generalize the Horseshoe Prior distribution to matrix variate random variable
   \lambda_{t,i} &= \dhalfcauchy{0, 1} & \text{for $i \in 1:p$}
 \end{align}
 For all $t \in 1:n$, each element of $\lambda_{.,i}$ shares a common prior distribution, which shrinks $\lambda_{1:t,i}$ over time.
-Non-zero elements in $R_{t}$ indicate that the mixing parameters are correlated, meaning that the structural breaks are correlated.
 
 \subsection{Structural Breaks}
 
@@ -316,28 +325,30 @@ Given posterior estimates from a sparse disturbance dynamic linear model, there 
 The first method uses the posterior distribution of $\eta_{t}$ to detect structural breaks in the corresponding $\alpha$.
 A structural break can be classified as an $\eta_{t}$ in which which the (95\%) credible interval of the posterior distribution excludes zero.
 This is the Bayesian equivalent to the auxiliary residual test of \textcites{JongPenzer1998}{DurbinKoopman2001}.%
-Apart from differences between credible and confidence intervals, the Bayesian method differs from the auxiliary residual test in that it marginalizes over the posterior distribution of the state matrices $S_{t}$ rather fixing them at point estimates.
-Note that in some applications, especially those in which the transition matrix $T_{t}$ includes parameters, it may make more sense to use the posterior distribution of the difference in the states, $p(\alpha_{t} - \alpha_{t - 1} | y)$.
+In addition to the use of a credible interval rather than a confidence interval, the Bayesian method differs from the auxiliary residual test in that it integrates over the posterior distribution of the state matrices $S_{t}$ rather fixing them at point estimates.
+Note that in some applications, especially those in which the transition matrix $T_{t}$ includes parameters, it may make more sense to use the posterior distribution of the difference in the states, $f(\Delta \alpha_{t - 1} | y)$.
 
 The second method uses the local variance components $\lambda_{t}$ to identify structural breaks \parencite[179-180]{PetrisPetroneEtAl2009}.
 If $\lambda_{t} = 1$, then the state disturbance is distributed normal with a scale equal to the global scale $\eta_{t} \sim N(0, \tau^{2})$.
 Thus, the local shrinkage parameters $\lambda$ are relative measure of how much each $\eta_{t}$ is shrunk towards zero.
 Values of $\lambda_{t} > 1$ ($\lambda_{t} < 1$) indicate state distrurbances that are dispersed (shrunk) relative to the global scale.
-A structural break can be classified as a $t$ in which $\E (p(\lambda_{t} | y, .)) > 1$.
-Alternatively, the probability of a structural break is $\Pr(p(\lambda_{t} | y, .) > 1)$.
+A structural break can be classified as a $t$ in which $\E (f(\lambda_{t} | y, .)) > 1$.
+Alternatively, the probability of a structural break is $\Pr(f(\lambda_{t} | y, .) > 1)$.
 
 The examples in section \ref{sec:examples} will use both of these methods.
 
 \subsection{Outliers}
 \label{sec:outliers}
 
-Most of the discussion on modeling structural breaks applies to modeling outliers.
-Outliers can be modeled with a DLM by placing a shrinkage prior on the observation disturbances $\varepsilon$ instead of the state disturbance $\eta$.
+Most of the discussion on modeling structural breaks directly applies to modeling outliers.
+Outliers can be modeled with a DLM by placing a shrinkage prior on the observation disturbance vector $\varepsilon$. 
+The discussion in the previous sections applies to outliers if references to $\eta$ are replaced with $\varepsilon$.
 A difference difference between observation disturbances and state disturbances, is that there is usually a higher prior belief of sparsity in state disturbances than there is in observation disturbances. 
-Almost always observation disturbances are expected to be non-zero.
-Outliers are not the few periods in which $\varepsilon \neq 0$, but are instead the few periods with observation disturbances of very large magnitudes, $|\varepsilon| \gg 0$.
-In this case it is more important for the shrinkage prior to have heavy tails than have a spike at zero.
-For that reason, the $t$-distribution, which is commonly used for outliers in Bayesian regression and in DLMs, will likely work well in most applications.
+Almost always observation disturbances are expected to be non-zero; 
+there are many statistical models in which the parameters are time-invariant, but none in without observation errors.%
+Outliers are not the few periods in which $\varepsilon_{t} \neq 0$, but are instead the few periods with observation disturbances of very large magnitudes, $|\varepsilon_{t}| \gg 0$.
+In this case, it is more important for the shrinkage prior to have heavy tails than have a spike at zero.
+For that reason, the $t$-distribution, which is commonly used to model outliers in Bayesian regression and DLMs, is likely sufficient for most applications.
 
 \section{Examples}
 \label{sec:examples}
@@ -379,8 +390,8 @@ The third model, $M_{nile,inter}$ includes a manual intervention in 1899 ($t = 2
 \begin{equation}
   \label{eq:12}
   \begin{aligned}[t]
-    \eta_{t} & \sim \dnorm{0, \tau_{t}^{2} + \zeta^{2}} \\
-    \zeta & = 
+    \eta_{t} & \sim \dnorm{0, \tau_{t}^{2} + \zeta_{t}^{2}} \\
+    \zeta_{t} & = 
     \begin{cases}
       10^{6} & \text{if $t = 28$} \\
       0 & \text{otherwise}
@@ -405,7 +416,7 @@ All models use the non-informative priors specified in \eqref{eq:7}, and an empi
 % \begin{figure}[htpb]
 %   \centering
 %   \includegraphics{plots/fig-nile.pdf}
-%   \caption{Plot of mean posterior predictive distributions ($\E p(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
+%   \caption{Plot of mean posterior predictive distributions ($\E f(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
 %   \label{fig:nile}
 % \end{figure}
 
@@ -442,7 +453,7 @@ The motivating example of \textcite{RatkovicEng2010}.
 \label{sec:implementation}
 
 MCMC sampling from a dynamic linear model is challenging due to the temporal dependence of the latent state parameters $\alpha$ \parencite{ReisSalazarGamerman2006}.
-Although full conditional distributions for a Gibbs sampler can be easily specified \textcite{CarlinGelfandSmith1992}, in practice sampling component-wise will almost always result in slow convergence and highly correlated posterior samples.
+Although full conditional distributions for a Gibbs sampler can be easily specified \parencite{CarlinGelfandSmith1992}, in practice sampling component-wise will almost always result in slow convergence and highly correlated posterior samples.
 However, in the case of Gaussian dynamic linear models there exist more efficient block sampling algorithms which sample from $\alpha_{t}$ in a single block, which improves the mixing and convergence of the sampler.%
 \footnote{See \textcite{ReisSalazarGamerman2006} for a comparison of the efficiency of various sampling methods, and \textcite{migon2005dynamic} for an overview of the various sampling methods.}
 These block methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}.%
@@ -454,17 +465,18 @@ While there exists many software implementations of filters and smoothers for Dy
 writing an efficient sampler may require additional tricks in order to reduce to the correlation between the states and parameters in the system matrices, e.g. (CITE)
 This reduces the feasbility of using DLM models in applications despite their theoretical and intutitive advantages and flexibility for more specialized but already implemented methods.
 
-This paper proposes and implements a practical method to estimate DLMs that uses Stan.  I divide the problem of sampling $p(\alpha, S_{t} | y_{t})$ into two steps.
+This paper proposes and implements a practical method to estimate DLMs that uses Stan \parencite{Stan2013}.
+I divide the problem of sampling $p(\alpha, S_{t} | y_{t})$ into two steps.
 First, I sample from $p(\S_{t} | y_{t})$ using Stan's implementation of HMC.
 Then, given samples from $p(S_{t} | y_{t})$, I sample the latent states $p(\alpha_{t} | S_{t}, y_{t})$ using a simulation smoother discussed above.
-The reason for seperating the steps is that directly sampling $\alpha$ seems to cause problems for the HMC, while the log-likelihood contribution of $p(y_{t} | S_{t})$ can be easily and efficiently calculated.
+The reason for seperating the steps is that directly sampling $\alpha$ seems to cause problems for the HMC, while the log-likelihood of $p(y_{t} | S_{t})$ can be easily and efficiently calculated.
 
 First, sample from $p(S_{t} | y_{t})$ using Stan.
 Stan is a general purpose Bayesian software program.
 Like BUGS, it has a domain specific language that lets the user specify the statistical model without specifying the steps used to sample from the model.
 Unlike BUGS, Stan is not based on Gibbs sampling, but instead uses a variant of Hamiltonian Monte Carlo (HMC) called NUTS \parencite{HoffmanGelman2013}.
 While as of the time of the writing, a distribution for dynamic linear models is not included in the software, but a method for efficiently sampling the other parameters while marginalizing over the latent states can be implemented within the Stan modeling language.
-In particular, in order to implement a custom distribution only its log-likelihood need to be calculated (CITE handbook).
+In particular, in order to implement a custom distribution only its log-likelihood need to be calculated \parencite[Chapter 17]{Stan2013}
 The log-likelihood $p(y_{t} | S_{t})$ of a DLM can be easily and efficiently calculated with a single pass through the data using the Kalman Filter (CITE ...).
 These Kalman Filter and log-likelihood calculations are written in Stan's modeling language.
 Essentially, $p(S_{t} | y_{t})$ are sampled while marginalizing over $\alpha$.
@@ -478,16 +490,15 @@ Essentially, $p(S_{t} | y_{t})$ are sampled while marginalizing over $\alpha$.
   When Stan implements Riemann Manifold HMC, it may solve this problem.
 }
 
-Second, sample from $p(\alpha_{t} | y_{t}, S_{t})$ using a block sampler.
-For each sample of $S_{t}$ from the posterior distribution, I block sampled $\alpha$ using a 
-There are multiple options available for this step, but for this paper I used.
-In practice, the most difficult aspect of this step is munging the output from the first step back into the 
-For this purpose, and in general to make post-processing MCMC samples easier, I wrote and have made available the \RLang package \href{https://github.com/jrnold/mcmcdb}{mcmcdb}.
+Second, having obtained a sample of size $K$ from $p(S_{t} | y_{t}$, for each $k \in 1:K$ sample from $p(\alpha_{t} | y_{t}, S_{t}^{(k)})$ using a block sampler of the type discussed earlier.
+For this paper, I used the R package \textit{KFAS} \parencite{Helske2012} which has an implementation the \textcite{DurbinKoopman2002} simulation smoother algorithm.
+In practice, the most difficult aspect of this step is munging the output from the first step into data structures needed to draw samples in the second step.
+For this purpose, and in general to make post-processing MCMC samples easier, I wrote and have made available the \RLang package \href{https://github.com/jrnold/mcmcdb}{\textbf{mcmcdb}}.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-This paper shows that a simple tweak to dynamic linear models allow them to estimate structural break models with a random number of breaks.
+This paper shows that a simple tweak to dynamic linear models allows them to estimate structural break models with a random number of breaks.
 The sparse disturbance approach is both intuitive and flexible, while remaining computationally efficient.
 
 \clearpage{}
