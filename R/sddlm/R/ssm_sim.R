@@ -27,7 +27,7 @@ yhat_from_ssm <- function(object, alpha) {
 
 dist_obs_from_ssm <- function(object, alpha) {
   FUN <- function(y, alpha, Z) {
-    as.numeric(y[[i]] - Z[[1]] %*% alpha[[1]])
+    as.numeric(y[[1]] - Z[[1]] %*% alpha[[1]])
   }
   y <- alply(as.matrix(object[["y"]]), 1, identity)
   res <- mlply(data.frame(y = I(y),
@@ -70,20 +70,23 @@ yrep_from_ssm <- function(n, object, alpha) {
   simplify2array(res)
 }
 
-ssm_sim <- function(object, data = mcmcdb_data(object)) {
+ssm_sim <- function(object, data = mcmcdb_data(object), .parallel=FALSE) {
   FUN <- function(iter, data, to_ssm) {
     ssmodel <- to_ssm(iter)
     alpha <- simulateSSM(ssmodel, "states")[["states"]]
     dim(alpha) <- dim(alpha)[1:2]
     yrep <- yrep_from_ssm(1, ssmodel, alpha)
     yhat <- yhat_from_ssm(ssmodel, alpha)
-    epsilon <- dist_obs_from_ssm(object, alpha)
-    eta <- dist_state_from_ssm(object, alpha)
+    epsilon <- dist_obs_from_ssm(ssmodel, alpha)
+    eta <- dist_state_from_ssm(ssmodel, alpha)
     loglik <- loglik_from_SSM(ssmodel)
     list(alpha = alpha, yhat = yhat, yrep = yrep, loglik = loglik,
          dist_state = eta, dist_obs = epsilon)
   }
   mcmcdb_samples_iter(object, FUN,
                       data = mcmcdb_data(object),
-                      to_ssm = dlm_to_ssmodel(object))
+                      to_ssm = dlm_to_ssmodel(object),
+                      .parallel = .parallel,
+                      .paropts = list(.packages = c("sddlm")))
+                      
 }

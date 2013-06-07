@@ -33,18 +33,19 @@ RDATA[[MCMCDB_KEY]] <- new("DlmLocalLevelNormal", res)
 
 object <- RDATA[[MCMCDB_KEY]]
 
-mcmcsummary <- function(object, data = mcmcdb_data(sim)) {
+mcmcsummary <- function(object, data = mcmcdb_data(sim), .parallel=FALSE) {
   ret <- list()
 
-  sims <- ssm_sim(object)
+  sims <- ssm_sim(object, .parallel=.parallel)
   ret[["alpha"]] <- laply(sims, `[[`, i = "alpha") # iter x states
   ret[["yhat"]] <- laply(sims, `[[`, i = "yhat")
   ret[["yrep"]] <- laply(sims, `[[`, i = "yrep")
   ret[["loglik"]] <- laply(sims, `[[`, i = "loglik")
-  
-  ret[["eta"]] <- aaply(cbind(mcmcdb_data(object)$a1, alpha), 2, diff)
-  ret[["yhat"]] <- apply(yrep, 1, mean)
-  ret[["yvar"]] <- apply(yrep, 1, var)
+  ret[["dist_obs"]] <- laply(sims, `[[`, i = "dist_obs")
+  ret[["dist_state"]] <- laply(sims, `[[`, i = "dist_state")
+
+
+  # Fit
   ret[["lppd"]] <- log(apply(exp(ret[["loglik"]]), 1, mean))
   ret[["waic"]] <- waic(ret[["loglik"]])
   ret[["mse"]] <- discrepancy(y, yrep, "mse")
