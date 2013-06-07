@@ -29,27 +29,3 @@ res <-
 res@metadata[["system_time"]] <- timing
 
 RDATA[[MCMCDB_KEY]] <- new("DlmLocalLevelNormal", res)
-#RDATA[[SUMMARY_KEY]] <- summary(RDATA[[MCMCDB_KEY]])
-
-object <- RDATA[[MCMCDB_KEY]]
-
-mcmcsummary <- function(object, data = mcmcdb_data(sim), .parallel=FALSE) {
-  ret <- list()
-
-  sims <- ssm_sim(object, .parallel=.parallel)
-  ret[["alpha"]] <- laply(sims, `[[`, i = "alpha") # iter x states
-  ret[["yhat"]] <- laply(sims, `[[`, i = "yhat")
-  ret[["yrep"]] <- laply(sims, `[[`, i = "yrep")
-  ret[["loglik"]] <- laply(sims, `[[`, i = "loglik")
-  ret[["dist_obs"]] <- laply(sims, `[[`, i = "dist_obs")
-  ret[["dist_state"]] <- laply(sims, `[[`, i = "dist_state")
-
-
-  # Fit
-  ret[["lppd"]] <- log(apply(exp(ret[["loglik"]]), 1, mean))
-  ret[["waic"]] <- waic(ret[["loglik"]])
-  ret[["mse"]] <- discrepancy(y, yrep, "mse")
-  ret[["chisq"]] <- discrepancy(y, yrep, "chisq")
-  ret
-}
-

@@ -60,7 +60,7 @@ yrep_from_ssm <- function(n, object, alpha) {
     if (length(mu) > 1) { 
       drop(rmvnorm(n, mu, H))
     } else {
-      rnorm(n, mu, H)
+      rnorm(n, mu, sqrt(H))
     }
   }
   res <- mlply(data.frame(alpha = I(alply(alpha, 2, identity)),

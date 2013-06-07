@@ -1,3 +1,4 @@
+#' @include dlm_parameters-method.R
 #' @exportClass DLM
 NULL
 
@@ -21,3 +22,7 @@ NULL
 #' @rdname DLM-class
 #' @aliases DLM-class
 setClass("DLM", contains = "McmcdbWide")
+
+setMethod("dlm_parameters", "DlmLocalLevelNormalReg",
+          function(object) names(mcmcdb_parameters(object)))
+

@@ -27,7 +27,4 @@ res <-
                         model_data = nile_data,
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
-
-RDATA[[MCMCDB_KEY]] <- new("McmcdbLocalLevelNormalReg", res)
-RDATA[[SUMMARY_KEY]] <- summary(RDATA[[MCMCDB_KEY]])
-
+RDATA[[MCMCDB_KEY]] <- new("DlmLocalLevelNormalReg", res)
