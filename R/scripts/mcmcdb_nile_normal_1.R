@@ -28,49 +28,27 @@ res <-
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
 
-
 RDATA[[MCMCDB_KEY]] <- new("DlmLocalLevelNormal", res)
-RDATA[[SUMMARY_KEY]] <- summary(RDATA[[MCMCDB_KEY]])
+#RDATA[[SUMMARY_KEY]] <- summary(RDATA[[MCMCDB_KEY]])
 
 object <- RDATA[[MCMCDB_KEY]]
 
-## summary.DlmLocalLevelNormal <- function(object, data) {
-##   ret <- list()
+mcmcsummary <- function(object, data = mcmcdb_data(sim)) {
+  ret <- list()
 
-##   y <- mcmcdb_data(object)$y
-##   alpha <- ssm_sim(object, mcmcdb_data(object))
-##   ret[["alpha"]] <- alpha
-##   ret[["mu"]] <- alpha
-##   f_yrep <- function(alpha, H, ...) {
-##     alpha <- unlist(alpha)
-##     n <- length(alpha)
-##     rnorm(n, alpha, sqrt(H))
-##   }
-##   yrep <-
-##     simplify2array(mlply(data.frame(alpha = I(alply(alpha, 1, identity)),
-##                                     H = as.numeric(object[["H"]])),
-##                          f_yrep))
-##   ret[["yrep"]] <- yrep
+  sims <- ssm_sim(object)
+  ret[["alpha"]] <- laply(sims, `[[`, i = "alpha") # iter x states
+  ret[["yhat"]] <- laply(sims, `[[`, i = "yhat")
+  ret[["yrep"]] <- laply(sims, `[[`, i = "yrep")
+  ret[["loglik"]] <- laply(sims, `[[`, i = "loglik")
+  
+  ret[["eta"]] <- aaply(cbind(mcmcdb_data(object)$a1, alpha), 2, diff)
+  ret[["yhat"]] <- apply(yrep, 1, mean)
+  ret[["yvar"]] <- apply(yrep, 1, var)
+  ret[["lppd"]] <- log(apply(exp(ret[["loglik"]]), 1, mean))
+  ret[["waic"]] <- waic(ret[["loglik"]])
+  ret[["mse"]] <- discrepancy(y, yrep, "mse")
+  ret[["chisq"]] <- discrepancy(y, yrep, "chisq")
+  ret
+}
 
-##   f_loglik <- function(alpha, H, y) {
-##     alpha <- unlist(alpha)
-##     n <- length(alpha)
-##     dnorm(y, alpha, sqrt(H), log = TRUE)
-##   }
-##   loglik <-
-##     simplify2array(mlply(data.frame(alpha = I(alply(alpha, 1, identity)),
-##                                     H = as.numeric(object[["H"]])),
-##                          f_loglik, y = mcmcdb_data(object)$y))
-##   ret[["loglik"]] <- loglik
-##   ret[["eta"]] <- aaply(cbind(mcmcdb_data(object)$a1, alpha), 1, diff)
-##   ret[["yhat"]] <- apply(yrep, 1, mean)
-##   ret[["yvar"]] <- apply(yrep, 1, var)
-##   ret[["lppd"]] <- log(apply(exp(ret[["loglik"]]), 1, mean))
-##   ret[["waic"]] <- waic(ret[["loglik"]])
-##   ret[["mse"]] <- discrepancy(y, yrep, "mse")
-##   ret[["chisq"]] <- discrepancy(y, yrep, "chisq")
-##   ret
-## }
-
-## setMethod("summary", "DlmLocalLevelNormal",
-##           summary.DlmLocalLevelNormal)
