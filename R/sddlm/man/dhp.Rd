@@ -1,8 +1,11 @@
 \name{dhp}
 \alias{dhp}
+\alias{rhp}
 \title{The Horseshoe Prior Distribution}
 \usage{
   dhp(x, scale = 1, mu = 0)
+
+  rhp(n, scale = 1, mu = 0)
 }
 \arguments{
   \item{x}{\code{numeric} vector of quantiles.}

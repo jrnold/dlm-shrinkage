@@ -6,6 +6,7 @@
 #' @import mcmcstats
 #' @import plyr
 #' @import KFAS
+#' @import mvtnorm
 #' @exportMethod summary
 NULL
 

@@ -1,4 +1,4 @@
-#' @export dhp
+#' @export dhp rhp
 NULL
 
 #' The Horseshoe Prior Distribution
@@ -38,6 +38,7 @@ NULL
 #'
 #' Carvalho, Carlos M., Nicholas G. Polson, and James G. Scott (2009). "Handling Sparsity via the Horseshoe".
 #' Journal of Machine Learning and Research: Workshop and Conference Proceedings 5, pp. 73-80.
+#' @rdname dhp
 dhp <- function(x, scale = 1, mu = 0) {
   x <- (x - mu) / scale
   K <- 1 / sqrt(2 * pi^3)
@@ -46,6 +47,7 @@ dhp <- function(x, scale = 1, mu = 0) {
   (lb + ub) / 2
 }
 
+#' @rdname dhp
 rhp <- function(n, scale = 1, mu = 0) {
   lambda <- abs(rcauchy(n))
   mu + lambda * scale * rnorm(n)

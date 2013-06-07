@@ -23,3 +23,9 @@ RDATA <- dbInit(FILEHASH_DB, "RDS")
 STAN_MODELS <- function(key) {
   file.path(STAN_MODEL_DIR, sprintf("%s.stanx", key))
 }
+
+reinstall_sddlm <- function(clean=FALSE, ...) {
+  sddlm <- file.path(ROOT_DIR, "R/sddlm")
+  document(sddlm, clean=TRUE)
+  install(sddlm, ...)
+}
