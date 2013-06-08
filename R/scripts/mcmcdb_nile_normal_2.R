@@ -37,4 +37,4 @@ res <-
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
 
-RDATA[[MCMCDB_KEY]] <- new("McmcdbLocalLevelNormalInter", res)
+RDATA[[MCMCDB_KEY]] <- new("DlmLocalLevelNormalInter", res)

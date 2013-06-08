@@ -1,4 +1,4 @@
-#' @include dlm_parameters-method.R
+#' @include convergence_parameters-method.R
 #' @exportClass DLM
 NULL
 
@@ -23,6 +23,6 @@ NULL
 #' @aliases DLM-class
 setClass("DLM", contains = "McmcdbWide")
 
-setMethod("dlm_parameters", "DlmLocalLevelNormalReg",
+setMethod("convergence_parameters", "DLM",
           function(object) names(mcmcdb_parameters(object)))
 

@@ -50,7 +50,7 @@ mcmcsummary <- function(object, data = mcmcdb_data(object), .parallel=FALSE) {
   ret[["chisq"]] <- discrepancy(y, ret[["yrep"]], "chisq")
 
   # Convergence
-  pars <- dlm_parameters(object)
+  pars <- convergence_parameters(object)
   ret[["rhat"]] <- mcmcdb_samples_flatpars(object, parameters = pars,
                                            "rhat_split")
   ret[["ess"]] <- mcmcdb_samples_flatpars(object, parameters = pars,

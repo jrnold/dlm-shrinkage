@@ -1,4 +1,4 @@
-nile <- RDATA[["nile"]]
+.nile <- RDATA[["nile"]]
 source(".nile_data.R")
 
 KEY <- "nile_hp"
@@ -33,4 +33,3 @@ res <-
 res@metadata[["system_time"]] <- timing
 
 RDATA[[MCMCDB_KEY]] <- new("McmcdbLocalLevelHp", res)
-RDATA[[SUMMARY_KEY]] <- summary(RDATA[[MCMCDB_KEY]])

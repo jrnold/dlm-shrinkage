@@ -1,19 +1,19 @@
 #' @include DLM-class.R
 #' @include dlm_to_ssmodel-method.R
-#' @exportClass DlmLocalLevelNormalInter
+#' @exportClass DlmLocalLevelHp
 NULL
 
 #' @rdname DLM-class
-#' @aliases DlmLocalLevelNormalInter-class
-setClass("DlmLocalLevelNormalInter", contains = "DLM")
+#' @aliases DlmLocalLevelHp-class
+setClass("DlmLocalLevelHp", contains = "DLM")
 
-dlm_to_ssmodel.DlmLocalLevelNormalInter <-
+dlm_to_ssmodel.DlmLocalLevelHp <-
   function(object) {
     data <- mcmcdb_data(object)
     function(iter) {
       SSModel(data$y,
               Z = matrix(1),
-              H = array(iter$H, c(1, 1, length(iter$H))),
+              H = iter$H,
               T = matrix(1),
               Q = array(iter$Q, c(1, 1, length(iter$Q))),
               a1 = data$a1,
@@ -21,5 +21,5 @@ dlm_to_ssmodel.DlmLocalLevelNormalInter <-
     }
   }
 
-setMethod("dlm_to_ssmodel", "DlmLocalLevelNormalInter",
-          dlm_to_ssmodel.DlmLocalLevelNormalInter)
+setMethod("dlm_to_ssmodel", "DlmLocalLevelHp",
+          dlm_to_ssmodel.DlmLocalLevelHp)
