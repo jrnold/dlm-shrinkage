@@ -17,9 +17,9 @@ Suggests:
     testthat,
     roxygen2
 Collate:
-    'DLM-class.R'
     'dlm_to_ssmodel-method.R'
     'dlm_parameters-method.R'
+    'DLM-class.R'
     'DlmLocalLevelNormal-class.R'
     'crosszero.R'
     'dhp.R'
@@ -29,3 +29,6 @@ Collate:
     'sddlm-package.R'
     'sim_struc_break.R'
     'ssm_sim.R'
+    'DlmLocalLevelNormalInter-class.R'
+    'mcmcsummary.R'
+    'discrepancy.R'

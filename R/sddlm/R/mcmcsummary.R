@@ -10,9 +10,9 @@ NULL
 #' @param object Object with MCMC samples
 #' @param data \code{list} model data
 #' @param .parallel \code{logical} Use parallel processing
-#' @value
+#' @return
 #' Returns a \code{"list"} with elements
-#' \code{
+#' \describe{
 #' \item{\code{alpha}}{\code{matrix} Samples from the states.}
 #' \item{\code{yhat}}{\code{matrix} Samples of the mean response.}
 #' \item{\code{yrep}}{\code{matrix} Samples of the predicted observations.}
@@ -29,7 +29,7 @@ NULL
 #' @section Details:
 #'
 #' At the moment this is only designed for a single chain.
-mcmcsummary <- function(object, data = mcmcdb_data(sim), .parallel=FALSE) {
+mcmcsummary <- function(object, data = mcmcdb_data(object), .parallel=FALSE) {
   ret <- list()
 
   sims <- ssm_sim(object, .parallel=.parallel)

@@ -13,9 +13,9 @@ dlm_to_ssmodel.DlmLocalLevelNormal <-
     function(iter) {
       SSModel(data$y,
               Z = matrix(1),
-              H = iter$H,
+              H = array(iter$H, c(1, 1, length(iter$H))),
               T = matrix(1),
-              Q = iter$Q,
+              Q = array(iter$Q, c(1, 1, length(iter$Q))),
               a1 = data$a1,
               P1 = data$P1)
     }
