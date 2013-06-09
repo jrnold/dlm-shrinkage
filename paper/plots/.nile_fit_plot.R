@@ -3,10 +3,7 @@ nile_fit_plot <- function(key, file) {
   nile <- RDATA[["nile"]]
   
   alpha_m <- ddply(melt(alpha), "Var1",
-                   summarise,
-                   mean = mean(value),
-                   lb = quantile(value, prob = 0.025),
-                   ub = quantile(value, prob = 0.975))
+                   function(df) mcmc3valsummary(df$value))
   alpha_m[["year"]] <- nile[["year"]]
   
   gg <- (ggplot()

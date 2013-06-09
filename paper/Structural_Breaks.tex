@@ -44,6 +44,7 @@
 \newcommand{\R}{\ensuremath{\mathbb{R}}} %real
 
 \DeclareMathOperator{\E}{E}
+\DeclareMathOperator{\Median}{Median}
 \DeclareMathOperator{\Var}{Var}
 \DeclareMathOperator{\Cov}{Cov}
 \DeclareMathOperator{\diag}{diag}
@@ -467,7 +468,26 @@ $\tau$ estimates the overall sparsity of $\eta_{t}$, while the individual values
 Surpisingly, the horseshoe prior model produces constant estimates of the level before and after 1899, while the manual intervention model shows slight changes.
 
 Table \ref{tab:nile-fits} displays model fit statistics for the Nile river flow models.
-The horseshoe prior model $M_{nile,hs}$ has the highest Widely Applicable Information Criterion (WAIC) \parencite{Watanabe2010}.
+The primary criteria used to compare the models is the Widely Applicable Information Criterion (WAIC) \parencite{Watanabe2010}.%
+\footnote{See \textcite{GelmanHwangVehtari2013} and \textcite{VehtariOjanen2012} for recent overviews of Byaesian model comparison.}
+The WAIC is an information criterion similar to the Deviance Information Criterion (DIC) \parencite{spiegelhalter2002bayes}, but unlike the DIC, the WAIC extends to singular models such as hierarchical and mixture models.
+WAIC is a measure of out-of-sample prediction error, and is asymptotically equivalent to the Bayesian leave-one-out cross-validation \parencite{Watanabe2010}.
+Like DIC, it approximates the expected log predictive density of new data with the within-sample predictive accuracy adjusted by a bias term which is a correction for the effective number of parameters.
+Table \ref{tab:nile-fits} shows that $M_{nile,hs}$ has the lowest WAIC, and thus the best fit.
+However, $M_{nile,hs}$ has a higher RMSE than $M_{nile,normal}$ and $M_{nile,inter}$.
+
+Diagnostics to classify structural breaks are plotted in Figures \ref{fig:nile-eta} and \ref{fig:nile-lambda}.
+Figure \ref{fig:nile-eta} displays the values of the mean and 95 percent credible interval of $p(\eta | y)$.
+Structural breaks are those periods in which the credible interval of $p(\eta | y)$ excludes zero.
+$M_{nile,hs}$ and $M_{nile,inter}$ both classify 1899 as the structural break; while in $M_{nile,normal}$ all the credible intervals cross zero.
+However, in $M_{nile,hs}$ the credible intervals of $\eta$ are much tighter than those of $M_{nile,normal}$.
+Figure \ref{fig:nile-lambda} displays the values of the median of $p(\lambda | y)$ in $M_{nile,normal}$.
+Structural breaks are classified as observations for which the median is greater than 1.
+As expected, only 1899 is classified as a structural break.
+
+This example shows that using the horseshoe prior on the state disturbances is able to recover a the structural break for the Nile dataset.
+While this may seem like an easy example, it shows that scale mixture of normal distributions can recover a structural break even in the case of sparse state disturbances (1 of 100).
+For a continuous distribution this is the most difficult case, because it should be able to adjust to more dense state disturbance vectors.
 
 \begin{figure}[htpb]
   \centering
@@ -497,6 +517,22 @@ The horseshoe prior model $M_{nile,hs}$ has the highest Widely Applicable Inform
   \label{tab:nile-fits}
 \end{table}
 
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-nile-eta}
+  \caption{Plot of $p(\eta | y)$ from each model of Nile flows.}
+  \label{fig:nile-eta}
+\end{figure}
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics{plots/fig-nile-lambda}
+  \caption{Plot of $\Median p(\lambda | y)$ from $M_{nile,hs}$}
+  \label{fig:nile-lambda}
+\end{figure}
+
+\clearpage{}
+
 \subsection{George W. Bush Approval Ratings}
 \label{sec:george-w.-bush}
 
@@ -517,6 +553,16 @@ The motivating example of \textcite{RatkovicEng2010}.
 
 This paper shows that a simple tweak to dynamic linear models allows them to estimate structural break models with a random number of breaks.
 The sparse disturbance approach is both intuitive and flexible, while remaining computationally efficient.
+
+To make this 
+
+\begin{enumerate}
+\item Write a DLM distribution for Stan.
+\item Write a new R package for Dynamic Linear Models. There are a few reasons for this, despite there being multiple R packages that implement Kalman Filter / DLM capabilities. 
+The existing packages do not implement direct sampling from the posterior distribution. 
+There is also a technical and clarity advantage to rewriting a Kalman filter library with Rcpp backend. In fact, the primary RcppArmadillo example is 
+a Kalman filter.
+\end{enumerate}
 
 \clearpage{}
 
