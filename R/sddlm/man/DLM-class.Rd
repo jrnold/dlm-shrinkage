@@ -2,8 +2,12 @@
 \name{DLM}
 \alias{DLM}
 \alias{DLM-class}
+\alias{DlmLocalLevelHs}
+\alias{DlmLocalLevelHs-class}
 \alias{DlmLocalLevelNormal}
 \alias{DlmLocalLevelNormal-class}
+\alias{DlmLocalLevelNormalInter}
+\alias{DlmLocalLevelNormalInter-class}
 \title{DLM Classes}
 \description{
   Classes inheriting from \code{\link{McmcdbWide}} which

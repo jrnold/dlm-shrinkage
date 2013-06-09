@@ -11,20 +11,25 @@ Imports:
     mcmcdb,
     mcmcstats,
     KFAS,
-    plyr
+    plyr,
+    mvtnorm
 Suggests:
     testthat,
     roxygen2
 Collate:
-    'misc.R'
-    'dhp.R'
-    'crosszero.R'
-    'rbernoulli.R'
-    'sim_struc_break.R'
-    'ssm_sim-method.R'
-    'ssm_loglik-method.R'
-    'ssm_yrep-method.R'
-    'sddlm-package.R'
-    'loglik_from_ssm.R'
+    'dlm_to_ssmodel-method.R'
+    'convergence_parameters-method.R'
     'DLM-class.R'
     'DlmLocalLevelNormal-class.R'
+    'crosszero.R'
+    'dhp.R'
+    'loglik_from_ssm.R'
+    'misc.R'
+    'rbernoulli.R'
+    'sddlm-package.R'
+    'sim_struc_break.R'
+    'ssm_sim.R'
+    'DlmLocalLevelNormalInter-class.R'
+    'mcmcsummary.R'
+    'discrepancy.R'
+    'DlmLocalLevelHs-class.R'

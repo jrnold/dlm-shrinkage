@@ -1,11 +1,14 @@
-#' @export dhp
+#' @export dhp rhp
 NULL
 
 #' The Horseshoe Prior Distribution
 #'
-#' Density function of the horseshoe prior distribution.
+#' Density function and random generation for the horseshoe prior distribution.
 #'
 #' @param x \code{numeric} vector of quantiles.
+#' @param n \code{integer} number of observations.
+#' @param scale \code{numeric}. Scale parameter, greater than zero.
+#' @param mu \code{numeric}. Location parameter.
 #' @return \code{numeric} vector of density values.
 #'
 #' @section Details:
@@ -35,10 +38,17 @@ NULL
 #'
 #' Carvalho, Carlos M., Nicholas G. Polson, and James G. Scott (2009). "Handling Sparsity via the Horseshoe".
 #' Journal of Machine Learning and Research: Workshop and Conference Proceedings 5, pp. 73-80.
-dhp <- function(x) {
+#' @rdname dhp
+dhp <- function(x, scale = 1, mu = 0) {
+  x <- (x - mu) / scale
   K <- 1 / sqrt(2 * pi^3)
   lb <- (K / 2) * log(1 + 4 / x^2)
   ub <- K * log(1 + 2 / x^2)
   (lb + ub) / 2
 }
 
+#' @rdname dhp
+rhp <- function(n, scale = 1, mu = 0) {
+  lambda <- abs(rcauchy(n))
+  mu + lambda * scale * rnorm(n)
+}

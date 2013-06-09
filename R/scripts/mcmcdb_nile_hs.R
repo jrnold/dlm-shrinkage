@@ -1,10 +1,10 @@
-nile <- RDATA[["nile"]]
+.nile <- RDATA[["nile"]]
 source(".nile_data.R")
 
-KEY <- "nile_hp"
+KEY <- "nile_hs"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
-MODEL <- "local_level_hp"
+MODEL <- "local_level_hs"
 
 SEED <- c(43542530304)
 ITER <- 2^15
@@ -32,5 +32,4 @@ res <-
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
 
-RDATA[[MCMCDB_KEY]] <- new("McmcdbLocalLevelHp", res)
-RDATA[[SUMMARY_KEY]] <- summary(RDATA[[MCMCDB_KEY]])
+RDATA[[MCMCDB_KEY]] <- new("DlmLocalLevelHs", res)
