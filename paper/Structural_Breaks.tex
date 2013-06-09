@@ -351,6 +351,52 @@ Outliers are not the few periods in which $\varepsilon_{t} \neq 0$, but are inst
 In this case, it is more important for the shrinkage prior to have heavy tails than have a spike at zero.
 For that reason, the $t$-distribution, which is commonly used to model outliers in Bayesian regression and DLMs, is likely sufficient for most applications.
 
+\section{Implementation}
+\label{sec:implementation}
+
+MCMC sampling from a dynamic linear model is challenging due to the temporal dependence of the latent state parameters $\alpha$ \parencite{ReisSalazarGamerman2006}.
+Although full conditional distributions for a Gibbs sampler can be easily specified \parencite{CarlinGelfandSmith1992}, in practice sampling component-wise will almost always result in slow convergence and highly correlated posterior samples.
+However, in the case of Gaussian dynamic linear models there exist more efficient block sampling algorithms which sample from $\alpha_{t}$ in a single block, which improves the mixing and convergence of the sampler.%
+\footnote{See \textcite{ReisSalazarGamerman2006} for a comparison of the efficiency of various sampling methods, and \textcite{migon2005dynamic} for an overview of the various sampling methods.}
+These block methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}.%
+Additionally, since in the case of a Gaussian dynamic linear models, the posterior $p(\alpha | y, S)$ is a multivariate normal distribution with a sparse, block diagonal covariance matrix, samples can be drawn directly from the posterior distribution \parencites{migon2005dynamic}{ChanJeliazkov2009}.
+However, none of these more efficient algorithms are included in the commonly used general-purpose Bayesian software programs (BUGS, JAGS, and PyMc).
+Thus a researcher needs to tradeoff computational time with programmer time to implement a custom MCMC sampler for a dynamic linear model in order to use one of these block samplers.
+While there exists many software implementations of filters and smoothers for Dynamic Linear Models,%
+\footnote{Reviewed in a special issue of the \textit{Journal of Statistical Sofware} \textcite{CommandeurKoopmanOoms2011} and \textcite{Tusell2011}.}
+writing an efficient sampler may require additional tricks in order to reduce to the correlation between the states and parameters in the system matrices, e.g. (CITE)
+This reduces the feasbility of using DLM models in applications despite their theoretical and intutitive advantages and flexibility for more specialized but already implemented methods.
+
+This paper proposes and implements a practical method to estimate DLMs that uses Stan \parencite{Stan2013}.
+I divide the problem of sampling $p(\alpha, S_{t} | y_{t})$ into two steps.
+First, I sample from $p(\S_{t} | y_{t})$ using Stan's implementation of HMC.
+Then, given samples from $p(S_{t} | y_{t})$, I sample the latent states $p(\alpha_{t} | S_{t}, y_{t})$ using a simulation smoother discussed above.
+The reason for seperating the steps is that directly sampling $\alpha$ seems to cause problems for the HMC, while the log-likelihood of $p(y_{t} | S_{t})$ can be easily and efficiently calculated.
+
+First, sample from $p(S_{t} | y_{t})$ using Stan.
+Stan is a general purpose Bayesian software program.
+Like BUGS, it has a domain specific language that lets the user specify the statistical model without specifying the steps used to sample from the model.
+Unlike BUGS, Stan is not based on Gibbs sampling, but instead uses a variant of Hamiltonian Monte Carlo (HMC) called NUTS \parencite{HoffmanGelman2013}.
+While as of the time of the writing, a distribution for dynamic linear models is not included in the software, but a method for efficiently sampling the other parameters while marginalizing over the latent states can be implemented within the Stan modeling language.
+In particular, in order to implement a custom distribution only its log-likelihood need to be calculated \parencite[Chapter 17]{Stan2013}
+The log-likelihood $p(y_{t} | S_{t})$ of a DLM can be easily and efficiently calculated with a single pass through the data using the Kalman Filter (CITE ...).
+These Kalman Filter and log-likelihood calculations are written in Stan's modeling language.
+Essentially, $p(S_{t} | y_{t})$ are sampled while marginalizing over $\alpha$.
+\footnote{
+  I originally directly implemented the DLMs in Stan in a manner equivalent to directly transcribing the equations.
+  This works reasonably well, and Stan achieved better posterior mixing than JAGS.
+  However, there were two problems. 
+  First, this approach scaled poorly, and seemed to slow down dramatically as $n$ and $T$ increased, even using the standard methods to optimize Stan code.
+  Second, when sampling from the posterior, the posterior samplers would often get stuck in regions.
+  The exact reason for this is unknown, but this is likely due to the complex geometry of the posterior distribution and the inability of HMC in Euclidean geometry to adapt to different scales in different parts of the parameter space.
+  When Stan implements Riemann Manifold HMC, it may solve this problem.
+}
+
+Second, having obtained a sample of size $K$ from $p(S_{t} | y_{t}$, for each $k \in 1:K$ sample from $p(\alpha_{t} | y_{t}, S_{t}^{(k)})$ using a block sampler of the type discussed earlier.
+For this paper, I used the R package \textit{KFAS} \parencite{Helske2012} which has an implementation the \textcite{DurbinKoopman2002} simulation smoother algorithm.
+In practice, the most difficult aspect of this step is munging the output from the first step into data structures needed to draw samples in the second step.
+For this purpose, and in general to make post-processing MCMC samples easier, I wrote and have made available the \RLang{} package \href{https://github.com/jrnold/mcmcdb}{\textbf{mcmcdb}}.
+
 \section{Examples}
 \label{sec:examples}
 
@@ -410,28 +456,46 @@ All models use the non-informative priors specified in \eqref{eq:7}, and an empi
   \alpha_{1} &\sim N(y_{1}, \Var y_{1})
 \end{align}
 
+Figure \ref{fig:nile-posterior} plots the posterior distributions of the level ($p(\alpha | y)$) for the three models against the data.
+The horseshoe prior and intervention models clearly show the structural break in 1899. 
+The normal model smooths over the break, showing a downward trend several years before and after 1899. 
+The normal model also shows much more movement in the posterior distribution before and after the break.
+In other words, the normal model oversmooths at the break, and undersmooths in other periods.
+This is because, to account for the large difference in 1899, the estimated $\tau$ must increase, but then $\tau$ will shrink the estimated level less in other regions.
+A global-local scale mixture of normal distribution like the horseshoe prior is able to accomodate the break.
+$\tau$ estimates the overall sparsity of $\eta_{t}$, while the individual values of $\lambda_{t}$ allow for signals.
+Surpisingly, the horseshoe prior model produces constant estimates of the level before and after 1899, while the manual intervention model shows slight changes.
 
+Table \ref{tab:nile-fits} displays model fit statistics for the Nile river flow models.
+The horseshoe prior model $M_{nile,hs}$ has the highest Widely Applicable Information Criterion (WAIC) \parencite{Watanabe2010}.
 
-% \begin{figure}[htpb]
-%   \centering
-%   \includegraphics{plots/fig-nile.pdf}
-%   \caption{Plot of mean posterior predictive distributions ($\E f(\tilde{y}| y)$) for the normal, normal2, and horseshoe prior distribution models.}
-%   \label{fig:nile}
-% \end{figure}
+\begin{figure}[htpb]
+  \centering
+  \begin{subfigure}{1.0\textwidth}
+    \includegraphics{plots/fig-nile1}
+    \caption{$M_{nile,hs}$}
+    \label{fig:nile-posterior-1}    
+  \end{subfigure}
+  \begin{subfigure}{1.0\textwidth}
+    \includegraphics{plots/fig-nile2}
+    \caption{$M_{nile,normal3}$}
+    \label{fig:nile-posterior-2}
+  \end{subfigure}
+  \begin{subfigure}{1.0\textwidth}
+    \includegraphics{plots/fig-nile3}
+    \caption{$M_{nile,inter}$}
+    \label{fig:nile-posterior-3}
+  \end{subfigure}
+  \caption{Plots of the posterior distributions of the level, $p(\alpha | y)$, for Nile river flow models. Points are the data; the line $E p(\alpha | y)$; the ribbon is the 95\% credible interval of $p(\alpha | y)$. A dam at Ashwan was built in 1899}
+  \label{fig:nile-posterior}
+\end{figure}
 
-% \begin{figure}[htpb]
-%   \centering
-%   \includegraphics{plots/fig-nile_innovations.pdf}
-%   \caption{Plot of innovations}
-%   \label{fig:nile_innovations}
-% \end{figure}
-
-% \begin{table}[htpb]
-%   \centering
-%   \input{plots/tab-nile.tex}
-%   \caption{Model summary statistics of Nile models.}
-%   \label{tab:nile}
-% \end{table}
+\begin{table}[htpb]
+  \centering
+  \input{plots/tab-nile-fits.tex}
+  \caption{Model fit comparison of Nile river flow models}
+  \label{tab:nile-fits}
+\end{table}
 
 \subsection{George W. Bush Approval Ratings}
 \label{sec:george-w.-bush}
@@ -447,52 +511,6 @@ The motivating example of \textcite{RatkovicEng2010}.
 \item Discrete DV change-point models in \parencite{Spirling2007b}.
 \item Interest Rates, Inflation, and GDP growth are common economics examples, e.g. \textcite{GiordaniKohn2008}.
 \end{itemize}
-
-\section{Implementation}
-\label{sec:implementation}
-
-MCMC sampling from a dynamic linear model is challenging due to the temporal dependence of the latent state parameters $\alpha$ \parencite{ReisSalazarGamerman2006}.
-Although full conditional distributions for a Gibbs sampler can be easily specified \parencite{CarlinGelfandSmith1992}, in practice sampling component-wise will almost always result in slow convergence and highly correlated posterior samples.
-However, in the case of Gaussian dynamic linear models there exist more efficient block sampling algorithms which sample from $\alpha_{t}$ in a single block, which improves the mixing and convergence of the sampler.%
-\footnote{See \textcite{ReisSalazarGamerman2006} for a comparison of the efficiency of various sampling methods, and \textcite{migon2005dynamic} for an overview of the various sampling methods.}
-These block methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}.%
-Additionally, since in the case of a Gaussian dynamic linear models, the posterior $p(\alpha | y, S)$ is a multivariate normal distribution with a sparse, block diagonal covariance matrix, samples can be drawn directly from the posterior distribution \parencites{migon2005dynamic}{ChanJeliazkov2009}.
-However, none of these more efficient algorithms are included in the commonly used general-purpose Bayesian software programs (BUGS, JAGS, and PyMc).
-Thus a researcher needs to tradeoff computational time with programmer time to implement a custom MCMC sampler for a dynamic linear model in order to use one of these block samplers.
-While there exists many software implementations of filters and smoothers for Dynamic Linear Models,%
-\footnote{Reviewed in a special issue of the \textit{Journal of Statistical Sofware} \textcite{CommandeurKoopmanOoms2011} and \textcite{Tusell2011}.}
-writing an efficient sampler may require additional tricks in order to reduce to the correlation between the states and parameters in the system matrices, e.g. (CITE)
-This reduces the feasbility of using DLM models in applications despite their theoretical and intutitive advantages and flexibility for more specialized but already implemented methods.
-
-This paper proposes and implements a practical method to estimate DLMs that uses Stan \parencite{Stan2013}.
-I divide the problem of sampling $p(\alpha, S_{t} | y_{t})$ into two steps.
-First, I sample from $p(\S_{t} | y_{t})$ using Stan's implementation of HMC.
-Then, given samples from $p(S_{t} | y_{t})$, I sample the latent states $p(\alpha_{t} | S_{t}, y_{t})$ using a simulation smoother discussed above.
-The reason for seperating the steps is that directly sampling $\alpha$ seems to cause problems for the HMC, while the log-likelihood of $p(y_{t} | S_{t})$ can be easily and efficiently calculated.
-
-First, sample from $p(S_{t} | y_{t})$ using Stan.
-Stan is a general purpose Bayesian software program.
-Like BUGS, it has a domain specific language that lets the user specify the statistical model without specifying the steps used to sample from the model.
-Unlike BUGS, Stan is not based on Gibbs sampling, but instead uses a variant of Hamiltonian Monte Carlo (HMC) called NUTS \parencite{HoffmanGelman2013}.
-While as of the time of the writing, a distribution for dynamic linear models is not included in the software, but a method for efficiently sampling the other parameters while marginalizing over the latent states can be implemented within the Stan modeling language.
-In particular, in order to implement a custom distribution only its log-likelihood need to be calculated \parencite[Chapter 17]{Stan2013}
-The log-likelihood $p(y_{t} | S_{t})$ of a DLM can be easily and efficiently calculated with a single pass through the data using the Kalman Filter (CITE ...).
-These Kalman Filter and log-likelihood calculations are written in Stan's modeling language.
-Essentially, $p(S_{t} | y_{t})$ are sampled while marginalizing over $\alpha$.
-\footnote{
-  I originally directly implemented the DLMs in Stan in a manner equivalent to directly transcribing the equations.
-  This works reasonably well, and Stan achieved better posterior mixing than JAGS.
-  However, there were two problems. 
-  First, this approach scaled poorly, and seemed to slow down dramatically as $n$ and $T$ increased, even using the standard methods to optimize Stan code.
-  Second, when sampling from the posterior, the posterior samplers would often get stuck in regions.
-  The exact reason for this is unknown, but this is likely due to the complex geometry of the posterior distribution and the inability of HMC in Euclidean geometry to adapt to different scales in different parts of the parameter space.
-  When Stan implements Riemann Manifold HMC, it may solve this problem.
-}
-
-Second, having obtained a sample of size $K$ from $p(S_{t} | y_{t}$, for each $k \in 1:K$ sample from $p(\alpha_{t} | y_{t}, S_{t}^{(k)})$ using a block sampler of the type discussed earlier.
-For this paper, I used the R package \textit{KFAS} \parencite{Helske2012} which has an implementation the \textcite{DurbinKoopman2002} simulation smoother algorithm.
-In practice, the most difficult aspect of this step is munging the output from the first step into data structures needed to draw samples in the second step.
-For this purpose, and in general to make post-processing MCMC samples easier, I wrote and have made available the \RLang package \href{https://github.com/jrnold/mcmcdb}{\textbf{mcmcdb}}.
 
 \section{Conclusion}
 \label{sec:conclusion}

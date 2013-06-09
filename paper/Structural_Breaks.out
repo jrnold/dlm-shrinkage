@@ -2,14 +2,14 @@
 \BOOKMARK [1][-]{section.2}{Structural Breaks in a State Space Model}{}% 2
 \BOOKMARK [2][-]{subsection.2.1}{Dynamic Linear Models}{section.2}% 3
 \BOOKMARK [2][-]{subsection.2.2}{Local Level Model}{section.2}% 4
-\BOOKMARK [2][-]{subsection.2.3}{General DLMs}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.3}{Dynamic Linear Models}{section.2}% 5
 \BOOKMARK [2][-]{subsection.2.4}{Structural Breaks}{section.2}% 6
 \BOOKMARK [2][-]{subsection.2.5}{Outliers}{section.2}% 7
-\BOOKMARK [1][-]{section.3}{Examples}{}% 8
-\BOOKMARK [2][-]{subsection.3.1}{Nile River Flow}{section.3}% 9
-\BOOKMARK [2][-]{subsection.3.2}{George W. Bush Approval Ratings}{section.3}% 10
-\BOOKMARK [2][-]{subsection.3.3}{Third Example: TBD}{section.3}% 11
-\BOOKMARK [1][-]{section.4}{Implementation}{}% 12
+\BOOKMARK [1][-]{section.3}{Implementation}{}% 8
+\BOOKMARK [1][-]{section.4}{Examples}{}% 9
+\BOOKMARK [2][-]{subsection.4.1}{Nile River Flow}{section.4}% 10
+\BOOKMARK [2][-]{subsection.4.2}{George W. Bush Approval Ratings}{section.4}% 11
+\BOOKMARK [2][-]{subsection.4.3}{Third Example: TBD}{section.4}% 12
 \BOOKMARK [1][-]{section.5}{Conclusion}{}% 13
 \BOOKMARK [1][-]{section.6}{Appendix}{}% 14
 \BOOKMARK [2][-]{subsection.6.1}{code}{section.6}% 15

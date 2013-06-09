@@ -1,3 +1,9 @@
+# RDATA: mcmcsummary_nile_hs mcmcsummary_nile_normal_1 mcmcsummary_nile_normal_2
+cmdargs <- commandArgs(TRUE)
+FILE <- cmdargs[1]
+
+source("conf.R")
+
 fit_summary <- function(k) {
   x <- RDATA[[k]]
   data.frame(waic = as.integer(round(as.numeric(x[["waic"]]))),
@@ -10,8 +16,9 @@ fit_summary <- function(k) {
 keys <- sprintf("mcmcsummary_nile_%s", c("hs", "normal_1", "normal_2"))
 modelfits <- ldply(keys, fit_summary)
 rownames(modelfits) <- c("$M_{hs}$", "$M_{normal,1}$", "$M_{normal,2}$")
-colnames(modelfits) <- c("WAIC", "$L$", "$p$", "RMSE", "$\\Chi^2$")
+colnames(modelfits) <- c("WAIC", "$L$", "$p$", "RMSE", "$\\chi^2$")
 print(xtable(modelfits,  digits = 1),
       sanitize.text.function = identity,
-      floating = FALSE)
+      floating = FALSE,
+      file = FILE)
 

@@ -23,3 +23,4 @@ fig-%.pdf: fig-%.R conf.R
 tab-%.tex: tab-%.R conf.R
 	$(RSCRIPT) $< $@
 
+fig-nile1.R fig-nile2.R fig-nile3.R: .nile_fit_plot.R
