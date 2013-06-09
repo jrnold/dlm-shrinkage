@@ -33,3 +33,4 @@ Collate:
     'mcmcsummary.R'
     'discrepancy.R'
     'DlmLocalLevelHs-class.R'
+    'DlmSpline-class.R'

@@ -5,24 +5,25 @@ standata <- within(list(), {
   y <- bush$approve
   Q_a <- rep(0, length(y))
   Q_b <- bush$ddate
+  H_a <- rep(0, length(y))
+  H_b <- rep(1, length(y))
   a1 <- bush$approve[1]
   P1 <- 25
 })
 
-init <- list(H = 6.3, tau = 1.45,
-             lambda = rep(1, length(standata$y)))
+init <- list(sigma2 = 3.8, tau = sqrt(0.57))
 
-KEY <- "bush_normal_2"
+KEY <- "bush_normal"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
 
 SEED <- c(43542530304)
-ITER <- 2^15
-WARMUP <- 2^13
+ITER <- 2^14
+WARMUP <- 2^12
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
 
-MODEL <- "local_level_hp_inter"
+MODEL <- "local_level_normal_inter"
 
 timing <-
   system.time(smpls <- run_stan_model(STAN_MODELS(MODEL),
@@ -37,8 +38,4 @@ res <-
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
 
-RDATA[[MCMCDB_KEY]] <- new("McmcdbLocalLevelNormalInter", res)
-RDATA[[SUMMARY_KEY]] <- summary(RDATA[[MCMCDB_KEY]])
-
-object <- RDATA[["mcmcdb_bush_normal_1"]]
-
+RDATA[[MCMCDB_KEY]] <- new("DlmLocalLevelNormalInter", res)

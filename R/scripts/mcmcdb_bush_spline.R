@@ -3,30 +3,26 @@ bush <- RDATA[["bush_approval"]]
 standata <- within(list(), {
   n <- nrow(bush)
   y <- bush$approve
-  Q_a <- rep(0, length(y))
-  Q_b <- bush$ddate
-  a1 <- bush$approve[1]
-  P1 <- 25
+  ydiff <- bush$ddate
+  a1 <- array(c(bush$approve[1], 0), 2)
+  P1 <- matrix(c(25, 0, 0, 5), 2, 2)
 })
 
-init <- list(H = 3.8, tau = sqrt(0.57))
-
-KEY <- "bush_normal_1"
+KEY <- "bush_spline"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
 
 SEED <- c(43542530304)
-ITER <- 2^13
-WARMUP <- 2^12
+ITER <- 2^15
+WARMUP <- 2^13
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
 
-MODEL <- "local_level_normal_inter"
+MODEL <- "spline"
 
 timing <-
   system.time(smpls <- run_stan_model(STAN_MODELS(MODEL),
                                       data = standata, seed=SEED,
-                                      init = init,
                                       iter = ITER,
                                       warmup = WARMUP,
                                       thin = THIN))
@@ -36,5 +32,4 @@ res <-
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
 
-RDATA[[MCMCDB_KEY]] <- new("McmcdbLocalLevelNormalInter", res)
-RDATA[[SUMMARY_KEY]] <- summary(RDATA[[MCMCDB_KEY]])
+RDATA[[MCMCDB_KEY]] <- new("DlmSpline", res)

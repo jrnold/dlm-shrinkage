@@ -32,4 +32,5 @@ reinstall_sddlm <- function(clean=FALSE, ...) {
 
 library("foreach")
 library("doMC")
-registerDoMC()
+registerDoMC(4)
+print(getDoParWorkers())

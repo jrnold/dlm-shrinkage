@@ -8,6 +8,8 @@
 \alias{DlmLocalLevelNormal-class}
 \alias{DlmLocalLevelNormalInter}
 \alias{DlmLocalLevelNormalInter-class}
+\alias{DlmSpline}
+\alias{DlmSpline-class}
 \title{DLM Classes}
 \description{
   Classes inheriting from \code{\link{McmcdbWide}} which

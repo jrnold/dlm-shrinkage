@@ -41,9 +41,9 @@ dist_state_from_ssm <- function(object, alpha) {
   FUN <- function(alpha, T, lalpha) {
     as.numeric(alpha[[1]] - T[[1]] %*% lalpha[[1]])
   }
-  lalpha <- c(list(object$a1), alpha[1:(length(alpha) - 1)])
+  lalpha <- cbind(matrix(object$a1), alpha[ , 1:(ncol(alpha) - 1), drop=FALSE])
   res <- mlply(data.frame(alpha = I(alply(alpha, 2, identity)),
-                          lalpha = I(lalpha),
+                          lalpha = I(alply(lalpha, 2, identity)),
                           T = I(ssmodel_array2list(object$T, object$n))),
                 .fun = FUN)
   simplify2array(res)
@@ -70,7 +70,7 @@ yrep_from_ssm <- function(n, object, alpha) {
   simplify2array(res)
 }
 
-ssm_sim <- function(object, data = mcmcdb_data(object), .parallel=FALSE) {
+ssm_sim <- function(object, data = mcmcdb_data(object), parallel=FALSE, chain_id = NULL, iter = NULL) {
   FUN <- function(iter, data, to_ssm) {
     ssmodel <- to_ssm(iter)
     alpha <- simulateSSM(ssmodel, "states")[["states"]]
@@ -86,7 +86,8 @@ ssm_sim <- function(object, data = mcmcdb_data(object), .parallel=FALSE) {
   mcmcdb_samples_iter(object, FUN,
                       data = mcmcdb_data(object),
                       to_ssm = dlm_to_ssmodel(object),
-                      .parallel = .parallel,
-                      .paropts = list(.packages = c("sddlm")))
+                      .parallel = parallel,
+                      .paropts = list(.packages = c("sddlm")),
+                      chain_id = chain_id, iter = iter)
                       
 }

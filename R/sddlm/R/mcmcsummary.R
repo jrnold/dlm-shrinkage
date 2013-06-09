@@ -29,10 +29,10 @@ NULL
 #' @section Details:
 #'
 #' At the moment this is only designed for a single chain.
-mcmcsummary <- function(object, data = mcmcdb_data(object), .parallel=FALSE) {
+mcmcsummary <- function(object, data = mcmcdb_data(object), parallel=FALSE) {
   ret <- list()
 
-  sims <- ssm_sim(object, .parallel=.parallel)
+  sims <- ssm_sim(object, parallel = parallel)
   ret[["alpha"]] <- t(laply(sims, `[[`, i = "alpha")) # iter x states
   ret[["yhat"]] <- t(laply(sims, `[[`, i = "yhat"))
   ret[["yrep"]] <- t(laply(sims, `[[`, i = "yrep"))

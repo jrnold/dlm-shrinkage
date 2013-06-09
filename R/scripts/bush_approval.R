@@ -8,6 +8,3 @@ bush_approval <-
   mutate(bush_approval, ddate = c(1, diff(date)))
          
 RDATA[["bush_approval"]] <- bush_approval
-
-
-
