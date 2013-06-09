@@ -122,6 +122,7 @@ For $t = 1:n$,
   \label{eq:2}
   \alpha_{1} & \sim \dmvnorm{a_{1}, P_{1}}{m}
 \end{align}
+\todo[inline]{Should I use the West and Harrison notation instead? This mainly affects whether $t+1$ or $t$ is used in the system equation, and whether the initial state is the predicted value of that period, or the filtered value from the previous period}
 
 Equation \eqref{eq:8} is the \textit{observation equation} which relates the \textit{observation vector} $y_{t}$ to the \textit{state vector} $\alpha_{t}$.
 Equation \eqref{eq:14} is the \textit{state equation} which describes the Markovian evolution of the state vector.
@@ -269,7 +270,7 @@ This model could be completed with the non-informative priors, suggested in \tex
 $H$ is given its Jeffrey's prior, while $\tau$ is distributed half-Cauchy on the same scale as $H$.
 It is important that the prior distribution of the state variance global-component $\tau$ be distributed on the same scale as the observation varince $H$ \parencite{PolsonScott2012}.
 
-\subsection{General DLMs}
+\subsection{Dynamic Linear Models}
 \label{sec:multivariate}
 
 The previous section developed the sparse disturbance DLM for the local level case, but the use of shrinkage priors on the state disturbances can easily be extended to the more general DLM in section \ref{sec:dynam-line-models}.
@@ -375,7 +376,11 @@ The second model $M_{nile,normal}$ is the standard local level model in which th
     \eta_{t} & \sim \dnorm{0, \tau_{t}^{2}}
   \end{aligned}
 \end{equation}
-The third model, $M_{nile,inter}$ includes a manual intervention in 1899 ($t = 28$),
+The third model, $M_{nile,inter}$ represents an ``indeal'' intervention to account for a structural break in 1899.
+If the locations of structural breaks are known, then they can be modeled within the DLM by increasing the variance of the state disturbance at those times \textcite[Chapter 11][]{WestHarrison1997}.
+By increasing the variance of $\eta_{t}$, the estimated state discounts previous observations and is able to adjust more quickly to change.
+This model does manually while assuming knowledge of the structural breaks, what the horseshoe prior model is doing without previous knowledge of the locations of structural breaks.
+Thus, $M_{nile,iter}$ alters $M_{nile,normal}$ to make the variance arbitrarily large at $t = 28$, which corresponds to the year 1899.
 \begin{equation}
   \label{eq:12}
   \begin{aligned}[t]
@@ -387,20 +392,14 @@ The third model, $M_{nile,inter}$ includes a manual intervention in 1899 ($t = 2
     \end{cases}
   \end{aligned}
 \end{equation}
-By setting the variance of $\eta_{28}$ very large, the state discounts all previous observations and is able to immediately adjust to the new data.
-\footnote{An alternative method for incorporating an intervention is to change the observation equation to
-  \begin{equation}
-    \label{eq:23}
-    y_{t} \sim( \beta x_{t} + \alpha_{t}, \sigma^{2})
-  \end{equation}
-  where $x_{t}$ is an indicator variable such that $x_{t} = 1$ if $t \geq 28$ and 0 otherwise.
-}
 
 All models use the non-informative priors specified in \eqref{eq:7}, and an empirical prior for the initial state,
 \begin{align}
   \label{eq:13}
   \alpha_{1} &\sim N(y_{1}, \Var y_{1})
 \end{align}
+
+
 
 % \begin{figure}[htpb]
 %   \centering

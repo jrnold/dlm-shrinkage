@@ -32,4 +32,4 @@ Collate:
     'DlmLocalLevelNormalInter-class.R'
     'mcmcsummary.R'
     'discrepancy.R'
-    'DlmLocalLevelHp-class.R'
+    'DlmLocalLevelHs-class.R'

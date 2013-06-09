@@ -1,13 +1,13 @@
 #' @include DLM-class.R
 #' @include dlm_to_ssmodel-method.R
-#' @exportClass DlmLocalLevelHp
+#' @exportClass DlmLocalLevelHs
 NULL
 
 #' @rdname DLM-class
-#' @aliases DlmLocalLevelHp-class
-setClass("DlmLocalLevelHp", contains = "DLM")
+#' @aliases DlmLocalLevelHs-class
+setClass("DlmLocalLevelHs", contains = "DLM")
 
-dlm_to_ssmodel.DlmLocalLevelHp <-
+dlm_to_ssmodel.DlmLocalLevelHs <-
   function(object) {
     data <- mcmcdb_data(object)
     function(iter) {
@@ -21,5 +21,5 @@ dlm_to_ssmodel.DlmLocalLevelHp <-
     }
   }
 
-setMethod("dlm_to_ssmodel", "DlmLocalLevelHp",
-          dlm_to_ssmodel.DlmLocalLevelHp)
+setMethod("dlm_to_ssmodel", "DlmLocalLevelHs",
+          dlm_to_ssmodel.DlmLocalLevelHs)

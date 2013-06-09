@@ -2,8 +2,8 @@
 \name{DLM}
 \alias{DLM}
 \alias{DLM-class}
-\alias{DlmLocalLevelHp}
-\alias{DlmLocalLevelHp-class}
+\alias{DlmLocalLevelHs}
+\alias{DlmLocalLevelHs-class}
 \alias{DlmLocalLevelNormal}
 \alias{DlmLocalLevelNormal-class}
 \alias{DlmLocalLevelNormalInter}

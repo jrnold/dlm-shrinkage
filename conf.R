@@ -29,3 +29,7 @@ reinstall_sddlm <- function(clean=FALSE, ...) {
   document(sddlm, clean=TRUE)
   install(sddlm, ...)
 }
+
+library("foreach")
+library("doMC")
+registerDoMC()

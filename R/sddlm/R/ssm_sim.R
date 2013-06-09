@@ -2,13 +2,13 @@
 #' @export ssm_sim
 NULL
 
-ssm_array2list <- function(x, n) {
+ssmodel_array2list <- function(x, n) {
   if (dim(x)[3] > 1) {
     llply(seq_len(n),
           function(i) {
-            x[ , , i]
-            dim(x) <- dim(x)[1:2]
-            x
+            xi <- x[ , , i]
+            dim(xi) <- dim(xi)[1:2]
+            xi
           })
   } else {
     replicate(n, {dim(x) <- dim(x)[1:2]; x}, simplify=FALSE)
@@ -20,7 +20,7 @@ yhat_from_ssm <- function(object, alpha) {
     as.numeric(Z[[1]] %*% alpha[[1]])
   }
   res <- mlply(data.frame(alpha = I(alply(alpha, 2, identity)),
-                           Z = I(ssm_array2list(object$Z, object$n))),
+                           Z = I(ssmodel_array2list(object$Z, object$n))),
                 .fun = FUN)
   simplify2array(res)
 }
@@ -32,7 +32,7 @@ dist_obs_from_ssm <- function(object, alpha) {
   y <- alply(as.matrix(object[["y"]]), 1, identity)
   res <- mlply(data.frame(y = I(y),
                           alpha = I(alply(alpha, 2, identity)),
-                          Z = I(ssm_array2list(object$Z, object$n))),
+                          Z = I(ssmodel_array2list(object$Z, object$n))),
                 .fun = FUN)
   simplify2array(res)
 }
@@ -44,7 +44,7 @@ dist_state_from_ssm <- function(object, alpha) {
   lalpha <- c(list(object$a1), alpha[1:(length(alpha) - 1)])
   res <- mlply(data.frame(alpha = I(alply(alpha, 2, identity)),
                           lalpha = I(lalpha),
-                          T = I(ssm_array2list(object$T, object$n))),
+                          T = I(ssmodel_array2list(object$T, object$n))),
                 .fun = FUN)
   simplify2array(res)
 }
@@ -64,8 +64,8 @@ yrep_from_ssm <- function(n, object, alpha) {
     }
   }
   res <- mlply(data.frame(alpha = I(alply(alpha, 2, identity)),
-                          Z = I(ssm_array2list(object$Z, object$n)),
-                          H = I(ssm_array2list(object$H, object$n))),
+                          Z = I(ssmodel_array2list(object$Z, object$n)),
+                          H = I(ssmodel_array2list(object$H, object$n))),
                .fun = FUN)
   simplify2array(res)
 }

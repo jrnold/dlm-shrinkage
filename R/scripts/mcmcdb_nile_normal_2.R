@@ -10,7 +10,7 @@ nile_data[["H_a"]] <- rep(0, n)
 nile_data[["H_b"]] <- rep(1, n)
 
 
-KEY <- "nile_normal_3"
+KEY <- "nile_normal_2"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
 
