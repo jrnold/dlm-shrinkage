@@ -15,7 +15,7 @@ standata <- within(list(), {
 init <- list(sigma2 = 6.3, tau = 1.45,
              lambda = rep(1, length(standata$y)))
 
-KEY <- "bush_normal_hs"
+KEY <- "bush_hs"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
 
@@ -40,4 +40,4 @@ res <-
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
 
-RDATA[[MCMCDB_KEY]] <- new("DlmLocalLevelNormalInter", res)
+RDATA[[MCMCDB_KEY]] <- new("DlmLocalLevelHs", res)

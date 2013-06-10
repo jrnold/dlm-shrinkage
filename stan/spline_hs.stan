@@ -34,11 +34,12 @@ transformed data {
 parameters {
   // signal to noise ratio
   real<lower=0.0> tau;
+  vector<lower=0.0>[n] lambda;
 }
 transformed parameters {
   cov_matrix[2] Q[n];
   for (i in 1:n) {
-    Q[i] <- Q0[i] * pow(tau, 2);
+    Q[i] <- Q0[i] * pow(tau, 2) * lambda[i];
   }
 }
 model {
@@ -82,5 +83,6 @@ model {
     }
   }
   lp__ <- lp__ + sum(loglik_obs);
+  lambda ~ cauchy(0, 1);
   tau ~ cauchy(0, 1);
 }

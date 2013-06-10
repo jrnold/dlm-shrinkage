@@ -8,7 +8,8 @@ standata <- within(list(), {
   P1 <- matrix(c(25, 0, 0, 5), 2, 2)
 })
 
-KEY <- "bush_spline"
+MODEL <- "spline_hs"
+KEY <- "bush_spline_hs"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
 
@@ -18,9 +19,7 @@ WARMUP <- 2^13
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
 
-MODEL <- "spline"
-
-init <- list(tau = 0.16)
+init <- list(tau = 0.16, lambda = rep(0.001, standata$n))
 
 timing <-
   system.time(smpls <- run_stan_model(STAN_MODELS(MODEL),
@@ -35,4 +34,4 @@ res <-
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
 
-RDATA[[MCMCDB_KEY]] <- new("DlmSpline", res)
+RDATA[[MCMCDB_KEY]] <- new("DlmSplineHs", res)
