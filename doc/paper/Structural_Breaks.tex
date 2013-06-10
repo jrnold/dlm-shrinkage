@@ -19,7 +19,7 @@
 
 \author{Jeffrey B. Arnold}
 % Seeing a Shrink about Structural Breaks
-\title{Sparse State Disturbance Dynamic Linear Models for Structural Breaks}
+\title{Sparse Disturbance Dynamic Linear Models for Structural Breaks}
 
 % Used to typeset distributions
 \newcommand{\dist}[1]{\mathcal{#1}}
@@ -55,11 +55,12 @@
 \maketitle{}
 
 \begin{abstract}
-  This paper shows that structural breaks can be estimated in a Bayesian continuous state space approach with dynamic linear models by placing shrinkage priors on the distribution of the per-period differences in parameters.
-  This model nests many common structural break and smoothing time-varying parameter models.
-  This model does not require a specification of the number of structural breaks, and is flexible.
-  An efficient method to estimate these models in Stan is presented.
-  Applications of this method to several problems are presented.
+  This paper shows that dynamic linear models can estimate time-varying parameters with structural breaks by placing shrinkage priors on the distribution of the disturbance terms. 
+  This nests many common structural break and smoothing time-varying parameter models.
+  Unlike many structural break methods it does not require the number of structural breaks to be specified ex ante, and can estimate this from the data.
+  Since many shrinkage priors are scale-mixture of normal distributions, the dynamic linear model is conditionally Gaussian, and can be efficiently sampled or maximized; 
+  a Stan implementation of this method is presented.
+  These models are used in several examples including the Nile river data, George W. Bush approval rating and TBD.
 \end{abstract}
 
 \section{Introduction}
