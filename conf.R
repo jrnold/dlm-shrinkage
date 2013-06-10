@@ -13,6 +13,9 @@ suppressPackageStartupMessages({
   library("stanmisc")
   # local
   library("sddlm")
+  # Parallel processing
+  library("foreach")
+  library("doMC")
 })
 
 ROOT_DIR <- normalizePath(".")
@@ -30,7 +33,5 @@ reinstall_sddlm <- function(clean=FALSE, ...) {
   install(sddlm, ...)
 }
 
-library("foreach")
-library("doMC")
-registerDoMC(4)
-print(getDoParWorkers())
+# Parallel
+registerDoMC(5)

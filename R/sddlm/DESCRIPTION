@@ -34,3 +34,4 @@ Collate:
     'discrepancy.R'
     'DlmLocalLevelHs-class.R'
     'DlmSpline-class.R'
+    'DlmSplineHs-class.R'

@@ -3,7 +3,7 @@
 \title{MCMC Summary}
 \usage{
   mcmcsummary(object, data = mcmcdb_data(object),
-    .parallel = FALSE)
+    parallel = FALSE)
 }
 \arguments{
   \item{object}{Object with MCMC samples}

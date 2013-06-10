@@ -1,3 +1,4 @@
+source(".conf.R")
 bush <- RDATA[["bush_approval"]]
 
 standata <- within(list(), {
@@ -20,7 +21,7 @@ THIN <- (ITER - WARMUP) / NSAMPLES
 
 MODEL <- "spline"
 
-init <- list(tau = 0.16)
+init <- list(tau = 0.16, H = 1)
 
 timing <-
   system.time(smpls <- run_stan_model(STAN_MODELS(MODEL),

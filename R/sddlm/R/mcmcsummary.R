@@ -33,21 +33,20 @@ mcmcsummary <- function(object, data = mcmcdb_data(object), parallel=FALSE) {
   ret <- list()
 
   sims <- ssm_sim(object, parallel = parallel)
-  ret[["alpha"]] <- t(laply(sims, `[[`, i = "alpha")) # iter x states
-  ret[["yhat"]] <- t(laply(sims, `[[`, i = "yhat"))
-  ret[["yrep"]] <- t(laply(sims, `[[`, i = "yrep"))
-  ret[["loglik"]] <- t(laply(sims, `[[`, i = "loglik"))
-  ret[["dist_obs"]] <- t(laply(sims, `[[`, i = "dist_obs"))
-  ret[["dist_state"]] <- t(laply(sims, `[[`, i = "dist_state"))
-
+  ret[["alpha"]] <- laply(sims, `[[`, i = "alpha")
+  ret[["yhat"]] <- laply(sims, `[[`, i = "yhat")
+  ret[["yrep"]] <- laply(sims, `[[`, i = "yrep")
+  ret[["loglik"]] <- laply(sims, `[[`, i = "loglik")
+  ret[["dist_obs"]] <- laply(sims, `[[`, i = "dist_obs")
+  ret[["dist_state"]] <- laply(sims, `[[`, i = "dist_state")
 
   # Fit
   y <- mcmcdb_data(object)[["y"]]
-  ret[["lppd"]] <- log(apply(exp(ret[["loglik"]]), 1, mean))
-  ret[["waic"]] <- waic(ret[["loglik"]])
-  ret[["dic"]] <- dic(-2 * apply(ret[["loglik"]], 2, sum))
-  ret[["mse"]] <- discrepancy(y, ret[["yrep"]], "mse")
-  ret[["chisq"]] <- discrepancy(y, ret[["yrep"]], "chisq")
+  ret[["lppd"]] <- log(apply(exp(ret[["loglik"]]), 2, mean))
+  ret[["waic"]] <- waic(t(ret[["loglik"]]))
+  ret[["dic"]] <- dic(-2 * apply(t(ret[["loglik"]]), 2, sum))
+  ret[["mse"]] <- discrepancy(y, t(ret[["yrep"]]), "mse")
+  ret[["chisq"]] <- discrepancy(y, t(ret[["yrep"]]), "chisq")
 
   # Convergence
   pars <- convergence_parameters(object)

@@ -13,7 +13,6 @@ transformed data {
   matrix[2, 2] Q0[n];
   matrix[2, 2] T[n];
   row_vector[2] Z;
-  real<lower=0.0> H;
   for (i in 1:n) {
     // Fill in H
     Q0[i, 1, 1] <- (1.0 / 3.0) * pow(ydiff[i], 3);
@@ -29,11 +28,10 @@ transformed data {
   // Z = [1, 0]
   Z[1] <- 1;
   Z[2] <- 0;
-  H <- 1;
 }
 parameters {
-  // signal to noise ratio
   real<lower=0.0> tau;
+  real<lower=0.0> H;
 }
 transformed parameters {
   cov_matrix[2] Q[n];
@@ -82,5 +80,6 @@ model {
     }
   }
   lp__ <- lp__ + sum(loglik_obs);
-  tau ~ cauchy(0, 1);
+  lp__ <- lp__ + 1 / H;
+  tau ~ cauchy(0, H);
 }
