@@ -67,20 +67,21 @@
 \label{sec:introduction}
 
 Political and social processes are rarely, if ever, constant over time.
-Thus political scientists often have a need to estimate time-varying parameters (TVP).
-There exist two broad approaches to estimating time-varying parameters: structural break approaches, including dummy variables and change point models, and smoothing approaches, including dynamic linear models and smoothing splines.
-These two approaches are viewed as distinct and estimated using different methods, forcing the researcher to choose between the models.
-Since in many processes the changes in the process are characterized by many periods of stability and a few periods of possibly rapid and large, change \parencite{RatkovicEng2010},
-which 
-structural break (change point) models are often used \parencites{CalderiaZorn1998}{Spirling2007a}{Spirling2007b}{Park2010}{Park2011}.%
-\footnote{\textcite{RatkovicEng2010} is the notable exception in that their method combines both smoothly varying sections with structural breaks.}
-However, many in general the structural break methods become more difficult to formulate and estimate as the number of breaks goes from known to estimated.
+Thus, political scientists often have a need to estimate time-varying parameter (TVP) models.
+There exist two broad approaches to estimating time-varying parameters: structural break approaches, which include dummy variables and change point models, and smoothing approaches, which include dynamic linear models and smoothing splines.
+Both approaches estimate TVP when the number of observations is small relative to the numbe of time periods. 
+Smoothing approaches keep the parameter differences small in all periods, while structural break approaches restrict parameter changes to a few locations.
+These two approaches are often viewed as distinct and estimated using different methods, forcing the researcher to choose between which model to use.
+Many processes the changes in the process are characterized by many periods of stability and a few periods of possibly rapid and large, change \parencite{RatkovicEng2010}.
+Historically, existing smoothing methods have had a difficulty estimating these sorts of processes, so structural break models have been used \parencites{CalderiaZorn1998}{Spirling2007a}{Spirling2007b}{Park2010}{Park2011}.%
+\footnote{\textcite{RatkovicEng2010} is the notable exception in that their method combines smoothly varying sections with structural breaks.}
+\todo{Why Bayesian methods?}
 
 This paper presents a simple and flexible method to estimate time-varying parameters that may be subject to structural breaks.
-Time-varying parameters with possible structural breaks can be estimated within a continuous state-space (dynamic linear model) model by placing a shrinkage prior on the distribution of the state disturbances.
+Time-varying parameters with possible structural breaks can be estimated wihtin a continuous state-space model, and in particular as a dynamic linear model, by placing a shrinkage prior on the distribution of the state disturbances.
 The intuition behind this can be illustrated with a simple model.
 Suppose there is a vector of observed data, $y_{1}, \dots, y_{n}$, drawn from a normal distribution with a time varying mean, $\alpha_{1:n}$. 
-This can be represented within a state space model as follows,
+This can be represented as a dynamic linear model,
 \begin{equation}
   \label{eq:4}
   \begin{aligned}[t]
@@ -88,28 +89,32 @@ This can be represented within a state space model as follows,
     \alpha_{t + 1} &= \alpha_{t} + \eta_{t}
   \end{aligned}
 \end{equation}
-The difference between "structural breaks" and "smoothing" data-generating processes and estimation techniques is whether the $\eta$ vector is be sparse (most $\eta_{t} = 0$) or dense (most $\eta_{t} \neq 0$).
-It is common to estimate to apply a normal distribution to $\eta_{t} \sim N(0, Q)$. 
-While this can estimate change over time, it cannot capture sparse $\eta$, as it will tend to over-smooth the breaks and under-smooth the periods of stability.
-However, estimating sparse parameter vectors is a general problem that has received considerable attention lately in large-p, small-n problems (include citations).
-This paper applies some of those advances to estimating time-varying parameters, such as \eqref{eq:4}.
-Instead of using a prior normal distribution on $\eta$, a shrinkage prior is used instead.
-While there are a large number of Bayesian shrinkage priors proposed, this paper will use the Horseshoe Prior distribution introduced in \textcites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}.
+The difference between "structural breaks" and "smoothing" data-generating processes and estimation techniques is whether the $\eta$ vector is sparse (most $\eta_{t} = 0$) or dense (most $\eta_{t} \neq 0$).
+A common model is to apply a normal distribution to $\eta_{t} \sim N(0, Q)$.
+A normal $\eta$ can estimate change over time, but it cannot produce sparse estimates of $\eta$.
+The thin tails of the normal distribution will tend to over-smooth periods around structural breaks, under-smooth periods in which there were no structural breaks.
+However, estimating sparse parameter vectors is a general problem that has received considerable attention lately in large-p, small-n problems \textcite{Tibshirani1996}{PolsonScott2010}.
+This paper applies some of the advances in sparse parameter estimation to estimating time-varying parameters with structural breaks.
+Structural breaks, i.e. sparse $\eta$, can be estimated by placing a shrinkage prior on $\eta$.
+While there are a large number of Bayesian shrinkage priors proposed, this paper will use the Horseshoe prior (HS) distribution introduced in \textcites{CarvalhoPolsonScott2009} and \textcite{CarvalhoPolsonScott2010}.
+I will refer to a dynamic linear models with shrinkage priors on the state disturbances as a sparse disturbance dynamic linear models.
 
-Using a sparse disturbance representation of TVP models has multiple favorable characteristics.
+Using a sparse disturbance representation of TVP models has many favorable characteristics.
 \begin{enumerate}
-\item This method does not require specifying the number of structural breaks ex ante.
-Structural breaks can be detected from $\eta$ using several rules.
-The sparsity of $\eta$ will determine the number of structural breaks, and this sparsity can be 
-Not only do the number of structural breaks need not be specified beforehand, this method will work reasonable well even if the underlying data-generating process has the parameter changing in each period.
+\item This method does not require specifying the number of structural breaks \textit{ex ante}.
+The sparsity of $\eta$ will determine the number of structural breaks, and this sparsity can be estimated from the data.
+Structural breaks can be detected from the posterior distribution of $\eta$ using several rules.
+Not only do the number of structural breaks need not be specified beforehand, this method will work reasonable well even if the underlying data-generating process is dense, i.e. the parameter changes in each period.
 \item This method is flexible.
 Dynamic linear models incorporate a wide variety of models, including ARIMA and structural time-series, cubic splines, and regressions with time-varying coefficients.
 Any model in which the parameter of interest can be expressed as a latent state in a dynamic linear model can be altered to assign a shrinkage prior to the state disturbance in order to make it robust to or to detect structural breaks for that parameter.
+While many structural break methods are specific to single models, this paper shows how sparse-disturbance DLMs can be estimated within the general purpose Bayesian software, Stan.
 \item The method allows for easy estimation of structural breaks in multiple parameters which can be either independent or correlated.
-\item Outliers can be included in the same model by applying shrinkage priors to the observation disturbances instead of the state disturbances in the dynamic linear model.
+Estimating independent structural breaks in a discrete state space model, like change-point models, results in the state-space multiplying exponentially.
+\item Outliers can be modeled, and even included in the model, using nearly the same method, in which $\epsilon$ is assigned a shrinkage prior.
 \item This method is efficient in both programmer and computational time, while still retaining the flexibility to estimate a wide variety of models.
-Since many most shrinkage priors, including the Horseshoe Prior used in the paper, are scale-mixture of normal distributions, this method can take advantage of the computationally efficient methods of mode finding and sampling from dynamic linear models, such as the Kalman filter and Forward-Filter Backwards-Sample.
-This paper shows how a combination of \Stan, a general purpose Bayesian software program, and \RLang can be used to easily estimate and sample from the posterior of dynamic linear models.
+Since most shrinkage priors, including the HS distribution used in the paper, are scale-mixture of normal distributions, this state space model estimated is a (conditionally) Gaussian dynamic linear model (GDLM). There are can take advantage of the computationally efficient methods of mode finding and sampling from GDLMs, such as the Kalman filter and Forward-Filter Backwards-Sample.
+This paper shows how a combination of \Stan, a general purpose Bayesian software program, and \RLang{} can be used to easily estimate and sample from the posterior of dynamic linear models.
 \end{enumerate}
 
 
@@ -222,7 +227,7 @@ Thus, the prior distribution on the state distribution can be represented a norm
   \end{aligned}
 \end{equation}
 Shrinkage priors differ in the distribution of the local variance component.%
-For example, commonly used shrinkage priors that are scale mixtures of normal distributions include the Student's t-distribution, in which the mixing parameters are distributed inverse gammea $\lambda^{2}_{t} \sim \dinvgamma{a, b}$, and the double exponential distribution (Bayesian Lasso), in which the mixing parameters are distributed exponential $\lambda^{2}_{t} \sim \dexp{2}$ \textcite[74]{CarvalhoPolsonScott2009}.
+For example, commonly used shrinkage priors that are scale mixtures of normal distributions include the Student's t-distribution, in which the mixing parameters are distributed inverse gamma $\lambda^{2}_{t} \sim \dinvgamma{a, b}$, and the double exponential distribution (Bayesian Lasso), in which the mixing parameters are distributed exponential $\lambda^{2}_{t} \sim \dexp{2}$ \textcite[74]{CarvalhoPolsonScott2009}.
 \footnote{
 Note that the commonly used $\eta_{t} \sim N(0, Q)$ is trivially a scale-mixture of normal distributions ($\lambda_{t}^{2} = \delta_{1}$).
 However, it does not impose sparsity as it neither has heavy tails nor does it have a large mass at zero.
@@ -230,7 +235,7 @@ However, it does not impose sparsity as it neither has heavy tails nor does it h
 
 That most shrinkage priors can be represented as scale mixture of normal distributions is essential for the computational efficiency in estimating DLMs with sparse disturbances.
 This ensures that conditional on $\lambda_{t}$, the dynamic linear model is still has Gaussian errors.
-As discussed in more detal in section \ref{sec:implementation}, this means that the dynamic linear model component of the model can be sampled using efficient block sampling methods that depend on $\eta_{t}$ and $\varepsilon_{t}$ being distributed normal.
+As discussed in more delta in section \ref{sec:implementation}, this means that the dynamic linear model component of the model can be sampled using efficient block sampling methods that depend on $\eta_{t}$ and $\varepsilon_{t}$ being distributed normal.
 
 While there are a large number of proposed shrinkage priors \parencites{ArmaganDunsonLee2011}{BrownGriffin2010}{PolsonScott2010}, this paper will use the Horseshoe Prior distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
 The Horseshoe Prior distribution has no analytical form, but can be represented as a scale-mixture of normal distributions (as in \eqref{eq:3}) in which the local scale components $\lambda$ are distributed half-Cauchy,%
@@ -275,7 +280,7 @@ This model could be completed with the non-informative priors, suggested in \tex
     \tau &\sim \dhalfcauchy{0, H}
   \end{aligned}
 \end{equation}
-It is important that the prior distribution of the state variance global-component $\tau$ be distributed on the same scale as the observation varince $H$ \parencite{PolsonScott2012}.
+It is important that the prior distribution of the state variance global-component $\tau$ be distributed on the same scale as the observation variance $H$ \parencite{PolsonScott2012}.
 
 \subsection{Dynamic Linear Models}
 \label{sec:multivariate}
@@ -333,7 +338,7 @@ Note that in some applications, especially those in which the transition matrix 
 The second method uses the local variance components $\lambda_{t}$ to identify structural breaks \parencite[179-180]{PetrisPetroneEtAl2009}.
 If $\lambda_{t} = 1$, then the state disturbance is distributed normal with a scale equal to the global scale $\eta_{t} \sim N(0, \tau^{2})$.
 Thus, the local shrinkage parameters $\lambda$ are relative measure of how much each $\eta_{t}$ is shrunk towards zero.
-Values of $\lambda_{t} > 1$ ($\lambda_{t} < 1$) indicate state distrurbances that are dispersed (shrunk) relative to the global scale.
+Values of $\lambda_{t} > 1$ ($\lambda_{t} < 1$) indicate state disturbances that are dispersed (shrunk) relative to the global scale.
 A structural break can be classified as a $t$ in which $\E (f(\lambda_{t} | y, .)) > 1$.
 Alternatively, the probability of a structural break is $\Pr(f(\lambda_{t} | y, .) > 1)$.
 
@@ -362,17 +367,17 @@ However, in the case of Gaussian dynamic linear models there exist more efficien
 These block methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}.%
 Additionally, since in the case of a Gaussian dynamic linear models, the posterior $p(\alpha | y, S)$ is a multivariate normal distribution with a sparse, block diagonal covariance matrix, samples can be drawn directly from the posterior distribution \parencites{migon2005dynamic}{ChanJeliazkov2009}.
 However, none of these more efficient algorithms are included in the commonly used general-purpose Bayesian software programs (BUGS, JAGS, and PyMc).
-Thus a researcher needs to tradeoff computational time with programmer time to implement a custom MCMC sampler for a dynamic linear model in order to use one of these block samplers.
+Thus a researcher needs to trade-off computational time with programmer time to implement a custom MCMC sampler for a dynamic linear model in order to use one of these block samplers.
 While there exists many software implementations of filters and smoothers for Dynamic Linear Models,%
-\footnote{Reviewed in a special issue of the \textit{Journal of Statistical Sofware} \textcite{CommandeurKoopmanOoms2011} and \textcite{Tusell2011}.}
+\footnote{Reviewed in a special issue of the \textit{Journal of Statistical Software} \textcite{CommandeurKoopmanOoms2011} and \textcite{Tusell2011}.}
 writing an efficient sampler may require additional tricks in order to reduce to the correlation between the states and parameters in the system matrices, e.g. (CITE)
-This reduces the feasbility of using DLM models in applications despite their theoretical and intutitive advantages and flexibility for more specialized but already implemented methods.
+This reduces the feasibility of using DLM models in applications despite their theoretical and intuitive advantages and flexibility for more specialized but already implemented methods.
 
 This paper proposes and implements a practical method to estimate DLMs that uses Stan \parencite{Stan2013}.
 I divide the problem of sampling $p(\alpha, S_{t} | y_{t})$ into two steps.
 First, I sample from $p(\S_{t} | y_{t})$ using Stan's implementation of HMC.
 Then, given samples from $p(S_{t} | y_{t})$, I sample the latent states $p(\alpha_{t} | S_{t}, y_{t})$ using a simulation smoother discussed above.
-The reason for seperating the steps is that directly sampling $\alpha$ seems to cause problems for the HMC, while the log-likelihood of $p(y_{t} | S_{t})$ can be easily and efficiently calculated.
+The reason for separating the steps is that directly sampling $\alpha$ seems to cause problems for the HMC, while the log-likelihood of $p(y_{t} | S_{t})$ can be easily and efficiently calculated.
 
 First, sample from $p(S_{t} | y_{t})$ using Stan.
 Stan is a general purpose Bayesian software program.
@@ -434,7 +439,7 @@ The second model $M_{nile,normal}$ is the standard local level model in which th
     \eta_{t} & \sim \dnorm{0, \tau_{t}^{2}}
   \end{aligned}
 \end{equation}
-The third model, $M_{nile,inter}$ represents an ``indeal'' intervention to account for a structural break in 1899.
+The third model, $M_{nile,inter}$ represents an ``ideal'' intervention to account for a structural break in 1899.
 If the locations of structural breaks are known, then they can be modeled within the DLM by increasing the variance of the state disturbance at those times \textcite[Chapter 11][]{WestHarrison1997}.
 By increasing the variance of $\eta_{t}$, the estimated state discounts previous observations and is able to adjust more quickly to change.
 This model does manually while assuming knowledge of the structural breaks, what the horseshoe prior model is doing without previous knowledge of the locations of structural breaks.
@@ -461,15 +466,15 @@ Figure \ref{fig:nile-posterior} assets the posterior distributions of the level 
 The horseshoe prior and intervention models clearly show the structural break in 1899. 
 The normal model smooths over the break, showing a downward trend several years before and after 1899. 
 The normal model also shows much more movement in the posterior distribution before and after the break.
-In other words, the normal model oversmooths at the break, and undersmooths in other periods.
+In other words, the normal model over-smooths at the break, and under-smooths in other periods.
 This is because, to account for the large difference in 1899, the estimated $\tau$ must increase, but then $\tau$ will shrink the estimated level less in other regions.
-A global-local scale mixture of normal distribution like the horseshoe prior is able to accomodate the break.
+A global-local scale mixture of normal distribution like the horseshoe prior is able to accommodate the break.
 $\tau$ estimates the overall sparsity of $\eta_{t}$, while the individual values of $\lambda_{t}$ allow for signals.
-Surpisingly, the horseshoe prior model produces constant estimates of the level before and after 1899, while the manual intervention model shows slight changes.
+Surprisingly, the horseshoe prior model produces constant estimates of the level before and after 1899, while the manual intervention model shows slight changes.
 
 Table \ref{tab:nile-fits} displays model fit statistics for the Nile river flow models.
 The primary criteria used to compare the models is the Widely Applicable Information Criterion (WAIC) \parencite{Watanabe2010}.%
-\footnote{See \textcite{GelmanHwangVehtari2013} and \textcite{VehtariOjanen2012} for recent overviews of Byaesian model comparison.}
+\footnote{See \textcite{GelmanHwangVehtari2013} and \textcite{VehtariOjanen2012} for recent overviews of Bayesian model comparison.}
 The WAIC is an information criterion similar to the Deviance Information Criterion (DIC) \parencite{spiegelhalter2002bayes}, but unlike the DIC, the WAIC extends to singular models such as hierarchical and mixture models.
 WAIC is a measure of out-of-sample prediction error, and is asymptotically equivalent to the Bayesian leave-one-out cross-validation \parencite{Watanabe2010}.
 Like DIC, it approximates the expected log predictive density of new data with the within-sample predictive accuracy adjusted by a bias term which is a correction for the effective number of parameters.
@@ -597,5 +602,11 @@ The Kalman filter section of the \Stan code is specialized to the local level mo
 %  LocalWords:  PolsonScott DLMs DattaGhosh Jeffrey's MVN JongPenzer
 %  LocalWords:  Balke nile petris ReisSalazarGamerman CarterKohn PyMc
 %  LocalWords:  Fruehwirth Schnatter smoothers DeJongShephard migon
-%  LocalWords:  StricklandTurnerDenhamEtAl ChanJeliazkov MCMC Weis
-%  LocalWords:  Jeliazkov KFAS HMC spirling bayesian
+%  LocalWords:  StricklandTurnerDenhamEtAl ChanJeliazkov MCMC Weis hs
+%  LocalWords:  Jeliazkov KFAS HMC spirling bayesian Pierson Tusell
+%  LocalWords:  GeorgeMcCulloch Tibshirani ParkCasella BrownGriffin
+%  LocalWords:  ArmaganDunsonLee HarveyKoopman CarlinGelfandSmith DIC
+%  LocalWords:  CommandeurKoopmanOoms HoffmanGelman Helske mcmcdb TBD
+%  LocalWords:  iter WAIC Watanabe GelmanHwangVehtari VehtariOjanen
+%  LocalWords:  spiegelhalter bayes RMSE WillardGuinnaneEtAl
+%  LocalWords:  Rcpp RcppArmadillo
