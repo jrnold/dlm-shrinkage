@@ -21,7 +21,6 @@
 % Seeing a Shrink about Structural Breaks
 \title{Sparse State Disturbance Dynamic Linear Models for Structural Breaks}
 
-
 % Used to typeset distributions
 \newcommand{\dist}[1]{\mathcal{#1}}
 \newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
@@ -249,8 +248,8 @@ This allows it to aggressively shrink noise towards zero, while not shrinking si
 Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior to the normal, Cauchy, and Laplacian (double-exponential) distributions, both near zero and in the tail.
 \begin{figure}
   \centering
-  \includegraphics{plots/fig-horseshoe1.pdf}
-  \includegraphics{plots/fig-horseshoe2.pdf}
+  \includegraphics{assets/fig-horseshoe1.pdf}
+  \includegraphics{assets/fig-horseshoe2.pdf}
   \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
   \label{fig:horseshoe}
 \end{figure}
@@ -457,7 +456,7 @@ All models use the non-informative priors specified in \eqref{eq:7}, and an empi
   \alpha_{1} &\sim N(y_{1}, \Var y_{1})
 \end{align}
 
-Figure \ref{fig:nile-posterior} plots the posterior distributions of the level ($p(\alpha | y)$) for the three models against the data.
+Figure \ref{fig:nile-posterior} assets the posterior distributions of the level ($p(\alpha | y)$) for the three models against the data.
 The horseshoe prior and intervention models clearly show the structural break in 1899. 
 The normal model smooths over the break, showing a downward trend several years before and after 1899. 
 The normal model also shows much more movement in the posterior distribution before and after the break.
@@ -492,41 +491,41 @@ For a continuous distribution this is the most difficult case, because it should
 \begin{figure}[htpb]
   \centering
   \begin{subfigure}{1.0\textwidth}
-    \includegraphics{plots/fig-nile1}
+    \includegraphics{assets/fig-nile1}
     \caption{$M_{nile,hs}$}
     \label{fig:nile-posterior-1}    
   \end{subfigure}
   \begin{subfigure}{1.0\textwidth}
-    \includegraphics{plots/fig-nile2}
+    \includegraphics{assets/fig-nile2}
     \caption{$M_{nile,normal3}$}
     \label{fig:nile-posterior-2}
   \end{subfigure}
   \begin{subfigure}{1.0\textwidth}
-    \includegraphics{plots/fig-nile3}
+    \includegraphics{assets/fig-nile3}
     \caption{$M_{nile,inter}$}
     \label{fig:nile-posterior-3}
   \end{subfigure}
-  \caption{Plots of the posterior distributions of the level, $p(\alpha | y)$, for Nile river flow models. Points are the data; the line $E p(\alpha | y)$; the ribbon is the 95\% credible interval of $p(\alpha | y)$. A dam at Ashwan was built in 1899}
+  \caption{Assets of the posterior distributions of the level, $p(\alpha | y)$, for Nile river flow models. Points are the data; the line $E p(\alpha | y)$; the ribbon is the 95\% credible interval of $p(\alpha | y)$. A dam at Ashwan was built in 1899}
   \label{fig:nile-posterior}
 \end{figure}
 
 \begin{table}[htpb]
   \centering
-  \input{plots/tab-nile-fits.tex}
+  \input{assets/tab-nile-fits.tex}
   \caption{Model fit comparison of Nile river flow models}
   \label{tab:nile-fits}
 \end{table}
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics{plots/fig-nile-eta}
+  \includegraphics{assets/fig-nile-eta}
   \caption{Plot of $p(\eta | y)$ from each model of Nile flows.}
   \label{fig:nile-eta}
 \end{figure}
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics{plots/fig-nile-lambda}
+  \includegraphics{assets/fig-nile-lambda}
   \caption{Plot of $\Median p(\lambda | y)$ from $M_{nile,hs}$}
   \label{fig:nile-lambda}
 \end{figure}
@@ -581,7 +580,7 @@ This is an example \Stan model for a local level DLM with Horseshoe Prior distri
 The Kalman filter section of the \Stan code is specialized to the local level model case.
 
 \begin{singlespace}
-  \include{plots/code-local_level_hp}  
+  \include{assets/code-local_level_hp}  
 \end{singlespace}
 
 \end{document}
