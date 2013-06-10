@@ -117,6 +117,10 @@ Since most shrinkage priors, including the HS distribution used in the paper, ar
 This paper shows how a combination of \Stan, a general purpose Bayesian software program, and \RLang{} can be used to easily estimate and sample from the posterior of dynamic linear models.
 \end{enumerate}
 
+Section \ref{sec:struct-breaks-state} derives the sparse-disturbance DLM.
+Section \ref{sec:implementation} describes a method to sample from SDDLMs using Stan.
+Section \ref{sec:examples} uses the SDDLMs in several example applications: Nile river flow dataset \ref{sec:nile}, George W. Bush's approval ratings \ref{sec:george-w.-bush}, and TBD.
+Section \ref{sec:conclusion} concludes with discussion of how this method can be extended.
 
 \section{Structural Breaks in a State Space Model}
 \label{sec:struct-breaks-state}
