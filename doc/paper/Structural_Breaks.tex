@@ -49,6 +49,8 @@
 \DeclareMathOperator{\diag}{diag}
 \newcommand{\tran}{^\top}
 
+\newcommand{\Model}[2]{\texttt{M}[#1, #2]}
+
 \include{pygments}
 \begin{document}
 
@@ -420,25 +422,25 @@ All of these models will be variants of the local level model,
   \end{aligned}
 \end{equation}
 The models only differ in the distribution of $\eta_{t}$.
-The first model, $M_{nile,hp}$ $M^{nile}_{hp}$ places a horseshoe prior distribution on the state disturbances,
+The first model, \Model{nile}{hp} \Model{nile}{hp} places a horseshoe prior distribution on the state disturbances,
 \begin{equation}
   \label{eq:22}
   \begin{aligned}[t]
     \eta_{t} & \sim \dnorm{0, \lambda^{2}_{t} \tau_{t}^{2}} & \lambda_{t} & \sim \dhalfcauchy{0, 1}
   \end{aligned}
 \end{equation}
-The second model $M_{nile,normal}$ is the standard local level model in which the $\eta$ are drawn i.i.d. from a normal distribution as in \textcite{DurbinKoopman2001} and \textcite{petris2011state},
+The second model \Model{nile}{normal} is the standard local level model in which the $\eta$ are drawn i.i.d. from a normal distribution as in \textcite{DurbinKoopman2001} and \textcite{petris2011state},
 \begin{equation}
   \label{eq:9}
   \begin{aligned}[t]
     \eta_{t} & \sim \dnorm{0, \tau_{t}^{2}}
   \end{aligned}
 \end{equation}
-The third model, $M_{nile,inter}$ represents an ``ideal'' intervention to account for a structural break in 1899.
+The third model, \Model{nile}{inter} represents an ``ideal'' intervention to account for a structural break in 1899.
 If the locations of structural breaks are known, then they can be modeled within the DLM by increasing the variance of the state disturbance at those times \textcite[Chapter 11][]{WestHarrison1997}.
 By increasing the variance of $\eta_{t}$, the estimated state discounts previous observations and is able to adjust more quickly to change.
 This model does manually while assuming knowledge of the structural breaks, what the horseshoe prior model is doing without previous knowledge of the locations of structural breaks.
-Thus, $M_{nile,iter}$ alters $M_{nile,normal}$ to make the variance arbitrarily large at $t = 28$, which corresponds to the year 1899.
+Thus, \Model{nile}{iter} alters \Model{nile}{normal} to make the variance arbitrarily large at $t = 28$, which corresponds to the year 1899.
 \begin{equation}
   \label{eq:12}
   \begin{aligned}[t]
@@ -454,7 +456,7 @@ Thus, $M_{nile,iter}$ alters $M_{nile,normal}$ to make the variance arbitrarily 
 All models use the non-informative priors specified in \eqref{eq:7}, and an empirical prior for the initial state,
 \begin{align}
   \label{eq:13}
-  \alpha_{1} &\sim N(y_{1}, \Var y_{1})
+  \alpha_{1} &\sim N(y_{1}, \Var y_{1:n})
 \end{align}
 
 Figure \ref{fig:nile-posterior} assets the posterior distributions of the level ($p(\alpha | y)$) for the three models against the data.
@@ -473,15 +475,15 @@ The primary criteria used to compare the models is the Widely Applicable Informa
 The WAIC is an information criterion similar to the Deviance Information Criterion (DIC) \parencite{spiegelhalter2002bayes}, but unlike the DIC, the WAIC extends to singular models such as hierarchical and mixture models.
 WAIC is a measure of out-of-sample prediction error, and is asymptotically equivalent to the Bayesian leave-one-out cross-validation \parencite{Watanabe2010}.
 Like DIC, it approximates the expected log predictive density of new data with the within-sample predictive accuracy adjusted by a bias term which is a correction for the effective number of parameters.
-Table \ref{tab:nile-fits} shows that $M_{nile,hs}$ has the lowest WAIC, and thus the best fit.
-However, $M_{nile,hs}$ has a higher RMSE than $M_{nile,normal}$ and $M_{nile,inter}$.
+Table \ref{tab:nile-fits} shows that \Model{nile}{hs} has the lowest WAIC, and thus the best fit.
+However, \Model{nile}{hs} has a higher RMSE than \Model{nile}{normal} and \Model{nile}{inter}.
 
 Diagnostics to classify structural breaks are plotted in Figures \ref{fig:nile-eta} and \ref{fig:nile-lambda}.
 Figure \ref{fig:nile-eta} displays the values of the mean and 95 percent credible interval of $p(\eta | y)$.
 Structural breaks are those periods in which the credible interval of $p(\eta | y)$ excludes zero.
-$M_{nile,hs}$ and $M_{nile,inter}$ both classify 1899 as the structural break; while in $M_{nile,normal}$ all the credible intervals cross zero.
-However, in $M_{nile,hs}$ the credible intervals of $\eta$ are much tighter than those of $M_{nile,normal}$.
-Figure \ref{fig:nile-lambda} displays the values of the median of $p(\lambda | y)$ in $M_{nile,normal}$.
+\Model{nile}{hs} and \Model{nile}{inter} both classify 1899 as the structural break; while in \Model{nile}{normal} all the credible intervals cross zero.
+However, in \Model{nile}{hs} the credible intervals of $\eta$ are much tighter than those of \Model{nile}{normal}.
+Figure \ref{fig:nile-lambda} displays the values of the median of $p(\lambda | y)$ in \Model{nile}{normal}.
 Structural breaks are classified as observations for which the median is greater than 1.
 As expected, only 1899 is classified as a structural break.
 
@@ -493,17 +495,17 @@ For a continuous distribution this is the most difficult case, because it should
   \centering
   \begin{subfigure}{1.0\textwidth}
     \includegraphics{assets/fig-nile1}
-    \caption{$M_{nile,hs}$}
+    \caption{\Model{nile}{hs}}
     \label{fig:nile-posterior-1}    
   \end{subfigure}
   \begin{subfigure}{1.0\textwidth}
     \includegraphics{assets/fig-nile2}
-    \caption{$M_{nile,normal3}$}
+    \caption{\Model{nile}{normal3}}
     \label{fig:nile-posterior-2}
   \end{subfigure}
   \begin{subfigure}{1.0\textwidth}
     \includegraphics{assets/fig-nile3}
-    \caption{$M_{nile,inter}$}
+    \caption{\Model{nile}{inter}}
     \label{fig:nile-posterior-3}
   \end{subfigure}
   \caption{Assets of the posterior distributions of the level, $p(\alpha | y)$, for Nile river flow models. Points are the data; the line $E p(\alpha | y)$; the ribbon is the 95\% credible interval of $p(\alpha | y)$. A dam at Ashwan was built in 1899}
@@ -527,7 +529,7 @@ For a continuous distribution this is the most difficult case, because it should
 \begin{figure}[htpb]
   \centering
   \includegraphics{assets/fig-nile-lambda}
-  \caption{Plot of $\Median p(\lambda | y)$ from $M_{nile,hs}$}
+  \caption{Plot of $\Median p(\lambda | y)$ from \Model{nile}{hs}}
   \label{fig:nile-lambda}
 \end{figure}
 
@@ -550,8 +552,6 @@ Here are possible ideas.
 \item Discrete DV change-point models in \parencite{Spirling2007b}.
 \item Interest Rates, Inflation, and GDP growth are common economics examples, e.g. \textcite{GiordaniKohn2008}.
 \end{itemize}
-
-It may make sense to have a 
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -577,7 +577,7 @@ a Kalman filter.
 \subsection{code}
 \label{sec:code}
 
-This is an example \Stan model for a local level DLM with Horseshoe Prior distributions on the state disturbances; this is the \Stan model used to estimate $M_{nile,hp}$ in Section \ref{sec:nile}. 
+This is an example \Stan model for a local level DLM with Horseshoe Prior distributions on the state disturbances; this is the \Stan model used to estimate \Model{nile}{hp} in Section \ref{sec:nile}. 
 The Kalman filter section of the \Stan code is specialized to the local level model case.
 
 \begin{singlespace}
