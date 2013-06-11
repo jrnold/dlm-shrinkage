@@ -515,6 +515,35 @@ However, shows that scale mixture of normal distributions can recover the struct
 
 The motivating example of \textcite{RatkovicEng2010}.
 
+The data are approval ratings for George W. Bush during his terms as president.
+The consist of 270 observations between January 24, 2001 and December 19, 2008.%
+The polling data come from multiple houses and are the polls listed on the \href{http://webapps.ropercenter.uconn.edu/CFIDE/roper/presidential/webroot/presidential_rating_detail.cfm?allRate=True&presidentName=Bush#.UbeB8HUbyv8}{Roper Center Public Opinion Archives}.
+
+This set of data pose a challenge for estimation using traditional smoothing methods due to what \textcite{RatkovicEng2010} call, perhaps hyperbolically, the ``9/11 problem'' in the data.
+If anything, Bush's approval was tending downward up to September 9, 2001.
+However, in an effort to incorporate the approximately 35 percentage point increase in approval after September 11, 2001 will tend to show an uptick in his approval well before 9/11.
+
+I estimate two models on this data. 
+Both models are local level models which only differ in the distribution of $\eta$.
+In \Model{bush}{hs} $\eta$ is distributed horseshoe, and in \Model{bush}{normal} $\eta$ is distributed normal.
+Figure \ref{fig:bush-posterior} plots the data and the posterior distributions of $\alpha$ for both models.
+In \Model{bush}{hs}, the approval rating for Bush does not increase until 9/11, while \Model{bush}{normal}, the approval rating is increasing from approximately June.
+In \Model{bush}{hs}, the approval rating for Bush does not increase until 9/11, while \Model{bush}{normal}, the approval rating is increasing from approximately June.
+
+Table \ref{tab:bush-fits} tabulates model fit statistics for the Bush approval data models. 
+The results are similar to that for the Nile river data; the horseshoe prior model has a lower WAIC, lower log-likelihood, and lower effective number of parameters, but a higher RMSE than other models.
+
+\textit{TODO: discuss the structural breaks.}
+
+\textit{It may be better to estimate this model with local trends, and estimate structural breaks in both levels and trends.}
+
+\begin{table}[htpb]
+  \centering
+  \input{assets/tab-bush-fits.tex}
+  \caption{Model fit statistics for Bush approval rating models.}
+  \label{tab:bush-fits}
+\end{table}
+
 \begin{figure}[htpb]
   \centering
   \begin{subfigure}{1.0\textwidth}
@@ -528,7 +557,7 @@ The motivating example of \textcite{RatkovicEng2010}.
     \label{fig:bush2}
   \end{subfigure}
   \caption{Plots of the posterior distributions of the level, $p(\alpha | y)$, for Nile river flow models. Points are the data; the line $E p(\alpha | y)$; the ribbon is the 95\% credible interval of $p(\alpha | y)$.}
-  \label{fig:nile-posterior}
+  \label{fig:bush-posterior}
 \end{figure}
 
 
@@ -536,6 +565,8 @@ The motivating example of \textcite{RatkovicEng2010}.
 \label{sec:greenbacks}
 
 The paper \textcite{WillardGuinnaneEtAl1996} finds turning points in the prices of Union currency against gold during the American Civil War using the multiple structural break method of Perron et al (2003).
+
+\textit{I've only run a few preliminary models with this so far, but the results do not show clean structural breaks like the Bush and Nile examples. It looks more like a simple.}
 
 \subsection{Other possibilities}
 

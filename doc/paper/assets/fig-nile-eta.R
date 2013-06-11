@@ -3,13 +3,24 @@
 FILE <- commandArgs(TRUE)[1]
 source("conf.R")
 
-eta <- ldply(c("hs", "normal_1", "normal_2"),
+LATEX_NILE_MODELS <-
+  c(nile_hs = "\\Model{nile}{hs}",
+    nile_normal_1 = "\\Model{nile}{normal}",
+    nile_normal_2 = "\\Model{nile}{inter}")
+
+PLAIN_NILE_MODELS <-
+  c(nile_hs = "M(nile, hs)",
+    nile_normal_1 = "M(nile, normal)",
+    nile_normal_2 = "M(nile, inter)")
+
+
+eta <- ldply(sprintf("nile_%s", c("hs", "normal_1", "normal_2")),
              function(k) {
-               key <- sprintf("mcmcsummary_nile_%s", k)
+               key <- sprintf("mcmcsummary_%s", k)
                x <- melt(RDATA[[key]][["dist_state"]])
                ret <- data.frame(ddply(x, "Var1",
                                        function(df) mcmc3valsummary(df$value)),
-                                 model = k)
+                                 model = LATEX_NILE_MODELS[k])
                ret$year <- RDATA[["nile"]][["year"]]
                ret
              })
