@@ -404,11 +404,13 @@ For this purpose, and in general to make post-processing MCMC samples easier, I 
 \label{sec:nile}
 
 The Nile data is a series of readings of the annual flow volume of the Nile River at Aswan taken between 1871 and 1970.
-This dataset has been analyzed and used as an example in many works on structural breaks and DLMs \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}.
+This dataset is a classic dataset that has been analyzed used in many works on structural breaks and DLMs \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}.%
+\footnote{The dataset is included with base \RLang{} as \texttt{datasets::Nile} \parencite{RCT2013}.}
+
 Previous analyses show a single level shift in the data, with the shift occurring in 1899.
 This level shift was due to the construction of a damn at Aswan that year.
 
-For the Nile River model, I will compare three models. 
+For the Nile River model, I will estimate and compare a SDDLM with two alternative models; one with a normal distribution on the state disturbances and one with a normal distribution and a manual intervention on the state disturbances.
 All of these models will be variants of the local level model,
 \begin{equation}
   \label{eq:21}
@@ -417,8 +419,8 @@ All of these models will be variants of the local level model,
     \alpha_{t + 1} &\sim \alpha_{t} + \eta_{t}
   \end{aligned}
 \end{equation}
-The models differ in the distribution they place on $\eta_{t}$.
-The first model, $M_{nile,hp}$ places a horseshoe prior distribution on the state disturbances,
+The models only differ in the distribution of $\eta_{t}$.
+The first model, $M_{nile,hp}$ $M^{nile}_{hp}$ places a horseshoe prior distribution on the state disturbances,
 \begin{equation}
   \label{eq:22}
   \begin{aligned}[t]
