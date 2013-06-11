@@ -1,0 +1,1 @@
+rdata-greenbacks.R: $(DATA_DIR)/greenbacks.csv
