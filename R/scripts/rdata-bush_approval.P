@@ -1,1 +1,0 @@
-rdata-bush_approval.R: $(DATA_DIR)/bush_approval.csv

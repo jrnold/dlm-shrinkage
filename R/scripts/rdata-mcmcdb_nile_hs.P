@@ -1,1 +1,0 @@
-^rdata-mcmcdb_nile_hs.R: $(RDATA_DIR)/nile .nile_data.R

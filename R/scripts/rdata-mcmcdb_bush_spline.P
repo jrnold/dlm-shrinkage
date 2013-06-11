@@ -1,1 +1,0 @@
-^rdata-mcmcdb_bush_spline.R: $(RDATA_DIR)/bush_approval

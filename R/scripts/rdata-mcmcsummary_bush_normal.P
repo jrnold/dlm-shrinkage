@@ -1,1 +1,0 @@
-^rdata-mcmcsummary_bush_normal.R: $(RDATA_DIR)/mcmcdb_bush_normal

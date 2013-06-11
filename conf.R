@@ -7,6 +7,7 @@ suppressPackageStartupMessages({
   library("reshape2")
   library("boot")
   library("reshape2")
+  library("digest")
   # github/jrnold
   library("mcmcdb")
   library("stanmisc")

@@ -1,5 +1,5 @@
-^# depends: $(RDATA_DIR)/nile .nile_data.R
-.nile <- RDATA[["nile"]]
+# depends: $(RDATA_DIR)/nile nile_data.R
+nile <- RDATA[["nile"]]
 source("nile_data.R")
 
 KEY <- "nile_hs"

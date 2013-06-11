@@ -1,4 +1,4 @@
-^# depends: $(RDATA_DIR)/nile .nile_data.R
+# depends: $(RDATA_DIR)/nile nile_data.R
 nile <- RDATA[["nile"]]
 source("nile_data.R")
 

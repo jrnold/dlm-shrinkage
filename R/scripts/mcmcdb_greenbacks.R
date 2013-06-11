@@ -1,4 +1,4 @@
-^# depends: $(RDATA_DIR)/greenbacks
+# depends: $(RDATA_DIR)/greenbacks
 greenbacks <- RDATA[["greenbacks"]]
 
 KEY <- "greenbacks_hp"
