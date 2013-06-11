@@ -99,7 +99,7 @@ However, estimating sparse parameter vectors is a general problem that has recei
 This paper applies some of the advances in sparse parameter estimation to estimating time-varying parameters with structural breaks.
 Structural breaks, i.e. sparse $\eta$, can be estimated by placing a shrinkage prior on $\eta$.
 While there are a large number of Bayesian shrinkage priors proposed, this paper will use the Horseshoe prior (HS) distribution introduced in \textcites{CarvalhoPolsonScott2009} and \textcite{CarvalhoPolsonScott2010}.
-I will refer to a dynamic linear models with shrinkage priors on the state disturbances as a sparse disturbance dynamic linear models.
+I will refer to a dynamic linear models with shrinkage priors on the state disturbances as a sparse disturbance dynamic linear models (SDDLM).
 
 Using a sparse disturbance representation of TVP models has many favorable characteristics.
 \begin{enumerate}
@@ -356,91 +356,95 @@ For that reason, the $t$-distribution, which is commonly used to model outliers 
 \label{sec:implementation}
 
 MCMC sampling from a dynamic linear model is challenging due to the temporal dependence of the latent state parameters $\alpha$ \parencite{ReisSalazarGamerman2006}.
-Although full conditional distributions for a Gibbs sampler can be easily specified \parencite{CarlinGelfandSmith1992}, in practice sampling component-wise will almost always result in slow convergence and highly correlated posterior samples.
-However, in the case of Gaussian dynamic linear models there exist more efficient block sampling algorithms which sample from $\alpha_{t}$ in a single block, which improves the mixing and convergence of the sampler.%
+Although full conditional distributions for a Gibbs sampler can be easily specified \parencite{CarlinGelfandSmith1992}, in practice sampling each $\alpha_{t}$ will almost always result in slow convergence and highly correlated posterior samples.
+However, for Gaussian dynamic linear models there exist more efficient block sampling algorithms which sample $\alpha_{1:n}$ as a single block, improving the the speed of convergence and the number of effective samples.%
 \footnote{See \textcite{ReisSalazarGamerman2006} for a comparison of the efficiency of various sampling methods, and \textcite{migon2005dynamic} for an overview of the various sampling methods.}
 These block methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}.%
-Additionally, since in the case of a Gaussian dynamic linear models, the posterior $p(\alpha | y, S)$ is a multivariate normal distribution with a sparse, block diagonal covariance matrix, samples can be drawn directly from the posterior distribution \parencites{migon2005dynamic}{ChanJeliazkov2009}.
+An alternative approach to block sampling, is to sample directly from the posterior $p(\alpha | y, S)$ which for GDLMs is a multivariate normal distribution with a sparse, block diagonal covariance matrix, samples can be drawn directly from the posterior distribution \parencites{migon2005dynamic}{ChanJeliazkov2009}.
 However, none of these more efficient algorithms are included in the commonly used general-purpose Bayesian software programs (BUGS, JAGS, and PyMc).
-Thus a researcher needs to trade-off computational time with programmer time to implement a custom MCMC sampler for a dynamic linear model in order to use one of these block samplers.
+Thus, for savings in computational time a researcher needs to trade-off programmer time to implement a custom MCMC sampler that uses one of the block sampling methods.
 While there exists many software implementations of filters and smoothers for Dynamic Linear Models,%
 \footnote{Reviewed in a special issue of the \textit{Journal of Statistical Software} \textcite{CommandeurKoopmanOoms2011} and \textcite{Tusell2011}.}
-writing an efficient sampler may require additional tricks in order to reduce to the correlation between the states and parameters in the system matrices, e.g. (CITE)
-This reduces the feasibility of using DLM models in applications despite their theoretical and intuitive advantages and flexibility for more specialized but already implemented methods.
+writing an efficient sampler may there are also require additional work in order to reduce to the correlation between the states and parameters in the system matrices \parencites{ReisSalazarGamerman2006}{ChibNardariShephard2006}.
+This implementation cost reduces the ease of using DLM models in applications despite their flexibility and intuitive advantages over traditional time series methods \textcite[51]{DurbinKoopman2001}.
 
-This paper proposes and implements a practical method to estimate DLMs that uses Stan \parencite{Stan2013}.
+This paper proposes and implements an easy and practical method to estimate DLMs within Stan \parencite{Stan2013}.
+This method is used within this paper for SDDLMs but can be applied to any DLM.
 I divide the problem of sampling $p(\alpha, S_{t} | y_{t})$ into two steps.
-First, I sample from $p(\S_{t} | y_{t})$ using Stan's implementation of HMC.
-Then, given samples from $p(S_{t} | y_{t})$, I sample the latent states $p(\alpha_{t} | S_{t}, y_{t})$ using a simulation smoother discussed above.
-The reason for separating the steps is that directly sampling $\alpha$ seems to cause problems for the HMC, while the log-likelihood of $p(y_{t} | S_{t})$ can be easily and efficiently calculated.
+First, sample from $p(\S_{t} | y_{t})$. 
+Second, given samples from $p(S_{t} | y_{t})$, sample the states $p(\alpha_{t} | S_{t}, y_{t})$.
 
-First, sample from $p(S_{t} | y_{t})$ using Stan.
-Stan is a general purpose Bayesian software program.
+First, sample from $p(S_{t} | y_{t})$ using Stan's implementation of HMC.
+Stan is a general purpose Bayesian software program \parencite{Stan2013b}.
 Like BUGS, it has a domain specific language that lets the user specify the statistical model without specifying the steps used to sample from the model.
 Unlike BUGS, Stan is not based on Gibbs sampling, but instead uses a variant of Hamiltonian Monte Carlo (HMC) called NUTS \parencite{HoffmanGelman2013}.
 While as of the time of the writing, a distribution for dynamic linear models is not included in the software, but a method for efficiently sampling the other parameters while marginalizing over the latent states can be implemented within the Stan modeling language.
 In particular, in order to implement a custom distribution only its log-likelihood need to be calculated \parencite[Chapter 17]{Stan2013}
 The log-likelihood $p(y_{t} | S_{t})$ of a DLM can be easily and efficiently calculated with a single pass through the data using the Kalman Filter (CITE ...).
-These Kalman Filter and log-likelihood calculations are written in Stan's modeling language.
-Essentially, $p(S_{t} | y_{t})$ are sampled while marginalizing over $\alpha$.
+These Kalman Filter and log-likelihood calculations are written in Stan's modeling language;
+\ref{sec:code} has an example which estimates a local level model with state disturbances distributed horseshoe (this is the model used in \Model{Nile}{hs} in Section \ref{sec:nile}).
 \footnote{
-  I originally directly implemented the DLMs in Stan in a manner equivalent to directly transcribing the equations.
+  I originally implemented the DLMs in Stan by directly transcribing the observation and system equations of the DLM.
   This works reasonably well, and Stan achieved better posterior mixing than JAGS.
-  However, there were two problems. 
-  First, this approach scaled poorly, and seemed to slow down dramatically as $n$ and $T$ increased, even using the standard methods to optimize Stan code.
-  Second, when sampling from the posterior, the posterior samplers would often get stuck in regions.
-  The exact reason for this is unknown, but this is likely due to the complex geometry of the posterior distribution and the inability of HMC in Euclidean geometry to adapt to different scales in different parts of the parameter space.
+  However even using optimizations for Stan models, I encountered two problems with that approach.
+  First, it approach scaled poorly, and seemed to slow down dramatically as $n$ and $T$ increased.
+  Second, although in most periods the chains would mix well, they could get stuck in certain regions of the posterior regions for long sequences.
+  The exact reason for this is unknown, but this is likely due to the geometry of the posterior distribution and the inability of HMC with Euclidean geometry to adapt to different scales in different parts of the parameter space.
   When Stan implements Riemann Manifold HMC, it may solve this problem.
 }
 
-Second, having obtained a sample of size $K$ from $p(S_{t} | y_{t}$, for each $k \in 1:K$ sample from $p(\alpha_{t} | y_{t}, S_{t}^{(k)})$ using a block sampler of the type discussed earlier.
-For this paper, I used the R package \textit{KFAS} \parencite{Helske2012} which has an implementation the \textcite{DurbinKoopman2002} simulation smoother algorithm.
+Second, having obtained a sample of size $K$ from $p(S | y)$, for each $k \in 1:K$ sample from $p(\alpha | y, S^{(k)})$ using a block sampler of the type discussed earlier.
+For this paper, I used the \RLang package \textit{KFAS} \parencite{Helske2012} which has an implementation the \textcite{DurbinKoopman2002} simulation smoother algorithm.
 In practice, the most difficult aspect of this step is munging the output from the first step into data structures needed to draw samples in the second step.
 For this purpose, and in general to make post-processing MCMC samples easier, I wrote and have made available the \RLang{} package \href{https://github.com/jrnold/mcmcdb}{\textbf{mcmcdb}}.
+Separating the sampling of $p(\alpha_{t} | y, S)$ from $p(S | y)$ has a few practical advantages.
+In some cases, e.g. many ARIMA models, only parameters in the system matrices are of interest, and thus the step $p(\alpha | y, S)$ can be skipped.
+Second, once a sample from $p(S | y)$ is obtained, the sampling of $p(\alpha | y, S)$ can be done in parallel.
 
 \section{Examples}
 \label{sec:examples}
-
 
 \subsection{Nile River Flow}
 \label{sec:nile}
 
 The Nile data is a series of readings of the annual flow volume of the Nile River at Aswan taken between 1871 and 1970.
-This dataset is a classic dataset that has been analyzed used in many works on structural breaks and DLMs \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{DurbinKoopman2012}.%
+This dataset is a classic dataset that has been analyzed used in many works on structural breaks and DLMs \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{CommandeurKoopmanOoms2011}.%
 \footnote{The dataset is included with base \RLang{} as \texttt{datasets::Nile} \parencite{RCT2013}.}
-
 Previous analyses show a single level shift in the data, with the shift occurring in 1899.
-This level shift was due to the construction of a damn at Aswan that year.
+This level shift is attributed to the construction of a dam at Aswan in that year.
+\todo{What is th}
 
 For the Nile River model, I will estimate and compare a SDDLM with two alternative models; one with a normal distribution on the state disturbances and one with a normal distribution and a manual intervention on the state disturbances.
-All of these models will be variants of the local level model,
+All of these models will be variants of the following local level model,
 \begin{equation}
   \label{eq:21}
   \begin{aligned}[t]
     y_{t} &\sim \dnorm{\alpha_{t}, H_{t}} \\
-    \alpha_{t + 1} &\sim \alpha_{t} + \eta_{t}
+    \alpha_{t + 1} &\sim \alpha_{t} + \eta_{t} \\
+    \alpha_{1} &\sim N(y_{1}, \Var y_{1:n})
   \end{aligned}
 \end{equation}
 The models only differ in the distribution of $\eta_{t}$.
-The first model, \Model{nile}{hp} \Model{nile}{hp} places a horseshoe prior distribution on the state disturbances,
+
+In the first model, \Model{nile}{hp}, $\eta_{t}$ has a horsehose prior,
 \begin{equation}
   \label{eq:22}
   \begin{aligned}[t]
     \eta_{t} & \sim \dnorm{0, \lambda^{2}_{t} \tau_{t}^{2}} & \lambda_{t} & \sim \dhalfcauchy{0, 1}
   \end{aligned}
 \end{equation}
-The second model \Model{nile}{normal} is the standard local level model in which the $\eta$ are drawn i.i.d. from a normal distribution as in \textcite{DurbinKoopman2001} and \textcite{petris2011state},
+In the second model, \Model{nile}{normal}, $\eta$ is  drawn i.i.d. from a normal distribution as in \textcite{DurbinKoopman2001} and \textcite{petris2011state},
 \begin{equation}
   \label{eq:9}
   \begin{aligned}[t]
     \eta_{t} & \sim \dnorm{0, \tau_{t}^{2}}
   \end{aligned}
 \end{equation}
-The third model, \Model{nile}{inter} represents an ``ideal'' intervention to account for a structural break in 1899.
-If the locations of structural breaks are known, then they can be modeled within the DLM by increasing the variance of the state disturbance at those times \textcite[Chapter 11][]{WestHarrison1997}.
-By increasing the variance of $\eta_{t}$, the estimated state discounts previous observations and is able to adjust more quickly to change.
-This model does manually while assuming knowledge of the structural breaks, what the horseshoe prior model is doing without previous knowledge of the locations of structural breaks.
-Thus, \Model{nile}{iter} alters \Model{nile}{normal} to make the variance arbitrarily large at $t = 28$, which corresponds to the year 1899.
+The third model, \Model{nile}{inter}, adds state intervention to \Model{nile}{inter} to account for a structural break in 1899.
+If the locations of structural breaks are known, then they can be modeled within the DLM by increasing the variance of the state disturbance at those periods \textcite[Chapter 11][]{WestHarrison1997}.
+By increasing the variance of $\eta_{t}$, the estimated state discounts previous observations and is able to adjust more quickly to the data in new observations.
+This is the same mechanism that SDDLMs use to model structural breaks, but whereas manual interventions increase the variance to periods based on prior information, SDDLMs increase the variance of periods based on model fit.
+The intervention is modeled as follows,
 \begin{equation}
   \label{eq:12}
   \begin{aligned}[t]
@@ -452,44 +456,42 @@ Thus, \Model{nile}{iter} alters \Model{nile}{normal} to make the variance arbitr
     \end{cases}
   \end{aligned}
 \end{equation}
+\todo[inline]{Change to multiplicative intervention so it is exactly analagous to the SDDLM.}
 
-All models use the non-informative priors specified in \eqref{eq:7}, and an empirical prior for the initial state,
-\begin{align}
-  \label{eq:13}
-  \alpha_{1} &\sim N(y_{1}, \Var y_{1:n})
-\end{align}
-
-Figure \ref{fig:nile-posterior} assets the posterior distributions of the level ($p(\alpha | y)$) for the three models against the data.
-The horseshoe prior and intervention models clearly show the structural break in 1899. 
-The normal model smooths over the break, showing a downward trend several years before and after 1899. 
-The normal model also shows much more movement in the posterior distribution before and after the break.
+Figure \ref{fig:nile-posterior} plots the data and the the posterior distributions of the level ($p(\alpha | y)$) for all three models.
+\Model{nile}{hs} and \Model{nile}{inter} clearly show a structural break at 1899.
+\Model{nile}{normal} smooths over the break, showing a downward trend several years before and after 1899.
+\Model{nile}{normal} also shows much more variation in the posterior distribution before and after the break, whereas both \Model{nile}{hs} and \Model{nile}{inter} show (almost) no changes in level apart from 1899.
 In other words, the normal model over-smooths at the break, and under-smooths in other periods.
-This is because, to account for the large difference in 1899, the estimated $\tau$ must increase, but then $\tau$ will shrink the estimated level less in other regions.
-A global-local scale mixture of normal distribution like the horseshoe prior is able to accommodate the break.
-$\tau$ estimates the overall sparsity of $\eta_{t}$, while the individual values of $\lambda_{t}$ allow for signals.
-Surprisingly, the horseshoe prior model produces constant estimates of the level before and after 1899, while the manual intervention model shows slight changes.
+This is a general feature of using a normal prior because it only has a global variance component and no local variance components.
+Because it only has a single parameter to account for variation, it must trade off shrinking noise and non-shrinking signals.
+To account for the large disturbance in 1899, the estimated $\tau$ must increase, but this larger $\tau$ will leave the other periods relatively un-shrunk.
+On the other hand, a global-local scale mixture like the horseshoe prior has two parameters which can hanle
+The global variance component $\tau^{2}$ shrinking the noise and the determines the overall sparsity of the parameter vector.
+The local variance components $\lambda^{2}_{t}$ are able to let individual parameters remain unshrunk if $\lambda_{t}^{2}$ is estimated to be large enough.
 
-Table \ref{tab:nile-fits} displays model fit statistics for the Nile river flow models.
-The primary criteria used to compare the models is the Widely Applicable Information Criterion (WAIC) \parencite{Watanabe2010}.%
+Table \ref{tab:nile-fits} displays model fit statistics for the Nile River flow models.
+The primary criteria that is used to compare the models is the Widely Applicable Information Criterion (WAIC) \parencite{Watanabe2010}.%
 \footnote{See \textcite{GelmanHwangVehtari2013} and \textcite{VehtariOjanen2012} for recent overviews of Bayesian model comparison.}
-The WAIC is an information criterion similar to the Deviance Information Criterion (DIC) \parencite{spiegelhalter2002bayes}, but unlike the DIC, the WAIC extends to singular models such as hierarchical and mixture models.
-WAIC is a measure of out-of-sample prediction error, and is asymptotically equivalent to the Bayesian leave-one-out cross-validation \parencite{Watanabe2010}.
-Like DIC, it approximates the expected log predictive density of new data with the within-sample predictive accuracy adjusted by a bias term which is a correction for the effective number of parameters.
+The WAIC is an information criterion similar to the commonly used Deviance Information Criterion (DIC) \parencite{spiegelhalter2002bayes}, but unlike the DIC, the WAIC is applicable to singular models such as mixture models.
+Fundamentally, the WAIC is a measure of expected out-of-sample prediction error, and is asymptotically equivalent to Bayesian leave-one-out cross-validation \parencite{Watanabe2010}.
+\todo[inline]{Add footnote with WAIC derivation}
+Like the DIC, WAIC approximates the expected log predictive density of new data without cross-validation by using the within-sample predictive accuracy adjusted by a bias term which corrects for the effective number of parameters.
+Models with lower WAIC have better fits.
 Table \ref{tab:nile-fits} shows that \Model{nile}{hs} has the lowest WAIC, and thus the best fit.
-However, \Model{nile}{hs} has a higher RMSE than \Model{nile}{normal} and \Model{nile}{inter}.
+However, \Model{nile}{hs} has a higher RMSE and $\chi^{2}$ deviance than \Model{nile}{normal} and \Model{nile}{inter}.
 
 Diagnostics to classify structural breaks are plotted in Figures \ref{fig:nile-eta} and \ref{fig:nile-lambda}.
-Figure \ref{fig:nile-eta} displays the values of the mean and 95 percent credible interval of $p(\eta | y)$.
-Structural breaks are those periods in which the credible interval of $p(\eta | y)$ excludes zero.
-\Model{nile}{hs} and \Model{nile}{inter} both classify 1899 as the structural break; while in \Model{nile}{normal} all the credible intervals cross zero.
-However, in \Model{nile}{hs} the credible intervals of $\eta$ are much tighter than those of \Model{nile}{normal}.
-Figure \ref{fig:nile-lambda} displays the values of the median of $p(\lambda | y)$ in \Model{nile}{normal}.
-Structural breaks are classified as observations for which the median is greater than 1.
-As expected, only 1899 is classified as a structural break.
+Figure \ref{fig:nile-eta} displays summaries of the poterior distributions of the the state disturbances $p(\eta_{t} | y)$.
+Structural breaks are classified as those periods in which the 95\% credible interval of $p(\eta_{t} | y)$ excludes zero.
+\Model{nile}{hs} and \Model{nile}{inter} both classify 1899 as the only structural break in the level, while \Model{nile}{normal} classifies no periods as structural breaks since all the credible intervals cross zero.
+However, in \Model{nile}{hs} the credible intervals of $p(\eta|y)$ are much tighter than those of \Model{nile}{normal}.
+Figure \ref{fig:nile-lambda} displays the values of the median of the local variance components $p(\lambda_{t} | y)$ in \Model{nile}{normal}.
+Structural breaks are classified as observations for which the median is greater than 1, and as expected and should be the case, only 1899 is classified as a structural break.
 
-This example shows that using the horseshoe prior on the state disturbances is able to recover a the structural break for the Nile dataset.
-While this may seem like an easy example, it shows that scale mixture of normal distributions can recover a structural break even in the case of sparse state disturbances (1 of 100).
-For a continuous distribution this is the most difficult case, because it should be able to adjust to more dense state disturbance vectors.
+This example shows that using the horseshoe prior on the state disturbances is able to recover the one known structural break for the Nile dataset.
+While this may seem like an easy application, it is an exaple with a sparse disturbance vector (expected 1 of 100), the domain in which continuous state space models have traditionally captured time-varying-parameters poorly (e.g. see \Model{nile}{normal}.).
+However, shows that scale mixture of normal distributions can recover the structural break and sqeulch changes in the other periods.
 
 \begin{figure}[htpb]
   \centering
@@ -540,13 +542,19 @@ For a continuous distribution this is the most difficult case, because it should
 
 The motivating example of \textcite{RatkovicEng2010}.
 
-\subsection{Third Example: TBD}
+\subsection{Greenbacks}
+\label{sec:greenbacks}
 
-If I keep the previous two examples, I need a third example.
-Here are possible ideas.
+The paper \textcite{WillardGuinnaneEtAl1996} finds turning points in the prices of Union currency against gold during the American Civil War using the multiple structural break method of Perron et al (2003).
+
+\subsection{Other possibilities}
+
+I should have a set of examples that highlight the flexibility of the model; e.g. more complex time series models, correlated structural breaks in multiple parameters, time-varying regression. 
+I could perhaps extend this to gaussian DLM.
+
+Here are some examples from other structural break and change point papers and other ideas.
 
 \begin{itemize}
-\item Turning points in greenback prices. A replication of \textcite{WillardGuinnaneEtAl1996}.
 \item Median ideal point of the Senate. \parencites{RatkovicEng2010}
 \item Supreme court dissents and concurrences. 1 or 2 structural breaks. Poisson data. \parencite{CalderiaZorn1998}
 \item Discrete DV change-point models in \parencite{Spirling2007b}.
