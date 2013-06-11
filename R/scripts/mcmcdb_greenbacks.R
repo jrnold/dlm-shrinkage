@@ -1,3 +1,4 @@
+# depends: $(RDATA_DIR)/greenbacks
 greenbacks <- RDATA[["greenbacks"]]
 
 KEY <- "greenbacks_hp"
@@ -50,24 +51,4 @@ res <-
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
 
-object <- RDATA[[MCMCDB_KEY]]
-
 RDATA[[MCMCDB_KEY]] <- res #new("McmcdbLocalLevelHp", res)
-RDATA[[SUMMARY_KEY]] <- summary(RDATA[[MCMCDB_KEY]])
-
-make_ssm.McmcdbLocalLevelHpInter2 <- function(iter, data) {
-  SSModel(data$y,
-          Z = matrix(1),
-          H = array(iter$H, c(1, 1, length(iter$H))),
-          T = matrix(1),
-          Q = array(iter$Q, c(1, 1, length(iter$Q))),
-          a1 = data$a1,
-          P1 = data$P1)
-}
-
-simstates.McmcdbLocalLevelHpInter2 <- function(iter, data) {
-  as.numeric(simulateSSM(make_ssm.McmcdbLocalLevelHpInter2(iter, data),
-                         sim = "states")[["states"]])
-}
-
-alpha <- simplify2array(mcmcdb_samples_iter(object, FUN = simstates.McmcdbLocalLevelHpInter2, data = mcmcdb_data(object)))

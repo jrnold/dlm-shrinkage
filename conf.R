@@ -4,8 +4,10 @@ suppressPackageStartupMessages({
   # CRAN
   library("filehash")
   library("plyr")
+  library("reshape2")
   library("boot")
   library("reshape2")
+  library("digest")
   # github/jrnold
   library("mcmcdb")
   library("stanmisc")
@@ -20,12 +22,18 @@ suppressPackageStartupMessages({
 
 ROOT_DIR <- normalizePath(".")
 STAN_MODEL_DIR <- file.path(ROOT_DIR, "stan")
+DATA_DIR <- file.path(ROOT_DIR, "data")
 FILEHASH_DB <- file.path(ROOT_DIR, "rdata")
 RDATA <- dbInit(FILEHASH_DB, "RDS")
 
 STAN_MODELS <- function(key) {
   file.path(STAN_MODEL_DIR, sprintf("%s.stanx", key))
 }
+
+DATA_FILE <- function(file) {
+  file.path(DATA_DIR, file)
+}
+
 
 reinstall_sddlm <- function(clean=FALSE, ...) {
   sddlm <- file.path(ROOT_DIR, "R/sddlm")

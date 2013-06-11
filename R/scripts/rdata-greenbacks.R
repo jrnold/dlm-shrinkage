@@ -1,5 +1,6 @@
+# depends: $(DATA_DIR)/greenbacks.csv
 greenbacks <-
-  mutate(read.delim("../../data/greenbacks.csv"),
+  mutate(read.delim(DATA_FILE("greenbacks.csv")),
          date = as.Date(dt, "%Y-%m-%d"),
          dt = NULL,
          lhigh = log(high),

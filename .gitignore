@@ -12,5 +12,6 @@ auto
 *-blx.bib
 R/library/
 R/*.tar.gz
+R/scripts/*.P
 *.Rcheck
 /paper/Structural_Breaks.synctex.gz

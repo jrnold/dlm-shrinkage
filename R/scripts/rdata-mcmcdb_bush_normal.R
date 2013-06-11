@@ -1,3 +1,4 @@
+# depends: $(RDATA_DIR)/bush_approval
 bush <- RDATA[["bush_approval"]]
 
 standata <- within(list(), {
