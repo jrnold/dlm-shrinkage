@@ -17,39 +17,11 @@
 \usepackage{todonotes}
 \usepackage{hyperref}
 
+\usepackage{local}
+
 \author{Jeffrey B. Arnold}
 % Seeing a Shrink about Structural Breaks
 \title{Sparse Disturbance Dynamic Linear Models for Structural Breaks}
-
-% Used to typeset distributions
-\newcommand{\dist}[1]{\mathcal{#1}}
-\newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
-\newcommand{\dnorm}[1]{\ensuremath{\dist{N}\paren{#1}}}
-\newcommand{\dmvnorm}[2]{\ensuremath{\dist{N}_{#2}\paren{#1}}}
-\newcommand{\dt}[2]{\ensuremath{\dist{T}_{#1}\paren{#2}}}
-\newcommand{\dcauchy}[1]{\ensuremath{\dist{C}\paren{#1}}}
-\newcommand{\dhalfcauchy}[1]{\ensuremath{\dist{C}^{+}\paren{#1}}}
-\newcommand{\dbeta}[1]{\ensuremath{\dist{B}\paren{#1}}}
-\newcommand{\dinvbeta}[1]{\ensuremath{\dist{IB}\paren{#1}}}
-\newcommand{\dgamma}[1]{\ensuremath{\dist{G}\paren{#1}}}
-\newcommand{\dinvgamma}[1]{\ensuremath{\dist{IG}\paren{#1}}}
-\newcommand{\dwishart}[1]{\ensuremath{\dist{W}\paren{#1}}}
-\newcommand{\dinvwishart}[1]{\ensuremath{\dist{IW}\paren{#1}}}
-\newcommand{\dunif}[1]{\ensuremath{\dist{U}\paren{#1}}}
-\newcommand{\dexp}[1]{\ensuremath{\dist{E}\paren{#1}}}
-
-\newcommand{\RLang}{\textsf{R}}
-\newcommand{\Stan}{Stan}
-\newcommand{\R}{\ensuremath{\mathbb{R}}} %real
-
-\DeclareMathOperator{\E}{E}
-\DeclareMathOperator{\Median}{Median}
-\DeclareMathOperator{\Var}{Var}
-\DeclareMathOperator{\Cov}{Cov}
-\DeclareMathOperator{\diag}{diag}
-\newcommand{\tran}{^\top}
-
-\newcommand{\Model}[2]{\texttt{M}[#1, #2]}
 
 \include{pygments}
 \begin{document}
@@ -61,7 +33,7 @@
   This nests many common structural break and smoothing time-varying parameter models.
   Unlike many structural break methods it does not require the number of structural breaks to be specified ex ante, and can estimate this from the data.
   Since many shrinkage priors are scale-mixture of normal distributions, the dynamic linear model is conditionally Gaussian, and can be efficiently sampled or maximized; 
-  a Stan implementation of this method is presented.
+  a \Stan{} implementation of this method is presented.
   These models are used in several examples including the Nile river data, George W. Bush approval rating and TBD.
 \end{abstract}
 
@@ -71,7 +43,7 @@
 Political and social processes are rarely, if ever, constant over time.
 Thus, political scientists often have a need to estimate time-varying parameter (TVP) models.
 There exist two broad approaches to estimating time-varying parameters: structural break approaches, which include dummy variables and change point models, and smoothing approaches, which include dynamic linear models and smoothing splines.
-Both approaches estimate TVP when the number of observations is small relative to the numbe of time periods. 
+Both approaches estimate TVP when the number of observations is small relative to the number of time periods. 
 Smoothing approaches keep the parameter differences small in all periods, while structural break approaches restrict parameter changes to a few locations.
 These two approaches are often viewed as distinct and estimated using different methods, forcing the researcher to choose between which model to use.
 Many processes the changes in the process are characterized by many periods of stability and a few periods of possibly rapid and large, change \parencite{RatkovicEng2010}.
@@ -80,7 +52,7 @@ Historically, existing smoothing methods have had a difficulty estimating these 
 \todo{Why Bayesian methods?}
 
 This paper presents a simple and flexible method to estimate time-varying parameters that may be subject to structural breaks.
-Time-varying parameters with possible structural breaks can be estimated wihtin a continuous state-space model, and in particular as a dynamic linear model, by placing a shrinkage prior on the distribution of the state disturbances.
+Time-varying parameters with possible structural breaks can be estimated within a continuous state-space model, and in particular as a dynamic linear model, by placing a shrinkage prior on the distribution of the state disturbances.
 The intuition behind this can be illustrated with a simple model.
 Suppose there is a vector of observed data, $y_{1}, \dots, y_{n}$, drawn from a normal distribution with a time varying mean, $\alpha_{1:n}$. 
 This can be represented as a dynamic linear model,
@@ -110,17 +82,17 @@ Not only do the number of structural breaks need not be specified beforehand, th
 \item This method is flexible.
 Dynamic linear models incorporate a wide variety of models, including ARIMA and structural time-series, cubic splines, and regressions with time-varying coefficients.
 Any model in which the parameter of interest can be expressed as a latent state in a dynamic linear model can be altered to assign a shrinkage prior to the state disturbance in order to make it robust to or to detect structural breaks for that parameter.
-While many structural break methods are specific to single models, this paper shows how sparse-disturbance DLMs can be estimated within the general purpose Bayesian software, Stan.
+While many structural break methods are specific to single models, this paper shows how sparse-disturbance DLMs can be estimated within the general purpose Bayesian software, \Stan{}.
 \item The method allows for easy estimation of structural breaks in multiple parameters which can be either independent or correlated.
 Estimating independent structural breaks in a discrete state space model, like change-point models, results in the state-space multiplying exponentially.
 \item Outliers can be modeled, and even included in the model, using nearly the same method, in which $\epsilon$ is assigned a shrinkage prior.
 \item This method is efficient in both programmer and computational time, while still retaining the flexibility to estimate a wide variety of models.
 Since most shrinkage priors, including the HS distribution used in the paper, are scale-mixture of normal distributions, this state space model estimated is a (conditionally) Gaussian dynamic linear model (GDLM). There are can take advantage of the computationally efficient methods of mode finding and sampling from GDLMs, such as the Kalman filter and Forward-Filter Backwards-Sample.
-This paper shows how a combination of \Stan, a general purpose Bayesian software program, and \RLang{} can be used to easily estimate and sample from the posterior of dynamic linear models.
+This paper shows how a combination of \Stan{}, a general purpose Bayesian software program, and \RLang{} can be used to easily estimate and sample from the posterior of dynamic linear models.
 \end{enumerate}
 
 Section \ref{sec:struct-breaks-state} derives the sparse-disturbance DLM.
-Section \ref{sec:implementation} describes a method to sample from SDDLMs using Stan.
+Section \ref{sec:implementation} describes a method to sample from SDDLMs using \Stan{}.
 Section \ref{sec:examples} uses the SDDLMs in several example applications: Nile river flow dataset \ref{sec:nile}, George W. Bush's approval ratings \ref{sec:george-w.-bush}, and TBD.
 Section \ref{sec:conclusion} concludes with discussion of how this method can be extended.
 
@@ -144,7 +116,7 @@ For $t = 1:n$,
   \label{eq:2}
   \alpha_{1} & \sim \dmvnorm{a_{1}, P_{1}}{m}
 \end{align}
-\todo[inline]{Switch to West and Harrison notation instead (filtered form). But need to adjust all my code, and switch to the dlm package from the KFAS package}
+\todo[inline]{Switch to West and Harrison notation instead (filtered form). But need to adjust all my code, and switch to the \pkg{dlm} package from the \pkg{KFAS} package}
 
 
 Equation \eqref{eq:8} is the \textit{observation equation} which relates the \textit{observation vector} $y_{t}$ to the \textit{state vector} $\alpha_{t}$.
@@ -189,7 +161,7 @@ In sparse estimation problems, the researcher wants to classify parameters into 
 In this application, the structural breaks are the signals, and the non-structural breaks are the noise.
 
 In Bayesian estimation, there are two main approaches for estimating sparse parameters: discrete mixtures and shrinkage priors \parencite[73]{CarvalhoPolsonScott2009}.
-The discrete-mixture approach models the parameter with prior constisting of a mixture between a point mass at zero and a continuous distribution, i.e. a spike-and-slab prior \parencite{GeorgeMcCulloch1993}.
+The discrete-mixture approach models the parameter with prior consisting of a mixture between a point mass at zero and a continuous distribution, i.e. a spike-and-slab prior \parencite{GeorgeMcCulloch1993}.
 In the context of estimating TVP, structural breaks are estimated assigning each $\eta_{t}$ a discrete mixture distribution,
 \begin{equation}
   \label{eq:1}
@@ -361,40 +333,41 @@ However, for Gaussian dynamic linear models there exist more efficient block sam
 \footnote{See \textcite{ReisSalazarGamerman2006} for a comparison of the efficiency of various sampling methods, and \textcite{migon2005dynamic} for an overview of the various sampling methods.}
 These block methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtAl2009}.%
 An alternative approach to block sampling, is to sample directly from the posterior $p(\alpha | y, S)$ which for GDLMs is a multivariate normal distribution with a sparse, block diagonal covariance matrix, samples can be drawn directly from the posterior distribution \parencites{migon2005dynamic}{ChanJeliazkov2009}.
-However, none of these more efficient algorithms are included in the commonly used general-purpose Bayesian software programs (BUGS, JAGS, and PyMc).
+However, none of these more efficient algorithms are included in the commonly used general-purpose Bayesian software programs (\proglang{BUGS}, \proglang{JAGS}, and PyMc).
 Thus, for savings in computational time a researcher needs to trade-off programmer time to implement a custom MCMC sampler that uses one of the block sampling methods.
 While there exists many software implementations of filters and smoothers for Dynamic Linear Models,%
 \footnote{Reviewed in a special issue of the \textit{Journal of Statistical Software} \textcite{CommandeurKoopmanOoms2011} and \textcite{Tusell2011}.}
 writing an efficient sampler may there are also require additional work in order to reduce to the correlation between the states and parameters in the system matrices \parencites{ReisSalazarGamerman2006}{ChibNardariShephard2006}.
 This implementation cost reduces the ease of using DLM models in applications despite their flexibility and intuitive advantages over traditional time series methods \textcite[51]{DurbinKoopman2001}.
 
-This paper proposes and implements an easy and practical method to estimate DLMs within Stan \parencite{Stan2013}.
+This paper proposes and implements an easy and practical method to estimate DLMs within \Stan{} \parencite{Stan2013}.
 This method is used within this paper for SDDLMs but can be applied to any DLM.
 I divide the problem of sampling $p(\alpha, S_{t} | y_{t})$ into two steps.
 First, sample from $p(\S_{t} | y_{t})$. 
 Second, given samples from $p(S_{t} | y_{t})$, sample the states $p(\alpha_{t} | S_{t}, y_{t})$.
 
-First, sample from $p(S_{t} | y_{t})$ using Stan's implementation of HMC.
-Stan is a general purpose Bayesian software program \parencite{Stan2013b}.
+First, sample from $p(S_{t} | y_{t})$ using \Stan{}'s implementation of HMC.
+\Stan{} is a general purpose Bayesian software program \parencite{Stan2013b}.
 Like BUGS, it has a domain specific language that lets the user specify the statistical model without specifying the steps used to sample from the model.
-Unlike BUGS, Stan is not based on Gibbs sampling, but instead uses a variant of Hamiltonian Monte Carlo (HMC) called NUTS \parencite{HoffmanGelman2013}.
-While as of the time of the writing, a distribution for dynamic linear models is not included in the software, but a method for efficiently sampling the other parameters while marginalizing over the latent states can be implemented within the Stan modeling language.
+Unlike BUGS, \Stan{} is not based on Gibbs sampling, but instead uses a variant of Hamiltonian Monte Carlo (HMC) called NUTS \parencite{HoffmanGelman2013}.
+While as of the time of the writing, a distribution for dynamic linear models is not included in the software, but a method for efficiently sampling the other parameters while marginalizing over the latent states can be implemented within the \Stan{} modeling language.
 In particular, in order to implement a custom distribution only its log-likelihood need to be calculated \parencite[Chapter 17]{Stan2013}
-The log-likelihood $p(y_{t} | S_{t})$ of a DLM can be easily and efficiently calculated with a single pass through the data using the Kalman Filter (CITE ...).
-These Kalman Filter and log-likelihood calculations are written in Stan's modeling language;
+The log-likelihood $p(y_{t} | S_{t})$ of a DLM can be easily and efficiently calculated with a single pass through the data using the Kalman Filter.%
+\footnote{Derivations of the Kalman Filter can be found in any state space textbooks; e.g. \textcite{DurbinKoopman2001}.}
+These Kalman Filter and log-likelihood calculations are written in \Stan{}'s modeling language;
 \ref{sec:code} has an example which estimates a local level model with state disturbances distributed horseshoe (this is the model used in \Model{Nile}{hs} in Section \ref{sec:nile}).
 \footnote{
-  I originally implemented the DLMs in Stan by directly transcribing the observation and system equations of the DLM.
-  This works reasonably well, and Stan achieved better posterior mixing than JAGS.
-  However even using optimizations for Stan models, I encountered two problems with that approach.
+  I originally implemented the DLMs in \Stan{} by directly transcribing the observation and system equations of the DLM.
+  This works reasonably well, and \Stan{} achieved better posterior mixing than JAGS.
+  However even using optimizations for \Stan{} models, I encountered two problems with that approach.
   First, it approach scaled poorly, and seemed to slow down dramatically as $n$ and $T$ increased.
   Second, although in most periods the chains would mix well, they could get stuck in certain regions of the posterior regions for long sequences.
   The exact reason for this is unknown, but this is likely due to the geometry of the posterior distribution and the inability of HMC with Euclidean geometry to adapt to different scales in different parts of the parameter space.
-  When Stan implements Riemann Manifold HMC, it may solve this problem.
+  When \Stan{} implements Riemann Manifold HMC, it may solve this problem.
 }
 
 Second, having obtained a sample of size $K$ from $p(S | y)$, for each $k \in 1:K$ sample from $p(\alpha | y, S^{(k)})$ using a block sampler of the type discussed earlier.
-For this paper, I used the \RLang package \textit{KFAS} \parencite{Helske2012} which has an implementation the \textcite{DurbinKoopman2002} simulation smoother algorithm.
+For this paper, I used the \RLang{} package \pkg{KFAS} \parencite{Helske2012} which has an implementation the \textcite{DurbinKoopman2002} simulation smoother algorithm.
 In practice, the most difficult aspect of this step is munging the output from the first step into data structures needed to draw samples in the second step.
 For this purpose, and in general to make post-processing MCMC samples easier, I wrote and have made available the \RLang{} package \href{https://github.com/jrnold/mcmcdb}{\textbf{mcmcdb}}.
 Separating the sampling of $p(\alpha_{t} | y, S)$ from $p(S | y)$ has a few practical advantages.
@@ -412,7 +385,7 @@ This dataset is a classic dataset that has been analyzed used in many works on s
 \footnote{The dataset is included with base \RLang{} as \texttt{datasets::Nile} \parencite{RCT2013}.}
 Previous analyses show a single level shift in the data, with the shift occurring in 1899.
 This level shift is attributed to the construction of a dam at Aswan in that year.
-\todo{What is th}
+\todo{What is this}
 
 For the Nile River model, I will estimate and compare a SDDLM with two alternative models; one with a normal distribution on the state disturbances and one with a normal distribution and a manual intervention on the state disturbances.
 All of these models will be variants of the following local level model,
@@ -426,7 +399,7 @@ All of these models will be variants of the following local level model,
 \end{equation}
 The models only differ in the distribution of $\eta_{t}$.
 
-In the first model, \Model{nile}{hp}, $\eta_{t}$ has a horsehose prior,
+In the first model, \Model{nile}{hp}, $\eta_{t}$ has a horseshoe prior,
 \begin{equation}
   \label{eq:22}
   \begin{aligned}[t]
@@ -456,7 +429,7 @@ The intervention is modeled as follows,
     \end{cases}
   \end{aligned}
 \end{equation}
-\todo[inline]{Change to multiplicative intervention so it is exactly analagous to the SDDLM.}
+\todo[inline]{Change to multiplicative intervention so it is exactly analogous to the SDDLM.}
 
 Figure \ref{fig:nile-posterior} plots the data and the the posterior distributions of the level ($p(\alpha | y)$) for all three models.
 \Model{nile}{hs} and \Model{nile}{inter} clearly show a structural break at 1899.
@@ -466,7 +439,7 @@ In other words, the normal model over-smooths at the break, and under-smooths in
 This is a general feature of using a normal prior because it only has a global variance component and no local variance components.
 Because it only has a single parameter to account for variation, it must trade off shrinking noise and non-shrinking signals.
 To account for the large disturbance in 1899, the estimated $\tau$ must increase, but this larger $\tau$ will leave the other periods relatively un-shrunk.
-On the other hand, a global-local scale mixture like the horseshoe prior has two parameters which can hanle
+On the other hand, a global-local scale mixture like the horseshoe prior has two parameters which can handle
 The global variance component $\tau^{2}$ shrinking the noise and the determines the overall sparsity of the parameter vector.
 The local variance components $\lambda^{2}_{t}$ are able to let individual parameters remain unshrunk if $\lambda_{t}^{2}$ is estimated to be large enough.
 
@@ -482,7 +455,7 @@ Table \ref{tab:nile-fits} shows that \Model{nile}{hs} has the lowest WAIC, and t
 However, \Model{nile}{hs} has a higher RMSE and $\chi^{2}$ deviance than \Model{nile}{normal} and \Model{nile}{inter}.
 
 Diagnostics to classify structural breaks are plotted in Figures \ref{fig:nile-eta} and \ref{fig:nile-lambda}.
-Figure \ref{fig:nile-eta} displays summaries of the poterior distributions of the the state disturbances $p(\eta_{t} | y)$.
+Figure \ref{fig:nile-eta} displays summaries of the posterior distributions of the the state disturbances $p(\eta_{t} | y)$.
 Structural breaks are classified as those periods in which the 95\% credible interval of $p(\eta_{t} | y)$ excludes zero.
 \Model{nile}{hs} and \Model{nile}{inter} both classify 1899 as the only structural break in the level, while \Model{nile}{normal} classifies no periods as structural breaks since all the credible intervals cross zero.
 However, in \Model{nile}{hs} the credible intervals of $p(\eta|y)$ are much tighter than those of \Model{nile}{normal}.
@@ -490,8 +463,8 @@ Figure \ref{fig:nile-lambda} displays the values of the median of the local vari
 Structural breaks are classified as observations for which the median is greater than 1, and as expected and should be the case, only 1899 is classified as a structural break.
 
 This example shows that using the horseshoe prior on the state disturbances is able to recover the one known structural break for the Nile dataset.
-While this may seem like an easy application, it is an exaple with a sparse disturbance vector (expected 1 of 100), the domain in which continuous state space models have traditionally captured time-varying-parameters poorly (e.g. see \Model{nile}{normal}.).
-However, shows that scale mixture of normal distributions can recover the structural break and sqeulch changes in the other periods.
+While this may seem like an easy application, it is an expel with a sparse disturbance vector (expected 1 of 100), the domain in which continuous state space models have traditionally captured time-varying-parameters poorly (e.g. see \Model{nile}{normal}.).
+However, shows that scale mixture of normal distributions can recover the structural break and squelch changes in the other periods.
 
 \begin{figure}[htpb]
   \centering
@@ -550,7 +523,7 @@ The paper \textcite{WillardGuinnaneEtAl1996} finds turning points in the prices 
 \subsection{Other possibilities}
 
 I should have a set of examples that highlight the flexibility of the model; e.g. more complex time series models, correlated structural breaks in multiple parameters, time-varying regression. 
-I could perhaps extend this to gaussian DLM.
+I could perhaps extend this to Gaussian DLM.
 
 Here are some examples from other structural break and change point papers and other ideas.
 
@@ -568,7 +541,7 @@ This paper shows that a simple tweak to dynamic linear models allows them to est
 The sparse disturbance approach is both intuitive and flexible, while remaining computationally efficient.
 
 \begin{enumerate}
-\item Write a DLM distribution for Stan.
+\item Write a DLM distribution for \Stan{}.
 \item Write a new R package for Dynamic Linear Models. There are a few reasons for this, despite there being multiple R packages that implement Kalman Filter / DLM capabilities. 
 The existing packages do not implement direct sampling from the posterior distribution. 
 There is also a technical and clarity advantage to rewriting a Kalman filter library with Rcpp backend. In fact, the primary RcppArmadillo example is 
@@ -585,11 +558,11 @@ a Kalman filter.
 \subsection{code}
 \label{sec:code}
 
-This is an example \Stan model for a local level DLM with Horseshoe Prior distributions on the state disturbances; this is the \Stan model used to estimate \Model{nile}{hp} in Section \ref{sec:nile}. 
-The Kalman filter section of the \Stan code is specialized to the local level model case.
+This is an example \Stan{} model for a local level DLM with Horseshoe Prior distributions on the state disturbances; this is the \Stan{} model used to estimate \Model{nile}{hp} in Section \ref{sec:nile}. 
+The Kalman filter section of the \Stan{} code is specialized to the local level model case.
 
 \begin{singlespace}
-  \include{assets/code-local_level_hp}  
+  \include{assets/code-local_level_hs}  
 \end{singlespace}
 
 \end{document}
@@ -611,5 +584,7 @@ The Kalman filter section of the \Stan code is specialized to the local level mo
 %  LocalWords:  ArmaganDunsonLee HarveyKoopman CarlinGelfandSmith DIC
 %  LocalWords:  CommandeurKoopmanOoms HoffmanGelman Helske mcmcdb TBD
 %  LocalWords:  iter WAIC Watanabe GelmanHwangVehtari VehtariOjanen
-%  LocalWords:  spiegelhalter bayes RMSE WillardGuinnaneEtAl
-%  LocalWords:  Rcpp RcppArmadillo
+%  LocalWords:  spiegelhalter bayes RMSE WillardGuinnaneEtAl SDDLM un
+%  LocalWords:  Rcpp RcppArmadillo GDLM GDLMs SDDLMs dlm RCT Perron
+%  LocalWords:  CommandeurKoopman ShumwayStoffer ChibNardariShephard
+%  LocalWords:  optimizations

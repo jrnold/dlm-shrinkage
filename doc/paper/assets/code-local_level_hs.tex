@@ -1,0 +1,63 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{// Local Level Model with Horseshoe Prior state disturbances}
+\PY{c+c1}{// Copyright: (2013) Jeffrey Arnold \PYZlt{}jeffrey.arnold@gmail.com\PYZgt{}}
+\PY{c+c1}{// License: BSD\PYZhy{}2}
+\PY{k+kn}{data} \PY{p}{\PYZob{}}
+  \PY{c+c1}{// data}
+  \PY{k+kt}{int} \PY{n}{n}\PY{p}{;} \PY{c+c1}{// number of observations}
+  \PY{k+kt}{real} \PY{n}{y}\PY{p}{[}\PY{n}{n}\PY{p}{]}\PY{p}{;} \PY{c+c1}{// data}
+  \PY{c+c1}{// prior on first state}
+  \PY{k+kt}{real} \PY{n}{a1}\PY{p}{;}
+  \PY{k+kt}{real}\PY{p}{\PYZlt{}}\PY{k+kr}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{p}{\PYZgt{}} \PY{n}{P1}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+\PY{k+kn}{parameters} \PY{p}{\PYZob{}}
+  \PY{k+kt}{real}\PY{p}{\PYZlt{}}\PY{k+kr}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{p}{\PYZgt{}} \PY{n}{H}\PY{p}{;} \PY{c+c1}{// observation variance}
+  \PY{c+c1}{// parameters for state variance }
+  \PY{k+kt}{real}\PY{p}{\PYZlt{}}\PY{k+kr}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{p}{\PYZgt{}} \PY{n}{tau}\PY{p}{;} 
+  \PY{k+kt}{vector}\PY{p}{\PYZlt{}}\PY{k+kr}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{p}{\PYZgt{}}\PY{p}{[}\PY{n}{n}\PY{p}{]} \PY{n}{lambda}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+\PY{k+kn}{transformed parameters} \PY{p}{\PYZob{}}
+  \PY{k+kt}{vector}\PY{p}{\PYZlt{}}\PY{k+kr}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{p}{\PYZgt{}}\PY{p}{[}\PY{n}{n}\PY{p}{]} \PY{n}{Q}\PY{p}{;}
+  \PY{k+kr}{for} \PY{p}{(}\PY{n}{i} \PY{k+kr}{in} \PY{l+m+mi}{1}\PY{p}{:}\PY{n}{n}\PY{p}{)} \PY{p}{\PYZob{}}
+    \PY{n}{Q}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n+nb}{pow}\PY{p}{(}\PY{n}{lambda}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{l+m+mf}{2.0}\PY{p}{)} \PY{o}{*} \PY{n+nb}{pow}\PY{p}{(}\PY{n}{tau}\PY{p}{,} \PY{l+m+mf}{2.0}\PY{p}{)}\PY{p}{;}
+  \PY{p}{\PYZcb{}}
+\PY{p}{\PYZcb{}}
+\PY{k+kn}{model} \PY{p}{\PYZob{}}
+  \PY{c+c1}{// Kalman Filter block}
+  \PY{p}{\PYZob{}}
+    \PY{c+c1}{// loglikelihood for each observation}
+    \PY{k+kt}{real} \PY{n}{loglik\PYZus{}obs}\PY{p}{[}\PY{n}{n}\PY{p}{]}\PY{p}{;}
+    \PY{c+c1}{// variables used }
+    \PY{k+kt}{real} \PY{n}{a}\PY{p}{;} \PY{c+c1}{// state expectation}
+    \PY{k+kt}{real} \PY{n}{P}\PY{p}{;} \PY{c+c1}{// state variance}
+    \PY{k+kt}{real} \PY{n}{v}\PY{p}{;} \PY{c+c1}{// forecast error}
+    \PY{k+kt}{real} \PY{n}{K}\PY{p}{;} \PY{c+c1}{// Kalman gain}
+    \PY{k+kt}{real} \PY{n}{F}\PY{p}{;} \PY{c+c1}{// forecast error}
+    \PY{k+kt}{real} \PY{n}{Finv}\PY{p}{;} \PY{c+c1}{// forecast precision}
+    
+    \PY{n}{a} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n}{a1}\PY{p}{;}
+    \PY{n}{P} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n}{P1}\PY{p}{;}
+    \PY{k+kr}{for} \PY{p}{(}\PY{n}{i} \PY{k+kr}{in} \PY{l+m+mi}{1}\PY{p}{:}\PY{n}{n}\PY{p}{)} \PY{p}{\PYZob{}}
+      \PY{c+c1}{// filter step}
+      \PY{n}{v} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n}{y}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{\PYZhy{}} \PY{n}{a}\PY{p}{;}
+      \PY{n}{F} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n}{P} \PY{o}{+} \PY{n}{H}\PY{p}{;}
+      \PY{n}{Finv} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{l+m+mi}{1} \PY{o}{/} \PY{n}{F}\PY{p}{;}
+      \PY{n}{K} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n}{P} \PY{o}{*} \PY{n}{Finv}\PY{p}{;}
+      \PY{n}{a} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n}{a} \PY{o}{+} \PY{n}{K} \PY{o}{*} \PY{n}{v}\PY{p}{;}
+      \PY{n}{P} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{p}{(}\PY{l+m+mi}{1} \PY{o}{\PYZhy{}} \PY{n}{K} \PY{p}{)} \PY{o}{*} \PY{n}{P}\PY{p}{;}
+      \PY{n}{loglik\PYZus{}obs}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{l+m+mf}{\PYZhy{}0.5} \PY{o}{*} \PY{p}{(}\PY{n+nb}{log}\PY{p}{(}\PY{l+m+mi}{2} \PY{o}{*} \PY{k+kc}{pi}\PY{p}{(}\PY{p}{)}\PY{p}{)} 
+                               \PY{o}{+} \PY{n+nb}{log}\PY{p}{(}\PY{n}{F}\PY{p}{)} \PY{o}{+} \PY{n}{Finv} \PY{o}{*} \PY{n+nb}{pow}\PY{p}{(}\PY{n}{v}\PY{p}{,} \PY{l+m+mf}{2.0}\PY{p}{)}\PY{p}{)}\PY{p}{;}
+      \PY{c+c1}{// prediction}
+      \PY{n}{P} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n}{P} \PY{o}{+} \PY{n}{Q}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{;}
+    \PY{p}{\PYZcb{}}
+    \PY{n+nb+bp}{lp\PYZus{}\PYZus{}} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n+nb}{sum}\PY{p}{(}\PY{n}{loglik\PYZus{}obs}\PY{p}{)}\PY{p}{;}
+  \PY{p}{\PYZcb{}}
+
+  \PY{c+c1}{// Jeffrey\PYZsq{}s Prior on observation variance.}
+  \PY{n+nb+bp}{lp\PYZus{}\PYZus{}} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n+nb+bp}{lp\PYZus{}\PYZus{}} \PY{o}{+} \PY{l+m+mf}{1.0} \PY{o}{/} \PY{n}{H}\PY{p}{;}
+  \PY{c+c1}{// Cauchy prior on global scale of state disturbances}
+  \PY{n}{tau} \PY{o}{\PYZti{}} \PY{n+nb}{cauchy}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{n+nb}{sqrt}\PY{p}{(}\PY{n}{H}\PY{p}{)}\PY{p}{)}\PY{p}{;}
+  \PY{c+c1}{// Cauchy priors on mixing parameters of state disturbances}
+  \PY{n}{lambda} \PY{o}{\PYZti{}} \PY{n+nb}{cauchy}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+\end{Verbatim}

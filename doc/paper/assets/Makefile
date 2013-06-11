@@ -1,6 +1,6 @@
 PLOTS = $(patsubst %.R,%.pdf,$(wildcard fig-*.R))
 TABLES = $(patsubst %.R,%.tex,$(wildcard tab-*.R))
-CODE = code-local_level_hp.tex
+CODE = code-local_level_hs.tex
 
 RSCRIPT = Rscript
 PYGMENTIZE = pygmentize
@@ -13,7 +13,7 @@ build-figs: $(PLOTS)
 
 build-tables: $(TABLES)
 
-code-%.tex: ../../stan/%.stan
+code-%.tex: ../../../stan/%.stan
 	@echo $< $@
 	$(PYGMENTIZE) -O style=bw -f latex -o $@ $<
 

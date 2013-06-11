@@ -1,0 +1,51 @@
+\RequirePackage{amsmath,amsfonts,color,hyperref}
+\newcommand{\email}[1]{\href{mailto:#1}{\normalfont\texttt{#1}}}
+
+% Programming Languages
+\newcommand{\proglang}[1]{\textsf{#1}}
+\newcommand{\RLang}{\proglang{R}}
+\newcommand{\Stan}{\proglang{Stan}}
+\newcommand{\pkg}[1]{\textbf{#1}}
+
+% Used to typeset distributions
+\newcommand{\dist}[1]{\mathcal{#1}}
+\newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
+\newcommand{\dnorm}[1]{\ensuremath{\dist{N}\paren{#1}}}
+\newcommand{\dmvnorm}[2]{\ensuremath{\dist{N}_{#2}\paren{#1}}}
+\newcommand{\dt}[2]{\ensuremath{\dist{T}_{#1}\paren{#2}}}
+\newcommand{\dcauchy}[1]{\ensuremath{\dist{C}\paren{#1}}}
+\newcommand{\dhalfcauchy}[1]{\ensuremath{\dist{C}^{+}\paren{#1}}}
+\newcommand{\dbeta}[1]{\ensuremath{\dist{B}\paren{#1}}}
+\newcommand{\dinvbeta}[1]{\ensuremath{\dist{IB}\paren{#1}}}
+\newcommand{\dgamma}[1]{\ensuremath{\dist{G}\paren{#1}}}
+\newcommand{\dinvgamma}[1]{\ensuremath{\dist{IG}\paren{#1}}}
+\newcommand{\dwishart}[1]{\ensuremath{\dist{W}\paren{#1}}}
+\newcommand{\dinvwishart}[1]{\ensuremath{\dist{IW}\paren{#1}}}
+\newcommand{\dunif}[1]{\ensuremath{\dist{U}\paren{#1}}}
+\newcommand{\dexp}[1]{\ensuremath{\dist{E}\paren{#1}}}
+
+% Math operators, misc
+\DeclareMathOperator{\E}{E}
+\DeclareMathOperator{\Median}{Median}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\diag}{diag}
+\newcommand{\tran}{^\top}
+
+% Misc
+\newcommand{\Model}[2]{$\mathcal{M}$(#1, #2)}
+
+\definecolor{Red}{rgb}{0.5,0,0}
+\definecolor{Blue}{rgb}{0,0,0.5}
+\hypersetup{%
+  hyperindex = {true},
+  colorlinks = {true},
+  linktocpage = {true},
+  plainpages = {false},
+  linkcolor = {Blue},
+  citecolor = {Blue},
+  urlcolor = {Red},
+  pdfstartview = {Fit},
+  pdfpagemode = {None},
+  pdfview = {XYZ null null null}
+}
