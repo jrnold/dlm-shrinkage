@@ -1,4 +1,4 @@
-# depends: $(RDATA_DIR)/bush_approval
+# depends: $(RDATA_DIR)/bush_approval $(STAN_DIR)/spline_hs.stan
 bush <- RDATA[["bush_approval"]]
 
 standata <- within(list(), {
