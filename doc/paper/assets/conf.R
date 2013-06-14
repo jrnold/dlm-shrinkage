@@ -6,7 +6,7 @@ suppressPackageStartupMessages({
   library("xtable")
 })
 
-source("../../conf.R", chdir=TRUE)
+source("../../../conf.R", chdir=TRUE)
 
 theme_local <- function(base_size = 12) {
   (theme_minimal(base_size = base_size) +

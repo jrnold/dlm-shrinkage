@@ -1,18 +1,18 @@
-// Kalman Filter (Multivariate Form)
-// - no missing values
+// Local Level Model with Horseshoe Prior state disturbances
+// Copyright: (2013) Jeffrey Arnold <jeffrey.arnold@gmail.com>
+// License: BSD-2
 data {
-  // dimensions
+  // data
   int n; // number of observations
+  real y[n]; // data
+  // prior on first state
   real a1;
   real<lower=0.0> P1;
-  // data
-  real y[n]; // rows = variables; cols = observations
-  int missing[n]; // rows = variables; cols = observations
 }
 parameters {
-  // system matrices
-  real<lower=0.0> H;
-  real<lower=0.0> tau;
+  real<lower=0.0> H; // observation variance
+  // parameters for state variance 
+  real<lower=0.0> tau; 
   vector<lower=0.0>[n] lambda;
 }
 transformed parameters {
@@ -22,51 +22,41 @@ transformed parameters {
   }
 }
 model {
-  // log-lilelihood
-  real loglik_obs[n];
-
   // Kalman Filter block
   {
-    // filter output
-    real v;
-    real K;
-    real Finv;
-    
-    // state predictions a_{t}, P_{t}
-    real a;
-    real P;
-    // temp variables
-    // real M;
-    real F;
+    // loglikelihood for each observation
+    real loglik_obs[n];
+    // variables used 
+    real a; // state expectation
+    real P; // state variance
+    real v; // forecast error
+    real K; // Kalman gain
+    real F; // forecast error
+    real Finv; // forecast precision
     
     a <- a1;
     P <- P1;
     for (i in 1:n) {
-      if (! missing[i]) {
-        // filter
-        v <- y[i] - a;
-        // M <- P;
-        F <- P + H;
-        Finv <- 1 / F;
-        K <- P * Finv;
-        a <- a + K * v;
-        P <- (1 - K ) * P;
-        loglik_obs[i] <- -0.5 * (log(2 * pi()) 
-                                 + log(F) + Finv * pow(v, 2.0));
-      } else {
-        loglik_obs[i] <- 0.0;
-      }
-      // // predict
-      // a <- a;
+      // filter step
+      v <- y[i] - a;
+      F <- P + H;
+      Finv <- 1 / F;
+      K <- P * Finv;
+      a <- a + K * v;
+      P <- (1 - K ) * P;
+      loglik_obs[i] <- -0.5 * (log(2 * pi()) 
+                               + log(F) + Finv * pow(v, 2.0));
+      // prediction
       P <- P + Q[i];
     }
+    lp__ <- sum(loglik_obs);
   }
-  lp__ <- sum(loglik_obs);
 
-  // prior on obs var
+  // Jeffrey's Prior on observation variance.
   lp__ <- lp__ + 1.0 / H;
-  // Horseshoe prior
-  lambda ~ cauchy(0, 1);
+  // Cauchy prior on global scale of state disturbances
   tau ~ cauchy(0, sqrt(H));
+  // Cauchy priors on mixing parameters of state disturbances
+  lambda ~ cauchy(0, 1);
 }
 

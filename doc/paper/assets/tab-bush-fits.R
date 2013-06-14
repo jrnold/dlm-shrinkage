@@ -8,13 +8,13 @@ fit_summary <- function(k) {
   data.frame(waic = as.integer(round(as.numeric(x[["waic"]]))),
              loglik = as.integer(round(x[["waic"]]@loglik)),
              bias = round(x[["waic"]]@b, 1),
-             rmse = as.integer(round(sqrt(x[["mse"]]))),
+             rmse = as.integer(round(sqrt(x[["mse"]]), 2)),
              chisq = as.integer(round(x[["chisq"]])))
 }
 
-keys <- sprintf("mcmcsummary_nile_%s", c("hs", "normal_1", "normal_2"))
+keys <- sprintf("mcmcsummary_bush_%s", c("hs", "normal"))
 modelfits <- ldply(keys, fit_summary)
-rownames(modelfits) <- c("\\Model{Nile}{HS}", "\\Model{Nile}{normal}", "\\Model{Nile}{inter}")
+rownames(modelfits) <- c("\\Model{bush}{hs}", "\\Model{bush}{normal}")
 colnames(modelfits) <- c("WAIC", "$L$", "$p$", "RMSE", "$\\chi^2$")
 print(xtable(modelfits,  digits = 1),
       sanitize.text.function = identity,
