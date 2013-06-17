@@ -1,4 +1,7 @@
-# depends: $(RDATA_DIR)/nile nile_data.R $(STAN_DIR)/local_level_hs.stan
+# ---
+# rdata: nile
+# stan: local_level_hs.stan
+# --- 
 nile <- RDATA[["nile"]]
 source("nile_data.R")
 

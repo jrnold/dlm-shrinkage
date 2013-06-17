@@ -1,4 +1,6 @@
-# depends: $(DATA_DIR)/bush_approval.csv
+# ---
+# data: bush_approval.csv
+# ---
 bush_approval <-
   arrange(mutate(read.csv(DATA_FILE("bush_approval.csv")),
                  start_date = as.Date(start_date, "%m/%d/%Y"),

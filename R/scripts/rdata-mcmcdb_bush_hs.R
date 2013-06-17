@@ -1,4 +1,7 @@
-# depends: $(RDATA_DIR)/bush_approval $(STAN_DIR)/local_level_hs_inter.stan
+# ---
+# rdata: bush_approval
+# stan: local_level_hs_inter.stan
+# ---
 bush <- RDATA[["bush_approval"]]
 
 standata <- within(list(), {

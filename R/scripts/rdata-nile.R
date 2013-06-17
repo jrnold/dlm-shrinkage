@@ -1,3 +1,5 @@
+# ---
+# ---
 data(Nile)
 nile <-
   mutate(data.frame(year = tsp(Nile)[1]:tsp(Nile)[2],
