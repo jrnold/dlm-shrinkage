@@ -1,4 +1,8 @@
-# depends: $(RDATA_DIR)/nile nile_data.R $(STAN_DIR)/nile_normal_1
+# ---
+# rdata: nile
+# scripts: nile_data.R
+# stan: nile_normal_1
+# ---
 nile <- RDATA[["nile"]]
 source("nile_data.R")
 

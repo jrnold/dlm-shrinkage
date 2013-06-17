@@ -5,15 +5,14 @@ RSCRIPT = Rscript
 
 SRC = $(wildcard rdata-*.R)
 OBJ = $(SRC:rdata-%.R=$(RDATA_DIR)/%)
-DEPS = $(SRC:%.R=%.P)
 
-all: $(DEPS) $(OBJ) hashes.txt
+all: dependencies $(OBJ) hashes.txt
 
 $(RDATA_DIR)/%: rdata-%.R
 	$(RSCRIPT) run.R $<
 
-%.P: %.R
-	grep "# depends" $< | sed -e 's/#\+ *depends:/rdata-$(<).R:/' > $@
+dependencies:
+	python configure.py > dependencies.inc
 
 touch-all: 
 	touch $(OBJ)
@@ -21,7 +20,9 @@ touch-all:
 hashes.txt: filehash.R $(OBJ)
 	$(RSCRIPT) run.R $< > $@
 
--include $(SRC:.R=.P)
+-include dependencies.inc
+
+.PHONY: dependencies
 
 clean:
-	rm -f *.P
+	rm dependencies.inc

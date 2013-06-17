@@ -1,4 +1,6 @@
-# depends: $(DATA_DIR)/greenbacks.csv
+# ---
+# data: greenbacks.csv
+# ---
 greenbacks <-
   mutate(read.delim(DATA_FILE("greenbacks.csv")),
          date = as.Date(dt, "%Y-%m-%d"),

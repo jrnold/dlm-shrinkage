@@ -1,3 +1,6 @@
+# ---
+# rdata: greenbacks
+# ---
 # depends: $(RDATA_DIR)/greenbacks
 greenbacks <- RDATA[["greenbacks"]]
 
