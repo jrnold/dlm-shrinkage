@@ -45,7 +45,7 @@ model {
         Finv <- 1 / F;
         K <- P * Finv;
         a <- a + K * v;
-        P <- (1 - K ) * P;
+        P <- (1 - K) * P;
         loglik_obs[i] <- -0.5 * (log(2 * pi()) 
                                  + log(F) + Finv * pow(v, 2.0));
       } else {
@@ -57,6 +57,6 @@ model {
     }
     lp__ <- lp__ + sum(loglik_obs);
   }
-  lp__ <- lp__ + 1.0 / H;
+  lp__ <- lp__ - log(H);
   tau ~ cauchy(0, sqrt(H));
 }

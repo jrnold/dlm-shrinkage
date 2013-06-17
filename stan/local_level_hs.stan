@@ -53,7 +53,7 @@ model {
   }
 
   // Jeffrey's Prior on observation variance.
-  lp__ <- lp__ + 1.0 / H;
+  lp__ <- lp__ - log(H);
   // Cauchy prior on global scale of state disturbances
   tau ~ cauchy(0, sqrt(H));
   // Cauchy priors on mixing parameters of state disturbances

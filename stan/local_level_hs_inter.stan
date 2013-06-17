@@ -65,7 +65,7 @@ model {
   lp__ <- sum(loglik_obs);
 
   // prior on obs var
-  lp__ <- lp__ + 1.0 / sigma2;
+  lp__ <- lp__ - log(sigma2);
   tau ~ cauchy(0, sqrt(sigma2));
   // Horseshoe prior
   lambda ~ cauchy(0, 1);

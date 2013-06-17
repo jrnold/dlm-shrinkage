@@ -1,6 +1,7 @@
 SHELL = bash
-DATA_DIR = ../../data/
+DATA_DIR = ../../data
 RDATA_DIR = ../../rdata
+STAN_DIR = ../../stan
 RSCRIPT = Rscript
 
 SRC = $(wildcard rdata-*.R)

@@ -92,7 +92,7 @@ model {
       P <- 0.5 * (P + P');
     }
   } // end Kalman filter block
-  lp__ <- lp__ + 1 / sigma2;
+  lp__ <- lp__ - log(sigma2);
   tau ~ cauchy(0, 1);
   lambda ~ cauchy(0, 1);
 }

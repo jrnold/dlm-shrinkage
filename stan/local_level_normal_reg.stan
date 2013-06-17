@@ -61,7 +61,7 @@ model {
     }
   }
   lp__ <- lp__ + sum(loglik_obs);
-  lp__ <- lp__ + 1.0 / H;
+  lp__ <- lp__ - log(H);
   tau ~ cauchy(0, sqrt(H));
 }
 

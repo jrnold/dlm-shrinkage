@@ -61,6 +61,6 @@ model {
     }
   }
   lp__ <- lp__ + sum(loglik_obs);
-  lp__ <- lp__ + 1.0 / sigma2;
+  lp__ <- lp__ - log(sigma2);
   tau ~ cauchy(0, sqrt(sigma2));
 }

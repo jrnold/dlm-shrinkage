@@ -4,11 +4,11 @@ greenbacks <- RDATA[["greenbacks"]]
 KEY <- "greenbacks1"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
-MODEL <- "greenbacks1"
+#MODEL <- "greenbacks1"
 MODEL <- "local_level_normal"
 
 SEED <- c(4724536922)
-ITER <- 2^11
+ITER <- 2^12
 WARMUP <- 2^11
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
@@ -30,9 +30,8 @@ standata <-
 standata <-
   within(list(), {
     y <- greenbacks_cw$lmean
-    missing <- is.na(y)
     n <- length(y)
-    meas_err <- greenbacks_cw$lsd^2
+    missing <- rep(0, n)
     a1 <- greenbacks_cw$lmean[1]
     P1 <- 1e7
   })
@@ -57,6 +56,6 @@ res <-
   mcmcdb_wide_from_stan(smpls,
                         model_data = standata,
                         model_name = MODEL)
-res@metadata[["system_time"]] <- timing
+#res@metadata[["system_time"]] <- timing
 
-RDATA[[MCMCDB_KEY]] <- res #new("McmcdbLocalLevelHp", res)
+#RDATA[[MCMCDB_KEY]] <- res #new("McmcdbLocalLevelHp", res)
