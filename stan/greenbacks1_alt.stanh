@@ -1,0 +1,52 @@
+#include <kalman_seq.h>
+// Kalman Filter (Multivariate Form)
+// - no missing values
+data {
+  // dimensions
+  int n; // number of observations
+  // system matrices
+  cov_matrix[1] P1;
+  vector[1] a1;
+  // data
+  vector[1] y[n]; //
+  int missing[n, 1]; //
+  real<lower=0.0> meas_err[n]; // observation variances (given)
+}
+transformed data {
+  int m;
+  int r;
+  int p;
+  matrix[1, 1] Z;
+  matrix[1, 1] T;
+  matrix[1, 1] R;
+  vector[1] c;
+  vector[1] d;
+  m <- 1;
+  r <- 1;
+  p <- 1;
+  T[1, 1] <- 1;
+  Z[1, 1] <- 1;
+  R[1, 1] <- 1;
+  c[1] <- 0;
+  d[1] <- 0;
+}
+parameters {
+  real<lower=0.0> sigma2;
+  real<lower=0.0> tau;
+  vector<lower=0.0>[n] lambda;
+}
+transformed parameters {
+  vector<lower=0.0>[1] H[n];
+  cov_matrix[1] Q[n];
+  for (i in 1:n) {
+    H[i, 1] <- sigma2 + meas_err[i];
+    Q[i, 1, 1] <- pow(lambda[i] * tau, 2);
+  }
+}
+model {
+  matrix[m, m] RQR[n];
+  for (i in 1:n) {
+    RQR[i] <- R' * Q[i] * R;
+  }
+  KALMAN_SEQ_0011001(y, T, Z, H, RQR, a1, P1, c, d, missing);
+}

@@ -19,16 +19,15 @@ transformed parameters {
   Q <- pow(tau, 2.0);
 }
 model {
-  // log-lilelihood
-  real loglik_obs[n];
 
   // Kalman Filter block
   {
+    // log-lilelihood
+    real loglik_obs[n];
     // filter output
     real v;
     real K;
     real Finv;
-    
     // state predictions a_{t}, P_{t}
     real a;
     real P;
@@ -56,8 +55,8 @@ model {
       // a <- a;
       P <- P + Q;
     }
+    lp__ <- lp__ + sum(loglik_obs);
   }
-  lp__ <- lp__ + sum(loglik_obs);
   lp__ <- lp__ + 1.0 / H;
   tau ~ cauchy(0, sqrt(H));
 }

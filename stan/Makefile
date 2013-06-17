@@ -39,6 +39,9 @@ CFLAGS = -I $(STAN_SRC) -I $(EIGEN) -I $(EIGEN)/unsupported -I $(BOOST) -O$O -fP
 LDLIBS = -L$(STAN_BIN) -lstan
 LDLIBS_STANC = -L$(STAN_BIN) -lstanc
 
+%.stan : %.stanh
+	cpp -Iincludes -undef -P $< $@
+
 %.cpp : %.stan 
 	@echo ''
 	@echo '--- Translating Stan graphical model to C++ code ---'
