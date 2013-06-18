@@ -6,6 +6,10 @@ $(RDATA_DIR)/mcmcsummary_bush_normal: rdata-mcmcsummary_bush_normal.R $(RDATA_DI
 
 $(RDATA_DIR)/mcmcsummary_bush_hs: rdata-mcmcsummary_bush_hs.R $(RDATA_DIR)/mcmcdb_bush_hs 
 
+$(RDATA_DIR)/mcmcsummary_greenbacks1: rdata-mcmcsummary_greenbacks1.R $(RDATA_DIR)/mcmcdb_greenbacks1 
+
+$(RDATA_DIR)/mcmcsummary_greenbacks2: rdata-mcmcsummary_greenbacks2.R $(RDATA_DIR)/mcmcdb_greenbacks2 
+
 $(RDATA_DIR)/mcmcdb_nile_hs: rdata-mcmcdb_nile_hs.R $(RDATA_DIR)/nile $(STAN_DIR)/local_level_hs.stanx 
 
 $(RDATA_DIR)/mcmcdb_nile_normal_2: rdata-mcmcdb_nile_normal_2.R $(RDATA_DIR)/nile $(STAN_DIR)/local_level_normal_inter.stanx nile_data.R 
