@@ -18,9 +18,9 @@ eta <- ldply(sprintf("nile_%s", c("hs", "normal_1", "normal_2")),
              function(k) {
                key <- sprintf("mcmcsummary_%s", k)
                x <- melt(RDATA[[key]][["dist_state"]])
-               ret <- data.frame(ddply(x, "Var1",
+               ret <- data.frame(ddply(x, "Var2",
                                        function(df) mcmc3valsummary(df$value)),
-                                 model = LATEX_NILE_MODELS[k])
+                                 model = unname(LATEX_NILE_MODELS[k]))
                ret$year <- RDATA[["nile"]][["year"]]
                ret
              })
