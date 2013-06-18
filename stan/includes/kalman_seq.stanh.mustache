@@ -1,0 +1,37 @@
+#define KALMAN_SEQ_{{#tv_T}}T{{/tv_T}}{{#tv_Z}}Z{{/tv_Z}}{{#tv_H}}H{{/tv_H}}{{#tv_RQR}}Q{{/tv_RQR}}{{#tv_c}}c{{/tv_c}}{{#tv_d}}d{{/tv_d}}{{#use_missing}}M{{/use_missing}}(PREFIX, y, T, Z, H, RQR, a1, P1, c, d{{#use_missing}}, missing{{/use_missing}}) \
+{ \
+  real PREFIX ## v; \
+  vector[rows(T)] PREFIX ## K; \
+  real PREFIX ## Finv; \
+  vector[rows(T)] PREFIX ## a; \
+  matrix[rows(T), rows(T)] PREFIX ## P; \
+  vector[rows(T)] PREFIX ## M; \
+  real PREFIX ## F; \
+  PREFIX ## a <- a1; \
+  PREFIX ## P <- P1; \
+  for (i in 1:cols(y)) { \
+    for (j in 1:rows(y)) { \
+      {{#use_missing}} \
+      if (! int_step(missing[i, j])) { \
+      {{/use_missing}} \
+        vector[m] PREFIX ## Zj; \
+        PREFIX ## Zj <- Z[{{#tv_c}}i, {{/tv_c}}j] TRANSPOSE; \
+        PREFIX ## v <- y[j, i] - c[{{#tv_c}}i, {{/tv_c}}j] - dot_product(PREFIX ## Zj, PREFIX ## a); \
+        PREFIX ## M <- PREFIX ## P * PREFIX ## Zj; \
+        PREFIX ## F <- dot_product(PREFIX ## Zj, PREFIX ## M) + H[{{#tv_H}}i, {{/tv_H}}j]; \
+        PREFIX ## Finv <- 1 / PREFIX ## F; \
+        PREFIX ## K <- PREFIX ## M * PREFIX ## Finv; \
+        PREFIX ## a <- PREFIX ## a + PREFIX ## K * PREFIX ## v; \
+        PREFIX ## P <- PREFIX ## P - PREFIX ## K * PREFIX ## M TRANSPOSE; \
+        PREFIX ## P <- 0.5 * (PREFIX ## P + PREFIX ## P TRANSPOSE);  \
+        lp__ <- lp__  - 0.5 * (log(2 * pi())  \
+                               + log(PREFIX ## F) + PREFIX ## Finv * pow(PREFIX ## v, 2.0)); \
+      {{#use_missing}} \
+      } \
+      {{/use_missing}} \
+    } \
+    PREFIX ## a <- d{{#tv_d}}[i]{{/tv_d}} + T{{#tv_T}}[i]{{/tv_T}} * PREFIX ## a; \
+    PREFIX ## P <- T{{#tv_T}}[i]{{/tv_T}} * PREFIX ## P * T{{#tv_T}}[i]{{/tv_T}} TRANSPOSE + RQR{{#tv_RQR}}[i]{{/tv_RQR}}; \
+    PREFIX ## P <- 0.5 * (PREFIX ## P + PREFIX ## P TRANSPOSE); \
+  } \
+} \

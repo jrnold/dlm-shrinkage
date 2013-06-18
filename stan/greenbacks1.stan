@@ -1,15 +1,9 @@
-// Kalman Filter (Multivariate Form)
-// - no missing values
 data {
-  // dimensions
-  int n; // number of observations
-  // system matrices
+  int n;
   cov_matrix[1] P1;
   vector[1] a1;
-  // data
-  vector[1] y[n]; //
-  int missing[n, 1]; //
-  real<lower=0.0> meas_err[n]; // observation variances (given)
+  matrix[1, n] y;
+  real<lower=0.0> meas_err[n];
 }
 transformed data {
   int m;
@@ -32,7 +26,7 @@ transformed data {
 parameters {
   real<lower=0.0> sigma2;
   real<lower=0.0> tau;
-  //  vector<lower=0.0>[n] lambda;
+  vector<lower=0.0>[n] lambda;
 }
 transformed parameters {
   vector<lower=0.0>[1] H[n];
@@ -45,49 +39,12 @@ transformed parameters {
   }
 }
 model {
-  // Kalman Filter block
-  { // T, Z, H, Q, R, a1, P1
-    matrix[m, m] RQR;
-    // filter output
-    real v;
-    vector[m] K;
-    real Finv;
-
-    // state predictions a_{t}, P_{t}
-    vector[m] a;
-    matrix[m, m] P;
-    // temp variables
-    vector[m] M;
-    real F;
-
-    
-    a <- a1;
-    P <- P1;
-    for (i in 1:n) {
-      RQR <- R * Q[i] * R';
-      for (j in 1:p) {
-        if (! int_step(missing[i, j])) {
-          vector[m] Zj;
-          Zj <- Z[j]';
-          v <- y[i, j] - c[j] - dot_product(Zj, a);
-          M <- P * Zj;
-          F <- dot_product(Zj, M) + H[i, j];
-          Finv <- 1 / F;
-          K <- M * Finv;
-          a <- a + K * v;
-          P <- P - K * M';
-          P <- 0.5 * (P + P');  // keep symmetric
-          lp__ <- lp__ - 0.5 * (log(2 * pi()) 
-                                + log(F) + Finv * pow(v, 2.0));
-        } 
-      }
-      // // predict
-      a <- d + T * a;
-      P <- T * P * T' + RQR;
-      P <- 0.5 * (P + P');
-    }
-  } // end Kalman filter block
+  matrix[m, m] RQR[n];
+  for (i in 1:n) {
+    RQR[i] <- R' * Q[i] * R;
+  }
+  { real KALMAN_SEQ_v; vector[rows(T)] KALMAN_SEQ_K; real KALMAN_SEQ_Finv; vector[rows(T)] KALMAN_SEQ_a; matrix[rows(T), rows(T)] KALMAN_SEQ_P; vector[rows(T)] KALMAN_SEQ_M; real KALMAN_SEQ_F; KALMAN_SEQ_a <- a1; KALMAN_SEQ_P <- P1; for (i in 1:cols(y)) { for (j in 1:rows(y)) { vector[m] KALMAN_SEQ_Zj; KALMAN_SEQ_Zj <- Z[j] '; KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; KALMAN_SEQ_F <- dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_M) + H[i, j]; KALMAN_SEQ_Finv <- 1 / KALMAN_SEQ_F; KALMAN_SEQ_K <- KALMAN_SEQ_M * KALMAN_SEQ_Finv; KALMAN_SEQ_a <- KALMAN_SEQ_a + KALMAN_SEQ_K * KALMAN_SEQ_v; KALMAN_SEQ_P <- KALMAN_SEQ_P - KALMAN_SEQ_K * KALMAN_SEQ_M '; KALMAN_SEQ_P <- 0.5 * (KALMAN_SEQ_P + KALMAN_SEQ_P '); lp__ <- lp__ - 0.5 * (log(2 * pi()) + log(KALMAN_SEQ_F) + KALMAN_SEQ_Finv * pow(KALMAN_SEQ_v, 2.0)); } KALMAN_SEQ_a <- d + T * KALMAN_SEQ_a; KALMAN_SEQ_P <- T * KALMAN_SEQ_P * T ' + RQR[i]; KALMAN_SEQ_P <- 0.5 * (KALMAN_SEQ_P + KALMAN_SEQ_P '); } }
   lp__ <- lp__ - log(sigma2);
   tau ~ cauchy(0, 1);
-  // lambda ~ cauchy(0, 1);
+  lambda ~ cauchy(0, 1);
 }

@@ -2,7 +2,7 @@ nile_fit_plot <- function(key, file) {
   alpha <- RDATA[[key]][["alpha"]]
   nile <- RDATA[["nile"]]
   
-  alpha_m <- ddply(melt(alpha), "Var1",
+  alpha_m <- ddply(melt(alpha), "Var2",
                    function(df) mcmc3valsummary(df$value))
   alpha_m[["year"]] <- nile[["year"]]
   

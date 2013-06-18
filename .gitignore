@@ -1,6 +1,8 @@
 *.pdf
 *.cpp
 *.o
+*.d
+*.P
 *.stanx
 *.log
 *.bak
@@ -12,7 +14,6 @@ auto
 *-blx.bib
 R/library/
 R/*.tar.gz
-R/scripts/*.P
 *.Rcheck
 /paper/Structural_Breaks.synctex.gz
 /doc/paper/Structural_Breaks.out

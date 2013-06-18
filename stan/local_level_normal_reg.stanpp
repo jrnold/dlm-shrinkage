@@ -1,13 +1,19 @@
+// -*- mode: stan -*-
+// Kalman Filter (Multivariate Form)
+// - no missing values
 data {
-  int n;
-  int k;
+  // dimensions
+  int n; // number of observations
+  int k; // number of regression variables
   real a1;
   real<lower=0.0> P1;
-  real y[n];
-  int missing[n];
+  // data
+  real y[n]; // rows = variables; cols = observations
+  int missing[n]; // rows = variables; cols = observations
   matrix[n, k] X;
 }
 parameters {
+  // system matrices
   real<lower=0.0> H;
   real<lower=0.0> tau;
   vector[k] beta;
@@ -19,27 +25,39 @@ transformed parameters {
   Q <- pow(tau, 2.0);
 }
 model {
+  // log-lilelihood
   real loglik_obs[n];
+
+  // Kalman Filter block
   {
+    // filter output
     real v;
     real K;
     real Finv;
+    
+    // state predictions a_{t}, P_{t}
     real a;
     real P;
+    // real M;
     real F;
+    
     a <- a1;
     P <- P1;
     for (i in 1:n) {
       if (! missing[i]) {
+        // filter
         v <- y[i] - cc[i] - a;
+        // M <- P;
         F <- P + H;
         Finv <- 1 / F;
         K <- P * Finv;
         a <- a + K * v;
         P <- (1 - K ) * P;
-        loglik_obs[i] <- -0.5 * (log(2 * pi())
+        loglik_obs[i] <- -0.5 * (log(2 * pi()) 
                                  + log(F) + Finv * pow(v, 2.0));
       }
+      // // predict
+      // a <- a;
       P <- P + Q;
     }
   }
@@ -47,3 +65,4 @@ model {
   lp__ <- lp__ - log(H);
   tau ~ cauchy(0, sqrt(H));
 }
+

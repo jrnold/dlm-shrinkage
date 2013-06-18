@@ -1,6 +1,6 @@
 # ---
 # rdata: nile
-# stan: local_level_normal_inter.stan
+# stan: local_level_normal_inter
 # scripts: nile_data.R
 # ---
 nile <- RDATA[["nile"]]
@@ -27,7 +27,7 @@ THIN <- (ITER - WARMUP) / NSAMPLES
 
 MODEL <- "local_level_normal_inter"
 
-init <- list(sigma2 = 15099, tau = sqrt(1427))
+init <- list(sigma2 = 15099, tau = sqrt(1427))g
 
 timing <-
   system.time(smpls <- run_stan_model(STAN_MODELS(MODEL),

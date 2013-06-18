@@ -8,11 +8,11 @@ KEY <- "greenbacks1"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
 #MODEL <- "greenbacks1"
-MODEL <- "local_level_normal"
+MODEL <- "greenbacks1"
 
 SEED <- c(4724536922)
-ITER <- 2^12
-WARMUP <- 2^11
+ITER <- 2^13
+WARMUP <- 2^12
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
 
@@ -21,22 +21,13 @@ greenbacks_cw <- na.omit(subset(greenbacks,
 
 standata <-
   within(list(), {
-    y <- matrix(greenbacks_cw$lmean)
+    y <- t(matrix(greenbacks_cw$lmean))
     missing <- is.na(y)
     n <- length(y)
     meas_err <- greenbacks_cw$lsd^2
     meas_err[is.na(meas_err)] <- 1e7
     a1 <- array(greenbacks_cw$lmean[1], 1)
     P1 <- matrix(greenbacks_cw$lsd[1]^2 * 3)
-  })
-
-standata <-
-  within(list(), {
-    y <- greenbacks_cw$lmean
-    n <- length(y)
-    missing <- rep(0, n)
-    a1 <- greenbacks_cw$lmean[1]
-    P1 <- 1e7
   })
 
 # StructTS(greenbacks$lmean, "level")
@@ -51,7 +42,7 @@ timing <-
   system.time(smpls <- run_stan_model(STAN_MODELS(MODEL),
                                       data = standata,
                                       seed=SEED,
-                                      #init = init,
+                                      init = init,
                                       iter = ITER,
                                       warmup = WARMUP,
                                       thin = THIN))
@@ -59,6 +50,5 @@ res <-
   mcmcdb_wide_from_stan(smpls,
                         model_data = standata,
                         model_name = MODEL)
-#res@metadata[["system_time"]] <- timing
-
-#RDATA[[MCMCDB_KEY]] <- res #new("McmcdbLocalLevelHp", res)
+res@metadata[["system_time"]] <- timing
+RDATA[[MCMCDB_KEY]] <- res #new("McmcdbLocalLevelHp", res)

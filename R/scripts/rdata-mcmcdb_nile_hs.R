@@ -1,6 +1,6 @@
 # ---
 # rdata: nile
-# stan: local_level_hs.stan
+# stan: local_level_hs
 # --- 
 nile <- RDATA[["nile"]]
 source("nile_data.R")

@@ -44,10 +44,10 @@ def make_dependencies(filename):
                     dependencies.append("$(RDATA_DIR)/%s" % x)
         if 'stan' in header:
             if isinstance(header['stan'], str):
-                dependencies.append("$(STAN_DIR)/%s" % header['stan'])
+                dependencies.append("$(STAN_DIR)/%s.stanx" % header['stan'])
             else:
                 for x in header['stan']:
-                    dependencies.append("$(STAN_DIR)/%s" % x)
+                    dependencies.append("$(STAN_DIR)/%s.stanx" % x)
         if 'data' in header:
             if isinstance(header['data'], str):
                 dependencies.append("$(DATA_DIR)/%s" % header['data'])

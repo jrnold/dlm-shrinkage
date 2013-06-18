@@ -1,10 +1,10 @@
 # depends: $(RDATA_DIR)/greenbacks
 greenbacks <- RDATA[["greenbacks"]]
 
-KEY <- "greenbacks2"
+KEY <- "greenbacks3"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
-MODEL <- "greenbacks2"
+MODEL <- "greenbacks3"
 
 SEED <- c(43542530304)
 ITER <- 2^15
@@ -21,8 +21,8 @@ standata <-
     n <- ncol(y)
     meas_err <- greenbacks_cw$lsd^2
     meas_err[is.na(meas_err)] <- 1e7
-    a1 <- c(greenbacks_cw$lmean[1], 0)
-    P1 <- diag(c(greenbacks_cw$lsd[1] * 3, greenbacks_cw$lsd[1] * 3))
+    a1 <- c(greenbacks_cw$lmean[1], 0, 0)
+    P1 <- diag(rep(greenbacks_cw$lsd[1] * 3, 3))
   })
 
 # StructTS(greenbacks$lmean, "level")

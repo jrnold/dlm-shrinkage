@@ -1,6 +1,6 @@
-#include <kalman_seq.h>
-// Kalman Filter (Multivariate Form)
-// - no missing values
+// -*- mode: stan -*-
+#include <jeffreys.stanh>
+#include <kalman_seq.stanh>
 data {
   // dimensions
   int n; // number of observations
@@ -8,8 +8,7 @@ data {
   cov_matrix[1] P1;
   vector[1] a1;
   // data
-  vector[1] y[n]; //
-  int missing[n, 1]; //
+  matrix[1, n] y;
   real<lower=0.0> meas_err[n]; // observation variances (given)
 }
 transformed data {
@@ -37,10 +36,12 @@ parameters {
 }
 transformed parameters {
   vector<lower=0.0>[1] H[n];
-  cov_matrix[1] Q[n];
+  matrix<lower=0.0>[1, 1] Q[n];
   for (i in 1:n) {
     H[i, 1] <- sigma2 + meas_err[i];
-    Q[i, 1, 1] <- pow(lambda[i] * tau, 2);
+  }
+  for (i in 1:n) {
+    Q[i, 1, 1] <- pow(tau, 2) * sigma2;
   }
 }
 model {
@@ -48,5 +49,8 @@ model {
   for (i in 1:n) {
     RQR[i] <- R' * Q[i] * R;
   }
-  KALMAN_SEQ_0011001(y, T, Z, H, RQR, a1, P1, c, d, missing);
+  KALMAN_SEQ_HQ(KALMAN_SEQ_, y, T, Z, H, RQR, a1, P1, c, d)
+  JEFFREYS(sigma2)
+  tau ~ cauchy(0, 1);
+  lambda ~ cauchy(0, 1);
 }

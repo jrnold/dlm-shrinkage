@@ -1,6 +1,6 @@
 # ---
 # rdata: bush_approval
-# stan: spline.stan
+# stan: spline
 # ---
 bush <- RDATA[["bush_approval"]]
 

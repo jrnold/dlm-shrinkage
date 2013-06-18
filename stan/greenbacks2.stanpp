@@ -1,0 +1,63 @@
+// -*- mode: stan -*-
+#include <jeffreys.stanh>
+#include <kalman_seq.stanh>
+// Kalman Filter (Multivariate Form)
+// - no missing values
+data {
+  int n;
+  matrix[1, n] y;
+  real<lower=0.0> meas_err[n];
+  cov_matrix[1] P1;
+  vector[1] a1;
+}
+transformed data {
+  matrix[2, 1] R;
+  matrix[1, 2] Z;
+  vector[1] c;
+  vector[2] d;
+  int m;
+  int r;
+  int p;
+  m <- 3;
+  r <- 2;
+  p <- 1;
+  R[1, 1] <- 0;
+  R[2, 1] <- 1;
+  Z[1, 1] <- 1;
+  Z[1, 2] <- 0;
+  c[1] <- 0;
+  d[1] <- 0;
+  d[2] <- 0;
+}
+parameters {
+  real<lower=0.0> tau;
+  real<lower=0.0> sigma2;
+  real<lower=-1, upper=1> rho;
+  vector<lower=0.0>[n] lambda;
+}
+transformed parameters {
+  matrix[2, 2] T;
+  vector<lower=0.0>[1] H[n];
+  matrix<lower=0.0>[1, 1] Q[n];
+  T[1, 1] <- 1;
+  T[1, 2] <- 1;
+  T[2, 1] <- 0;
+  T[2, 2] <- rho;
+  for (i in 1:n) {
+    H[i, 1] <- sigma2 + meas_err[i];
+  }
+  for (i in 1:n) {
+    Q[i, 1, 1] <- pow(lambda[i] * tau, 2) * sigma2;
+  }
+}
+model {
+  // Kalman Filter block
+  matrix[2, 2] RQR[n];
+  for (i in 1:n) {
+    RQR[i] <- R * Q[i] * R';
+  }
+  KALMAN_SEQ_HQ(KALMAN_SEQ_, y, T, Z, H, RQR, a1, P1, c, d);
+  JEFFREYS(sigma2);
+  tau ~ cauchy(0, 1);
+  lambda ~ cauchy(0, 1);
+}

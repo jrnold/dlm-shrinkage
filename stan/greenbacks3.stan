@@ -2,14 +2,14 @@ data {
   int n;
   matrix[1, n] y;
   real<lower=0.0> meas_err[n];
-  cov_matrix[1] P1;
-  vector[1] a1;
+  cov_matrix[3] P1;
+  vector[3] a1;
 }
 transformed data {
-  matrix[2, 1] R;
-  matrix[1, 2] Z;
+  matrix[3, 2] R;
+  matrix[1, 3] Z;
   vector[1] c;
-  vector[2] d;
+  vector[3] d;
   int m;
   int r;
   int p;
@@ -17,32 +17,47 @@ transformed data {
   r <- 2;
   p <- 1;
   R[1, 1] <- 0;
+  R[1, 1] <- 0;
   R[2, 1] <- 1;
+  R[2, 2] <- 0;
+  R[3, 1] <- 0;
+  R[3, 2] <- 1;
   Z[1, 1] <- 1;
   Z[1, 2] <- 0;
+  Z[1, 3] <- 1;
   c[1] <- 0;
-  d[1] <- 0;
-  d[2] <- 0;
+  for (i in 1:3) {
+    d[i] <- 0;
+  }
 }
 parameters {
-  real<lower=0.0> tau;
+  vector<lower=0.0>[2] tau;
   real<lower=0.0> sigma2;
-  real<lower=-1, upper=1> rho;
+  real<lower=-1, upper=1> rho1;
+  real<lower=-1, upper=1> rho2;
   vector<lower=0.0>[n] lambda;
 }
 transformed parameters {
   matrix[2, 2] T;
   vector<lower=0.0>[1] H[n];
-  matrix<lower=0.0>[1, 1] Q[n];
+  vector<lower=0.0>[2] Qdiag[n];
+  matrix<lower=0.0>[2, 2] Q[n];
   T[1, 1] <- 1;
   T[1, 2] <- 1;
+  T[1, 3] <- 0;
   T[2, 1] <- 0;
-  T[2, 2] <- rho;
+  T[2, 2] <- rho1;
+  T[2, 3] <- 0;
+  T[3, 1] <- 0;
+  T[3, 2] <- 0;
+  T[3, 3] <- rho2;
   for (i in 1:n) {
-    H[i, 1] <- sigma2 + meas_err[i];
+    H[i, 1] <- meas_err[i];
   }
   for (i in 1:n) {
-    Q[i, 1, 1] <- pow(lambda[i] * tau, 2) * sigma2;
+    Qdiag[i, 1] <- pow(lambda[i] * tau[1], 2);
+    Qdiag[i, 2] <- pow(tau[2], 2);
+    Q[i] <- diag_matrix(Qdiag[i]);
   }
 }
 model {

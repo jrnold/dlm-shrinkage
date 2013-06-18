@@ -13,9 +13,13 @@ O = 3
 ###################################################################################
 
 # Create objects
-source = $(wildcard $(DIR)/*.stan)
+source_pp = $(wildcard *.stanpp)
+source_stan = $(patsubst %.stanpp,%.stan,$(source_pp))
+deps = $(patsubst %.stanpp,%.d,$(source_pp))
+# dependencies
+
 # TODO: slash direction would need to be generalized for cross-platform.
-objects = $(patsubst %.stan,%$(EXE),$(source))
+objects = $(patsubst %.stan,%$(EXE),$(source_stan))
 
 # TODO: insert OS specific stuff
 AR = ar
@@ -39,8 +43,11 @@ CFLAGS = -I $(STAN_SRC) -I $(EIGEN) -I $(EIGEN)/unsupported -I $(BOOST) -O$O -fP
 LDLIBS = -L$(STAN_BIN) -lstan
 LDLIBS_STANC = -L$(STAN_BIN) -lstanc
 
-%.stan : %.stanh
-	cpp -Iincludes -undef -P $< $@
+%.d : %.stanpp
+	cpp -Iincludes -w -nostdinc -MM  -MT $(patsubst %.stanpp,%.stan,$<) $<  -MF $@
+
+%.stan : %.stanpp
+	cpp -Iincludes -w -undef -Wundef -nostdinc -std=c11 -P $< $@
 
 %.cpp : %.stan 
 	@echo ''
@@ -57,11 +64,13 @@ LDLIBS_STANC = -L$(STAN_BIN) -lstanc
 	@echo '--- Linking C++ model ---'
 	$(LINK.c) $(OUTPUT_OPTION) $< $(LDLIBS)
 
-all: $(objects)
+all: $(deps) $(objects)
 	@echo $(objects)
+
+-include *.d
 
 #.SECONDARY:
 
 clean:
-	-rm -f $(DIR)/*.cpp $(DIR)/*.stanx $(DIR)/*.o
+	-rm -f *.cpp *.o *.d *.stan *.stanx
 

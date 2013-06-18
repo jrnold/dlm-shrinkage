@@ -1,6 +1,6 @@
 # ---
 # rdata: bush_approval
-# stan: local_level_hs_inter.stan
+# stan: local_level_hs_inter
 # ---
 bush <- RDATA[["bush_approval"]]
 

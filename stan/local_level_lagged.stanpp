@@ -1,10 +1,16 @@
+// -*- mode: stan -*-
+// Kalman Filter (Multivariate Form)
+// - no missing values
 data {
-  int n;
+  // dimensions
+  int n; // number of observations
+  // system matrices
   cov_matrix[2] P1;
   vector[2] a1;
-  vector[1] y[n];
-  int missing[n, 1];
-  vector<lower=0.0>[1] H[n];
+  // data
+  vector[1] y[n]; //
+  int missing[n, 1]; //
+  vector<lower=0.0>[1] H[n]; // observation variances (given)
 }
 transformed data {
   matrix[2, 1] R;
@@ -37,16 +43,23 @@ transformed parameters {
   Z[2, 2] <- rho;
 }
 model {
-  {
+  // Kalman Filter block
+  { // T, Z, H, Q, R, a1, P1
     matrix[m, m] RQR;
+    // filter output
     real v;
     vector[m] K;
     real Finv;
+
+    // state predictions a_{t}, P_{t}
     vector[m] a;
     matrix[m, m] P;
+    // temp variables
     vector[m] M;
     real F;
+
     RQR <- R * Q * R';
+    
     a <- a1;
     P <- P1;
     for (i in 1:n) {
@@ -62,13 +75,14 @@ model {
           a <- a + K * v;
           P <- P - K * M';
           P <- 0.5 * (P + P');  // keep symmetric
-          lp__ <- lp__ - 0.5 * (log(2 * pi())
+          lp__ <- lp__ - 0.5 * (log(2 * pi()) 
                                 + log(F) + Finv * pow(v, 2.0));
         }
       }
+      // // predict
       a <- d + T * a;
       P <- T * P * T' + RQR;
       P <- 0.5 * (P + P');
     }
-  }
+  } // end Kalman filter block
 }

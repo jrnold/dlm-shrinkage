@@ -15,67 +15,43 @@ ssmodel_array2list <- function(x, n) {
   }
 }
 
-yhat_from_ssm <- function(object, alpha) {
-  FUN <- function(alpha, Z) {
-    as.numeric(Z[[1]] %*% alpha[[1]])
-  }
-  res <- mlply(data.frame(alpha = I(alply(alpha, 2, identity)),
-                           Z = I(ssmodel_array2list(object$Z, object$n))),
-                .fun = FUN)
-  simplify2array(res)
-}
-
-dist_obs_from_ssm <- function(object, alpha) {
-  FUN <- function(y, alpha, Z) {
-    as.numeric(y[[1]] - Z[[1]] %*% alpha[[1]])
-  }
-  y <- alply(as.matrix(object[["y"]]), 1, identity)
-  res <- mlply(data.frame(y = I(y),
-                          alpha = I(alply(alpha, 2, identity)),
-                          Z = I(ssmodel_array2list(object$Z, object$n))),
-                .fun = FUN)
-  simplify2array(res)
-}
-
-dist_state_from_ssm <- function(object, alpha) {
-  FUN <- function(alpha, T, lalpha) {
-    as.numeric(alpha[[1]] - T[[1]] %*% lalpha[[1]])
-  }
-  lalpha <- cbind(matrix(object$a1), alpha[ , 1:(ncol(alpha) - 1), drop=FALSE])
-  res <- mlply(data.frame(alpha = I(alply(alpha, 2, identity)),
-                          lalpha = I(alply(lalpha, 2, identity)),
-                          T = I(ssmodel_array2list(object$T, object$n))),
-                .fun = FUN)
-  simplify2array(res)
-}
-
-
 # alpha: m x 1 x n
 # Z: p x m x n
 # H: p x p x n
-yrep_from_ssm <- function(n, object, alpha) {
-  FUN <- function(alpha, Z, H) {
-    mu <- Z[[1]] %*% alpha[[1]]
-    H <- H[[1]]
-    if (length(mu) > 1) { 
-      drop(rmvnorm(n, mu, H))
-    } else {
-      rnorm(n, mu, sqrt(H))
-    }
+yhat_from_ssm <- function(object, alpha) {
+  Z <- ssmodel_array2list(object$Z, object$n)
+  FUN <- function(i) {
+    Z[[i]] %*% alpha[ , i, drop=FALSE]
   }
-  res <- mlply(data.frame(alpha = I(alply(alpha, 2, identity)),
-                          Z = I(ssmodel_array2list(object$Z, object$n)),
-                          H = I(ssmodel_array2list(object$H, object$n))),
-               .fun = FUN)
-  simplify2array(res)
+  laply(seq_len(dim(alpha)[2]), .fun = FUN, .drop=FALSE)
 }
+
+# return: 
+dist_obs_from_ssm <- function(object, alpha) {
+  Z <- ssmodel_array2list(object$Z, object$n)
+  y <- as.matrix(object$y)
+  FUN <- function(i) {
+    y[i, , drop=FALSE] - Z[[i]] %*% alpha[ , i, drop=FALSE]
+  }
+  laply(seq_len(dim(alpha)[2]), .fun = FUN, .drop=FALSE)
+}
+
+dist_state_from_ssm <- function(object, alpha) {
+  T <- ssmodel_array2list(object$T, object$n)
+  lalpha <- cbind(matrix(object$a1), alpha[ , 1:(ncol(alpha) - 1), drop=FALSE])
+  FUN <- function(i) {
+    alpha[ , i, drop=FALSE] - T[[i]] %*% lalpha[ , i, drop=FALSE]
+  }
+  laply(seq_len(dim(alpha)[2]), .fun = FUN, .drop=FALSE)
+}
+
 
 ssm_sim <- function(object, data = mcmcdb_data(object), parallel=FALSE, chain_id = NULL, iter = NULL) {
   FUN <- function(iter, data, to_ssm) {
     ssmodel <- to_ssm(iter)
     alpha <- simulateSSM(ssmodel, "states")[["states"]]
     dim(alpha) <- dim(alpha)[1:2]
-    yrep <- yrep_from_ssm(1, ssmodel, alpha)
+    yrep <- yrep_from_ssm(ssmodel, alpha)
     yhat <- yhat_from_ssm(ssmodel, alpha)
     epsilon <- dist_obs_from_ssm(ssmodel, alpha)
     eta <- dist_state_from_ssm(ssmodel, alpha)
@@ -89,5 +65,4 @@ ssm_sim <- function(object, data = mcmcdb_data(object), parallel=FALSE, chain_id
                       .parallel = parallel,
                       .paropts = list(.packages = c("sddlm")),
                       chain_id = chain_id, iter = iter)
-                      
 }
