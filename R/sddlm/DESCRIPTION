@@ -35,3 +35,5 @@ Collate:
     'DlmLocalLevelHs-class.R'
     'DlmSpline-class.R'
     'DlmSplineHs-class.R'
+    'DlmGreenbacks1-class.R'
+    'DlmGreenbacks2-class.R'

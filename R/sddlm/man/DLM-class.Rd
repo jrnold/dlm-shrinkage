@@ -2,6 +2,10 @@
 \name{DLM}
 \alias{DLM}
 \alias{DLM-class}
+\alias{DlmGreenbacks1}
+\alias{DlmGreenbacks1-class}
+\alias{DlmGreenbacks2}
+\alias{DlmGreenbacks2-class}
 \alias{DlmLocalLevelHs}
 \alias{DlmLocalLevelHs-class}
 \alias{DlmLocalLevelNormal}

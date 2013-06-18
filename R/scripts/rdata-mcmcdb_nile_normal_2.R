@@ -27,7 +27,7 @@ THIN <- (ITER - WARMUP) / NSAMPLES
 
 MODEL <- "local_level_normal_inter"
 
-init <- list(sigma2 = 15099, tau = sqrt(1427))g
+init <- list(sigma2 = 15099, tau = sqrt(1427))
 
 timing <-
   system.time(smpls <- run_stan_model(STAN_MODELS(MODEL),
