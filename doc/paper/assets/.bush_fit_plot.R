@@ -2,7 +2,7 @@ bush_fit_plot <- function(key, file) {
   alpha <- RDATA[[key]][["alpha"]]
   data <- RDATA[["bush_approval"]]
   
-  alpha_m <- ddply(melt(alpha), "Var2",
+  alpha_m <- ddply(melt(alpha), "Var1",
                    function(df) mcmc3valsummary(df$value))
   alpha_m[["date"]] <- data[["date"]]
   
