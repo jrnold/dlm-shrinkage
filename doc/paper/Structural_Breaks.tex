@@ -568,6 +568,38 @@ The paper \textcite{WillardGuinnaneEtAl1996} finds turning points in the prices 
 
 \textit{I've only run a few preliminary models with this so far, but the results do not show clean structural breaks like the Bush and Nile examples. It looks more like a simple smoothing.}
 
+\subsection{Coalition Fatalities in Afghanistan}
+\label{sec:coal-fatal-afgh}
+
+The next example is estimation of the level and trend of the U.S. and coalition force fatalities in Afghanistan between September 2001 and May 2013.
+The objective of this analysis is to estimate the level and trend of fatalities and to identify any turning points in the casualty series.
+
+However, the data have two features that complicate the analysis. 
+First, casualties are non-negative integers, and since the DLM euations assume continuous $y_{t} \in \R$, the estimation techniques will have to be adjusted.
+Second, the data show a strong seasonal component.
+Due to the mountainous terrain and harsh winters, fighting tends to lull during the winter months.
+This seasonality will have to be removed in order to estimate level and trends.
+
+The data on fatalities comes from \href{icasualties.org}{http://icasualties.org/oef/ByMonth.aspx}%
+\footnote{
+  Operation Enduring Freedom fatalities by month for nationalities, all fatality types, and all OEF theaters.
+}
+
+\begin{equation}
+  \label{eq:11}
+  \log (y_{t} + 0.5) & \mu_{t} + \gamma_{t} + \epsilon_{t} & \epsilon_{t} & \sim N(0, \sigma^{2}_{t}) \\
+  \mu_{t} & \mu_{t-1} +  \del \mu_{t - 1} + \nu_{1,t} \\
+  \del \mu_{t} & \del \mu_{t - 1} + \nu_{2,t} \\
+\end{equation}
+
+Alternatives data sources or models.
+
+\begin{itemize}
+\item Add number of U.S. troops a
+\item Use number of attacks (2008-2012) instead
+\item Use number of attacks on civilians (WITS data)
+\end{itemize}
+
 \subsection{Other possibilities}
 
 I should have a set of examples that highlight the flexibility of the model; e.g. more complex time series models, correlated structural breaks in multiple parameters, time-varying regression. 
