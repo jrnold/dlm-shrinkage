@@ -1,4 +1,4 @@
-PYTHON = python
+gPYTHON = python
 
-kalman_seq.stanh: make-kalman_seq.py kalman_seq.stanh.mustache
-	$(PYTHON) make-kalman_seq.py kalman_seq.stanh.mustache > $@
+kalman_seq.stanh: kalman_seq.py kalman_seq.mustache
+	$(PYTHON) kalman_seq.py kalman_seq.mustache > $@
