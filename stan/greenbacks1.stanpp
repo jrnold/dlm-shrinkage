@@ -49,7 +49,7 @@ model {
   for (i in 1:n) {
     RQR[i] <- R' * Q[i] * R;
   }
-  KALMAN_SEQ_HQ(KALMAN_SEQ_, y, T, Z, H, RQR, a1, P1, c, d)
+  KALMAN_SEQ_HQ(y, T, Z, H, RQR, a1, P1, c, d)
   JEFFREYS(sigma2)
   tau ~ cauchy(0, 1);
   lambda ~ cauchy(0, 1);
