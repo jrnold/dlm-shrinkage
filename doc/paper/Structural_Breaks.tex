@@ -155,7 +155,7 @@ Translated into equation \eqref{eq:5}, this statement means that the researcher 
 I will refer to a vector as sparse if most elements are 0, and dense if most elements are not zero.
 It is expected that for most periods $\eta_{t} = 0$ or $\eta_{t} \approx 0$, but there are a few periods in which $\eta_{t} \neq 0$, with the possibility that $|\eta_{t}| \gg 0$.
 When cast in this way, the problem of estimating structural breaks within a dynamic linear model is essentially a problem of estimating a sparse parameter vector $\eta$.
-Estimating sparse parameters, especially when the number of observations small relative to the number of observations (large-p, small-n) is a problem that is presently receiving much attention in the areas of penalized or regularized regression, variable selection, and multiple-testing \parencite{CarvalhoPolsonScott2010}.
+Estimating sparse parameters, especially when the number of observations small relative to the number of observations (large-p, small-n), is a problem that is presently receiving much attention in the areas of penalized or regularized regression, variable selection, and multiple-testing \parencite{CarvalhoPolsonScott2010}.
 Following the convention in that literature, I will refer $\eta_{t} \approx 0$ as ``noise'' and $|\eta_{t}| \gg 0$ as ``signals''.
 In sparse estimation problems, the researcher wants to classify parameters into signals and noise, and estimate the magnitude of the signals.
 In this application, the structural breaks are the signals, and the non-structural breaks are the noise.
@@ -343,7 +343,7 @@ This implementation cost reduces the ease of using DLM models in applications de
 This paper proposes and implements an easy and practical method to estimate DLMs within \Stan{} \parencite{Stan2013}.
 This method is used within this paper for SDDLMs but can be applied to any DLM.
 I divide the problem of sampling $p(\alpha, S_{t} | y_{t})$ into two steps.
-First, sample from $p(\S_{t} | y_{t})$. 
+First, sample from $p(S_{t} | y_{t})$. 
 Second, given samples from $p(S_{t} | y_{t})$, sample the states $p(\alpha_{t} | S_{t}, y_{t})$.
 
 First, sample from $p(S_{t} | y_{t})$ using \Stan{}'s implementation of HMC.
@@ -368,7 +368,7 @@ These Kalman Filter and log-likelihood calculations are written in \Stan{}'s mod
 
 Second, having obtained a sample of size $K$ from $p(S | y)$, for each $k \in 1:K$ sample from $p(\alpha | y, S^{(k)})$ using a block sampler of the type discussed earlier.
 For this paper, I used the \RLang{} package \pkg{KFAS} \parencite{Helske2012} which has an implementation the \textcite{DurbinKoopman2002} simulation smoother algorithm.
-In practice, the most difficult aspect of this step is munging the output from the first step into data structures needed to draw samples in the second step.
+In practice, the most difficult aspect of this step is converting the output from the first step into the data structures needed to draw samples in the second step.
 For this purpose, and in general to make post-processing MCMC samples easier, I wrote and have made available the \RLang{} package \href{https://github.com/jrnold/mcmcdb}{\textbf{mcmcdb}}.
 Separating the sampling of $p(\alpha_{t} | y, S)$ from $p(S | y)$ has a few practical advantages.
 In some cases, e.g. many ARIMA models, only parameters in the system matrices are of interest, and thus the step $p(\alpha | y, S)$ can be skipped.
@@ -381,7 +381,7 @@ Second, once a sample from $p(S | y)$ is obtained, the sampling of $p(\alpha | y
 \label{sec:nile}
 
 The Nile data is a series of readings of the annual flow volume of the Nile River at Aswan taken between 1871 and 1970.
-This dataset is a classic dataset that has been analyzed used in many works on structural breaks and DLMs \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{CommandeurKoopmanOoms2011}.%
+This dataset is a classic dataset that has been analyzed in many works on structural breaks and DLMs \parencites{Cobb1978}{Balke1993}{JongPenzer1998}{DurbinKoopman2001}{CommandeurKoopmanOoms2011}.%
 \footnote{The dataset is included with base \RLang{} as \texttt{datasets::Nile} \parencite{RCT2013}.}
 Previous analyses show a single level shift in the data, with the shift occurring in 1899.
 This level shift is attributed to the construction of a dam at Aswan in that year.
@@ -444,7 +444,7 @@ The global variance component $\tau^{2}$ shrinking the noise and the determines 
 The local variance components $\lambda^{2}_{t}$ are able to let individual parameters remain unshrunk if $\lambda_{t}^{2}$ is estimated to be large enough.
 
 Table \ref{tab:nile-fits} displays model fit statistics for the Nile River flow models.
-The primary criteria that is used to compare the models is the Widely Applicable Information Criterion (WAIC) \parencite{Watanabe2010}.%
+The primary criterion that is used to compare the models is the Widely Applicable Information Criterion (WAIC) \parencite{Watanabe2010}.%
 \footnote{See \textcite{GelmanHwangVehtari2013} and \textcite{VehtariOjanen2012} for recent overviews of Bayesian model comparison.}
 The WAIC is an information criterion similar to the commonly used Deviance Information Criterion (DIC) \parencite{spiegelhalter2002bayes}, but unlike the DIC, the WAIC is applicable to singular models such as mixture models.
 Fundamentally, the WAIC is a measure of expected out-of-sample prediction error, and is asymptotically equivalent to Bayesian leave-one-out cross-validation \parencite{Watanabe2010}.
@@ -463,8 +463,8 @@ Figure \ref{fig:nile-lambda} displays the values of the median of the local vari
 Structural breaks are classified as observations for which the median is greater than 1, and as expected and should be the case, only 1899 is classified as a structural break.
 
 This example shows that using the horseshoe prior on the state disturbances is able to recover the one known structural break for the Nile dataset.
-While this may seem like an easy application, it is an expel with a sparse disturbance vector (expected 1 of 100), the domain in which continuous state space models have traditionally captured time-varying-parameters poorly (e.g. see \Model{nile}{normal}.).
-However, shows that scale mixture of normal distributions can recover the structural break and squelch changes in the other periods.
+While this may seem like an easy application, it is an example with a sparse disturbance vector (expected 1 of 100), the domain in which continuous state space models have traditionally captured time-varying-parameters poorly (e.g. see \Model{nile}{normal}.).
+However, this example shows that a scale mixture of normal distributions can both recover a structural break in a series while shrinking changes in the other periods to zero.
 
 \begin{figure}[htpb]
   \centering
