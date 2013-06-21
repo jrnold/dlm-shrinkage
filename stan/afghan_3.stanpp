@@ -1,0 +1,46 @@
+// -*- mode: stan -*-
+# include "jeffreys.stanh"
+# include "kalman_seq.stanh"
+data {
+    // dimensions
+  int n; // number of observations
+  int p; // variables
+  int m; // states
+  int r; // disturbances
+  // system matrices
+  cov_matrix[m] P1;
+  vector[m] a1;
+  // data
+  int y[n];
+  matrix[m, m] T;
+  matrix[p, m] Z;
+  matrix[m, r] R;
+  matrix[r, r] Q1;
+  vector[p] c;
+  vector[m] d;
+}
+transformed data {
+}
+parameters {
+  vector[n] mu;
+  vector[r] tau2;
+}
+transformed parameters {
+  cov_matrix[r] Q;
+  Q <- Q1 * diag_matrix(tau2) * Q1';
+}
+model {
+  matrix[m, m] RQR;
+  RQR <- R * Q * R';
+
+  for (i in 1:n) {
+  }
+
+  KALMAN_SEQ(mu, T, Z, H, RQR, a1, P1, c, d);
+  for (i in 1:n) {
+    y[i] ~ poisson(exp(mu[1, i]));
+  }
+  JEFFREYS(sigma2);
+  tau2 ~ cauchy(0, sqrt(sigma2));
+}
+
