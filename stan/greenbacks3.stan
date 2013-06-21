@@ -2,8 +2,8 @@ data {
   int n;
   matrix[1, n] y;
   real<lower=0.0> meas_err[n];
-  cov_matrix[2] P1;
-  vector[2] a1;
+  cov_matrix[3] P1;
+  vector[3] a1;
 }
 transformed data {
   matrix[3, 2] R;

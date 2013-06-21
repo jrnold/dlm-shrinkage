@@ -4663,7 +4663,7 @@
 } \
 
 
-#define KALMAN_SEQ_M(y, T, Z, H, RQR, a1, P1, c, d, missing) \
+#define KALMAN_SEQM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
   vector[rows(T)] KALMAN_SEQ_K; \
@@ -4702,7 +4702,7 @@
 } \
 
 
-#define KALMAN_SEQ_(y, T, Z, H, RQR, a1, P1, c, d) \
+#define KALMAN_SEQ(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
   vector[rows(T)] KALMAN_SEQ_K; \

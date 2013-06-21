@@ -1,4 +1,4 @@
-#define KALMAN_SEQ_{{#tv_T}}T{{/tv_T}}{{#tv_Z}}Z{{/tv_Z}}{{#tv_H}}H{{/tv_H}}{{#tv_RQR}}Q{{/tv_RQR}}{{#tv_c}}c{{/tv_c}}{{#tv_d}}d{{/tv_d}}{{#use_missing}}M{{/use_missing}}(y, T, Z, H, RQR, a1, P1, c, d{{#use_missing}}, missing{{/use_missing}}) \
+#define KALMAN_SEQ{{#tv}}_{{/tv}}{{#tv_T}}T{{/tv_T}}{{#tv_Z}}Z{{/tv_Z}}{{#tv_H}}H{{/tv_H}}{{#tv_RQR}}Q{{/tv_RQR}}{{#tv_c}}c{{/tv_c}}{{#tv_d}}d{{/tv_d}}{{#use_missing}}M{{/use_missing}}(y, T, Z, H, RQR, a1, P1, c, d{{#use_missing}}, missing{{/use_missing}}) \
 { \
   real KALMAN_SEQ_v; \
   vector[rows(T)] KALMAN_SEQ_K; \

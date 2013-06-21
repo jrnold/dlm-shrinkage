@@ -1,6 +1,7 @@
 # Directory of models
 DIR = .
 STAN_HOME = $(HOME)/local/stan/stan-src-1.3.0
+# STAN_HOME = $(HOME)/workspace/stan/stan-dev/
 # Extension name for compiled objects
 EXE = .stanx
 

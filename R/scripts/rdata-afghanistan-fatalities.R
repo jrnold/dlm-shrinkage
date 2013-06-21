@@ -1,4 +1,4 @@
-# ---
+.# ---
 # data: icasualties/afghanistan_coalition_fatalities_by_year_month.csv
 # ---
 #

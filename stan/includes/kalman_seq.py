@@ -7,13 +7,14 @@ renderer = pystache.Renderer()
 
 
 def render_macro(tmpl, tv_T, tv_Z, tv_H, tv_RQR, tv_c, tv_d, use_missing):
-    content = {'tv_T' : int(bool(tv_T)), 
-               'tv_Z' : int(bool(tv_Z)), 
-               'tv_H' : int(bool(tv_H)),
-               'tv_RQR' : int(bool(tv_RQR)), 
-               'tv_c' : int(bool(tv_c)), 
-               'tv_d' : int(bool(tv_d)), 
-               'use_missing' : int(bool(use_missing))}
+    content = {'tv_T' : bool(tv_T),
+               'tv_Z' : bool(tv_Z), 
+               'tv_H' : bool(tv_H),
+               'tv_RQR' : bool(tv_RQR),
+               'tv_c' : bool(tv_c), 
+               'tv_d' : bool(tv_d),
+               'tv' : tv_T or tv_Z or tv_H or tv_RQR or tv_c or tv_d,
+               'use_missing' : bool(use_missing)}
     macrotxt = renderer.render(tmpl.read(), content)
     return macrotxt
 
