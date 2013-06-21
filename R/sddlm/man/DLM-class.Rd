@@ -2,6 +2,8 @@
 \name{DLM}
 \alias{DLM}
 \alias{DLM-class}
+\alias{DlmAfghan1}
+\alias{DlmAfghan1-class}
 \alias{DlmGreenbacks1}
 \alias{DlmGreenbacks1-class}
 \alias{DlmGreenbacks2}
