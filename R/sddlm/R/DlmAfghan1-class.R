@@ -10,17 +10,21 @@ setClass("DlmAfghan1", contains = "DLM")
 dlm_to_ssmodel.DlmAfghan1 <-
   function(object) {
     data <- mcmcdb_data(object)
+    mod <- dlm::dlmModPoly(2) + dlm::dlmModSeas(12)
+    Z <- mod$FF
+    T <- mod$GG
+    R <- matrix(0, nrow(T), ncol(T))
+    diag(R)[1:3] <- 1
+
     function(iter) {
-      T <- matrix(1, 2, 2)
-      T[2, 1] <- 0
-      T[2, 2] <- iter$rho
-      R <- matrix(c(0, 1), 2, 1)
-      Z <- matrix(c(1, 0), 1, 2)
+      T <- T
+      R <- R
+      Z <- Z
       H <- array(iter$H, c(1, 1, length(iter$H)))
       Q <- array(iter$Q, c(1, 1, length(iter$Q)))
-      foo <- SSModel(t(data$y),
-                     Z = Z, H = H, T = T, Q = Q, R = R,
-                     a1 = data$a1, P1 = data$P1)
+      SSModel(t(data$y),
+              Z = Z, H = H, T = T, Q = Q, R = R,
+              a1 = data$a1, P1 = data$P1)
     }
   }
 
