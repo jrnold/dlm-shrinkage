@@ -16,24 +16,22 @@ THIN <- (ITER - WARMUP) / NSAMPLES
 
 afghanistan_fatalities <- RDATA[["afghanistan_fatalities"]]
 
-mod <- dlm::dlmModPoly(2) + dlm::dlmModSeas(12)
+afghanistan_fatalities <- RDATA[["afghanistan_fatalities"]]
+y <- log(afghanistan_fatalities[["fatalities"]] + 0.5)
+
+mod <- dlm::dlmModPoly(1) + dlm::dlmModTrig(s = 12, q = 1)
 
 Z <- mod$FF
+R <- diag(3)
 T <- mod$GG
-R <- matrix(0, nrow(T), 3)
-diag(R)[1:3] <- 1
-Q1 <- diag(3)
-Q1[1, 2] <- 1L
 
-a1 <- rep(NA, 13)
+a1 <- rep(NA, 3)
 a1[1] <- log(afghanistan_fatalities$fatalities[1])
-a1[2] <- 0
-a1[3:13] <- 0
+a1[2:3] <- 0
 
-P1d <- rep(NA, 13)
+P1d <- rep(NA, 3)
 P1d[1] <- var(log(afghanistan_fatalities$fatalities[1:12])) * 2
-P1d[2] <- var(diff(log(afghanistan_fatalities$fatalities[1:12]))) * 2
-P1d[3:13] <- 1e7
+P1d[2:3] <- 1e7
 P1 <- diag(P1d)
 
 standata <- within(list(), {
@@ -42,7 +40,6 @@ standata <- within(list(), {
   T <- T
   Z <- Z
   R <- R
-  Q1 <- Q1
   p <- 1L
   m <- ncol(Z)
   r <- ncol(R)
@@ -64,4 +61,4 @@ res <-
                         model_data = standata,
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
-RDATA[[MCMCDB_KEY]] <- res
+RDATA[[MCMCDB_KEY]] <- new("DlmAfghan1", res)

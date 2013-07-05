@@ -4,11 +4,11 @@
 #define KALMAN_SEQ_TZHQcdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -17,7 +17,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -43,18 +43,18 @@
 #define KALMAN_SEQ_TZHQcd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -78,11 +78,11 @@
 #define KALMAN_SEQ_TZHQcM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -91,7 +91,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -117,18 +117,18 @@
 #define KALMAN_SEQ_TZHQc(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -152,11 +152,11 @@
 #define KALMAN_SEQ_TZHQdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -165,7 +165,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -191,18 +191,18 @@
 #define KALMAN_SEQ_TZHQd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -226,11 +226,11 @@
 #define KALMAN_SEQ_TZHQM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -239,7 +239,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -265,18 +265,18 @@
 #define KALMAN_SEQ_TZHQ(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -300,11 +300,11 @@
 #define KALMAN_SEQ_TZHcdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -313,7 +313,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -339,18 +339,18 @@
 #define KALMAN_SEQ_TZHcd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -374,11 +374,11 @@
 #define KALMAN_SEQ_TZHcM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -387,7 +387,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -413,18 +413,18 @@
 #define KALMAN_SEQ_TZHc(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -448,11 +448,11 @@
 #define KALMAN_SEQ_TZHdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -461,7 +461,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -487,18 +487,18 @@
 #define KALMAN_SEQ_TZHd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -522,11 +522,11 @@
 #define KALMAN_SEQ_TZHM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -535,7 +535,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -561,18 +561,18 @@
 #define KALMAN_SEQ_TZH(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -596,11 +596,11 @@
 #define KALMAN_SEQ_TZQcdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -609,7 +609,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -635,18 +635,18 @@
 #define KALMAN_SEQ_TZQcd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -670,11 +670,11 @@
 #define KALMAN_SEQ_TZQcM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -683,7 +683,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -709,18 +709,18 @@
 #define KALMAN_SEQ_TZQc(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -744,11 +744,11 @@
 #define KALMAN_SEQ_TZQdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -757,7 +757,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -783,18 +783,18 @@
 #define KALMAN_SEQ_TZQd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -818,11 +818,11 @@
 #define KALMAN_SEQ_TZQM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -831,7 +831,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -857,18 +857,18 @@
 #define KALMAN_SEQ_TZQ(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -892,11 +892,11 @@
 #define KALMAN_SEQ_TZcdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -905,7 +905,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -931,18 +931,18 @@
 #define KALMAN_SEQ_TZcd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -966,11 +966,11 @@
 #define KALMAN_SEQ_TZcM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -979,7 +979,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1005,18 +1005,18 @@
 #define KALMAN_SEQ_TZc(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1040,11 +1040,11 @@
 #define KALMAN_SEQ_TZdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1053,7 +1053,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1079,18 +1079,18 @@
 #define KALMAN_SEQ_TZd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1114,11 +1114,11 @@
 #define KALMAN_SEQ_TZM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1127,7 +1127,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1153,18 +1153,18 @@
 #define KALMAN_SEQ_TZ(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1188,11 +1188,11 @@
 #define KALMAN_SEQ_THQcdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1201,7 +1201,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1227,18 +1227,18 @@
 #define KALMAN_SEQ_THQcd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1262,11 +1262,11 @@
 #define KALMAN_SEQ_THQcM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1275,7 +1275,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1301,18 +1301,18 @@
 #define KALMAN_SEQ_THQc(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1336,11 +1336,11 @@
 #define KALMAN_SEQ_THQdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1349,7 +1349,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1375,18 +1375,18 @@
 #define KALMAN_SEQ_THQd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1410,11 +1410,11 @@
 #define KALMAN_SEQ_THQM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1423,7 +1423,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1449,18 +1449,18 @@
 #define KALMAN_SEQ_THQ(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1484,11 +1484,11 @@
 #define KALMAN_SEQ_THcdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1497,7 +1497,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1523,18 +1523,18 @@
 #define KALMAN_SEQ_THcd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1558,11 +1558,11 @@
 #define KALMAN_SEQ_THcM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1571,7 +1571,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1597,18 +1597,18 @@
 #define KALMAN_SEQ_THc(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1632,11 +1632,11 @@
 #define KALMAN_SEQ_THdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1645,7 +1645,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1671,18 +1671,18 @@
 #define KALMAN_SEQ_THd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1706,11 +1706,11 @@
 #define KALMAN_SEQ_THM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1719,7 +1719,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1745,18 +1745,18 @@
 #define KALMAN_SEQ_TH(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1780,11 +1780,11 @@
 #define KALMAN_SEQ_TQcdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1793,7 +1793,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1819,18 +1819,18 @@
 #define KALMAN_SEQ_TQcd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1854,11 +1854,11 @@
 #define KALMAN_SEQ_TQcM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1867,7 +1867,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1893,18 +1893,18 @@
 #define KALMAN_SEQ_TQc(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1928,11 +1928,11 @@
 #define KALMAN_SEQ_TQdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -1941,7 +1941,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -1967,18 +1967,18 @@
 #define KALMAN_SEQ_TQd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2002,11 +2002,11 @@
 #define KALMAN_SEQ_TQM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -2015,7 +2015,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2041,18 +2041,18 @@
 #define KALMAN_SEQ_TQ(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2076,11 +2076,11 @@
 #define KALMAN_SEQ_TcdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -2089,7 +2089,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2115,18 +2115,18 @@
 #define KALMAN_SEQ_Tcd(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2150,11 +2150,11 @@
 #define KALMAN_SEQ_TcM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -2163,7 +2163,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2189,18 +2189,18 @@
 #define KALMAN_SEQ_Tc(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2224,11 +2224,11 @@
 #define KALMAN_SEQ_TdM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -2237,7 +2237,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2263,18 +2263,18 @@
 #define KALMAN_SEQ_Td(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2298,11 +2298,11 @@
 #define KALMAN_SEQ_TM(y, T, Z, H, RQR, a1, P1, c, d, missing) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
@@ -2311,7 +2311,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2337,18 +2337,18 @@
 #define KALMAN_SEQ_T(y, T, Z, H, RQR, a1, P1, c, d) \
 { \
   real KALMAN_SEQ_v; \
-  vector[rows(T)] KALMAN_SEQ_K; \
+  vector[rows(T[1])] KALMAN_SEQ_K; \
   real KALMAN_SEQ_Finv; \
-  vector[rows(T)] KALMAN_SEQ_a; \
-  matrix[rows(T), rows(T)] KALMAN_SEQ_P; \
-  vector[rows(T)] KALMAN_SEQ_M; \
+  vector[rows(T[1])] KALMAN_SEQ_a; \
+  matrix[rows(T[1]), rows(T)] KALMAN_SEQ_P; \
+  vector[rows(T[1])] KALMAN_SEQ_M; \
   real KALMAN_SEQ_F; \
   KALMAN_SEQ_a <- a1; \
   KALMAN_SEQ_P <- P1; \
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T[1])] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2385,7 +2385,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2422,7 +2422,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2459,7 +2459,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2496,7 +2496,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2533,7 +2533,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2570,7 +2570,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2607,7 +2607,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2644,7 +2644,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2681,7 +2681,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2718,7 +2718,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2755,7 +2755,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2792,7 +2792,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2829,7 +2829,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2866,7 +2866,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2903,7 +2903,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2940,7 +2940,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -2977,7 +2977,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3014,7 +3014,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3051,7 +3051,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3088,7 +3088,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3125,7 +3125,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3162,7 +3162,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3199,7 +3199,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3236,7 +3236,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3273,7 +3273,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3310,7 +3310,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3347,7 +3347,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3384,7 +3384,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3421,7 +3421,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3458,7 +3458,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3495,7 +3495,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3532,7 +3532,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3569,7 +3569,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3606,7 +3606,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3643,7 +3643,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3680,7 +3680,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3717,7 +3717,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3754,7 +3754,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3791,7 +3791,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3828,7 +3828,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3865,7 +3865,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3902,7 +3902,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3939,7 +3939,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -3976,7 +3976,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4013,7 +4013,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4050,7 +4050,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4087,7 +4087,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4124,7 +4124,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4161,7 +4161,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4198,7 +4198,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4235,7 +4235,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4272,7 +4272,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4309,7 +4309,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4346,7 +4346,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4383,7 +4383,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4420,7 +4420,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4457,7 +4457,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4494,7 +4494,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4531,7 +4531,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4568,7 +4568,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[i, j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[i, j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4605,7 +4605,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4642,7 +4642,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4679,7 +4679,7 @@
        \
       if (! int_step(missing[i, j])) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \
@@ -4716,7 +4716,7 @@
   for (i in 1:cols(y)) { \
     for (j in 1:rows(y)) { \
        \
-        vector[m] KALMAN_SEQ_Zj; \
+        vector[rows(T)] KALMAN_SEQ_Zj; \
         KALMAN_SEQ_Zj <- Z[j] TRANSPOSE; \
         KALMAN_SEQ_v <- y[j, i] - c[j] - dot_product(KALMAN_SEQ_Zj, KALMAN_SEQ_a); \
         KALMAN_SEQ_M <- KALMAN_SEQ_P * KALMAN_SEQ_Zj; \

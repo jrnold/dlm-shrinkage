@@ -1,12 +1,11 @@
 # ---
-# rdata: greenbacks
+# code: greenbacks
 # ---
-greenbacks <- RDATA[["greenbacks"]]
+source("greenbacks.R")
 
 KEY <- "greenbacks1"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
-#MODEL <- "greenbacks1"
 MODEL <- "greenbacks1"
 
 SEED <- c(4724536922)
@@ -14,9 +13,6 @@ ITER <- 2^13
 WARMUP <- 2^12
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
-
-greenbacks_cw <- na.omit(subset(greenbacks,
-                                date <= as.Date("1866-1-1")))
 
 standata <-
   within(list(), {
@@ -26,15 +22,19 @@ standata <-
     meas_err <- greenbacks_cw$lsd^2
     meas_err[is.na(meas_err)] <- 1e7
     a1 <- array(greenbacks_cw$lmean[1], 1)
-    P1 <- matrix(greenbacks_cw$lsd[1]^2 * 3)
+    P1 <- matrix(greenbacks_cw$lsd[1]^2 * 2)
+    Z <- matrix(1)
+    T <- matrix(1)
+    R <- matrix(1)
+    c <- array(0, 1)
+    d <- array(0, 1)
   })
 
-# StructTS(greenbacks$lmean, "level")
+foo <- StructTS(greenbacks$lmean, "level")
 init <-
   within(list(), {
-    tau <- 0.0003813335
+    tau <- 0.006795129 
     sigma2 <- 3.194345e-07
-    lambda <- rep(1, length(standata$y))
   })
 
 timing <-
@@ -50,4 +50,4 @@ res <-
                         model_data = standata,
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
-RDATA[[MCMCDB_KEY]] <- res #new("McmcdbLocalLevelHp", res)
+RDATA[[MCMCDB_KEY]] <- new("DlmGreenbacks1", res)

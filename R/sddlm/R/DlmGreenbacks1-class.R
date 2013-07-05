@@ -11,11 +11,11 @@ dlm_to_ssmodel.DlmGreenbacks1 <-
   function(object) {
     data <- mcmcdb_data(object)
     function(iter) {
-      SSModel(data$y,
+      SSModel(y = as.numeric(data$y),
               Z = matrix(1),
               H = array(iter$H, c(1, 1, length(iter$H))),
               T = matrix(1),
-              Q = array(iter$Q, c(1, 1, length(iter$Q))),
+              Q = iter$Q,
               a1 = data$a1,
               P1 = data$P1)
     }

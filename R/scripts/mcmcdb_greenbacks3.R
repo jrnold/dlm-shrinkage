@@ -1,44 +1,53 @@
-# depends: $(RDATA_DIR)/greenbacks
-greenbacks <- RDATA[["greenbacks"]]
+# ---
+# code: greenbacks
+# ---
+source("greenbacks.R")
 
-KEY <- "greenbacks3"
-MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
+KEY <- "greenbacks5"
 SUMMARY_KEY <- sprintf("summary_%s", KEY)
-MODEL <- "greenbacks3"
+MODEL <- "greenbacks5"
 
-SEED <- c(43542530304)
-ITER <- 2^15
-WARMUP <- 2^14
+SEED <- c(4724536922)
+ITER <- 2^10
+WARMUP <- 2^9
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
-
-greenbacks_cw <- na.omit(subset(greenbacks,
-                                date <= as.Date("1866-1-1")))
 
 standata <-
   within(list(), {
     y <- t(matrix(greenbacks_cw$lmean))
-    n <- ncol(y)
-    meas_err <- greenbacks_cw$lsd^2
-    meas_err[is.na(meas_err)] <- 1e7
-    a1 <- c(greenbacks_cw$lmean[1], 0, 0)
-    P1 <- diag(rep(greenbacks_cw$lsd[1] * 3, 3))
+    n <- length(y)
+    ar <- 12
+
+    Z <- t(matrix(c(rep(1, 2), rep(0, ar - 1))))
+    T0 <- matrix(0, ar + 1, ar + 1)
+    T0[1, 1] <- 1
+    for (i in 1:(ar - 1)) {
+      T0[i + 2, i + 1] <- 1
+    }
+    
+    a1 <- c(array(greenbacks_cw$lmean[1], 1),
+            rep(0, ar))
+    P1_1 <- var(greenbacks_cw$lmean[1:30]) * 2
+    R <- matrix(0, ar + 1, 2)
+    R[1, 1] <- R[2, 2] <- 1
+    c <- array(rep(0, 1))
+    d <- array(rep(0, ar + 1))
   })
 
-# StructTS(greenbacks$lmean, "level")
 init <-
   within(list(), {
-    tau <- 0.0003813335
+    tau <- c(0.006795129 / 2, 0.006795129 / 2)
     sigma2 <- 3.194345e-07
-    lambda <- rep(1, length(standata$y))
-    rho <- 0.1
+    rho <- 0.5 * (1:standata$ar)^2
+    rho_pr_scale <- 0.5
   })
 
 timing <-
   system.time(smpls <- run_stan_model(STAN_MODELS(MODEL),
                                       data = standata,
                                       seed=SEED,
-                                      #init = init,
+                                      ## init = init,
                                       iter = ITER,
                                       warmup = WARMUP,
                                       thin = THIN))
@@ -47,5 +56,5 @@ res <-
                         model_data = standata,
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
+RDATA[[MCMCDB_KEY]] <- res #new("DlmGreenbacks5", res)
 
-RDATA[[MCMCDB_KEY]] <- res #new("McmcdbLocalLevelHp", res)

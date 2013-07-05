@@ -11,16 +11,13 @@ dlm_to_ssmodel.DlmGreenbacks2 <-
   function(object) {
     data <- mcmcdb_data(object)
     function(iter) {
-      T <- matrix(1, 2, 2)
-      T[2, 1] <- 0
-      T[2, 2] <- iter$rho
-      R <- matrix(c(0, 1), 2, 1)
-      Z <- matrix(c(1, 0), 1, 2)
+      T <- matrix(1)
+      R <- matrix(1)
+      Z <- matrix(1)
       H <- array(iter$H, c(1, 1, length(iter$H)))
       Q <- array(iter$Q, c(1, 1, length(iter$Q)))
-      foo <- SSModel(t(data$y),
-                     Z = Z, H = H, T = T, Q = Q, R = R,
-                     a1 = data$a1, P1 = data$P1)
+      SSModel(y = as.numeric(data$y), T = T, R = R, Q = Q,
+              a1 = a1, P1 = P1, Z = Z)
     }
   }
 

@@ -4,43 +4,50 @@
 data {
     // dimensions
   int n; // number of observations
-  int p; // variables
-  int m; // states
-  int r; // disturbances
+  int p; // variables = 1
+  int m; // states = 3
+  int r; // disturbances = 3
   // system matrices
   cov_matrix[m] P1;
   vector[m] a1;
   // data
-  int y[n];
+  matrix[p, n] y;
   matrix[m, m] T;
   matrix[p, m] Z;
   matrix[m, r] R;
-  matrix[r, r] Q1;
   vector[p] c;
   vector[m] d;
 }
 transformed data {
 }
 parameters {
-  vector[n] mu;
-  vector[r] tau2;
+  real<lower=0.0> sigma2;
+  vector<lower=0.0>[m - 1] tau;
+  vector<lower=0.0>[n] lambda;
 }
 transformed parameters {
-  cov_matrix[r] Q;
-  Q <- Q1 * diag_matrix(tau2) * Q1';
+  matrix[r, r] Q[n];
+  vector<lower=0.0>[p] H;
+  H[1] <- sigma2;
+  for (i in 1:n) {
+    real tau2_2;
+    vector[r] Q_diag;
+    tau2_2 <- pow(tau[2], 2);
+    Q_diag[1] <- pow(tau[1] * lambda[i], 2);
+    Q_diag[2] <- tau2_2;
+    Q_diag[3] <- tau2_2;
+    Q[i] <- diag_matrix(Q_diag);
+  }
 }
 model {
-  matrix[m, m] RQR;
-  RQR <- R * Q * R';
-
+  matrix[m, m] RQR[n];
   for (i in 1:n) {
+    RQR[i] <- R' * Q[i] * R;
   }
-
-  KALMAN_SEQ(mu, T, Z, H, RQR, a1, P1, c, d);
-  for (i in 1:n) {
-    y[i] ~ poisson(exp(mu[1, i]));
-  }
+  KALMAN_SEQ_Q(y, T, Z, H, RQR, a1, P1, c, d);
   JEFFREYS(sigma2);
-  tau2 ~ cauchy(0, sqrt(sigma2));
+  tau ~ cauchy(0, sqrt(sigma2));
+  for (i in 1:n) {
+    lambda[i] ~ cauchy(0, 1);
+  }
 }
-

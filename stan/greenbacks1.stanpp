@@ -7,50 +7,31 @@ data {
   // system matrices
   cov_matrix[1] P1;
   vector[1] a1;
-  // data
-  matrix[1, n] y;
-  real<lower=0.0> meas_err[n]; // observation variances (given)
-}
-transformed data {
-  int m;
-  int r;
-  int p;
   matrix[1, 1] Z;
   matrix[1, 1] T;
   matrix[1, 1] R;
   vector[1] c;
   vector[1] d;
-  m <- 1;
-  r <- 1;
-  p <- 1;
-  T[1, 1] <- 1;
-  Z[1, 1] <- 1;
-  R[1, 1] <- 1;
-  c[1] <- 0;
-  d[1] <- 0;
+  // data
+  matrix[1, n] y;
+  real<lower=0.0> meas_err[n]; // observation variances (given)
 }
 parameters {
   real<lower=0.0> sigma2;
   real<lower=0.0> tau;
-  vector<lower=0.0>[n] lambda;
 }
 transformed parameters {
   vector<lower=0.0>[1] H[n];
-  matrix<lower=0.0>[1, 1] Q[n];
+  matrix<lower=0.0>[1, 1] Q;
   for (i in 1:n) {
     H[i, 1] <- sigma2 + meas_err[i];
   }
-  for (i in 1:n) {
-    Q[i, 1, 1] <- pow(tau, 2) * sigma2;
-  }
+  Q[1, 1] <- pow(tau, 2);
 }
 model {
-  matrix[m, m] RQR[n];
-  for (i in 1:n) {
-    RQR[i] <- R' * Q[i] * R;
-  }
-  KALMAN_SEQ_HQ(y, T, Z, H, RQR, a1, P1, c, d)
+  matrix[1, 1] RQR;
+  RQR <- R * Q * R';
+  KALMAN_SEQ_H(y, T, Z, H, RQR, a1, P1, c, d)
   JEFFREYS(sigma2)
   tau ~ cauchy(0, 1);
-  lambda ~ cauchy(0, 1);
 }
