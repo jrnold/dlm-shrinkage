@@ -22,8 +22,7 @@
 \author{Jeffrey B. Arnold%
 \thanks{Thanks to Randall Stone, Curtis Signorino, and Brenton Kenkel for their comments and suggestions.}
 }
-% Seeing a Shrink about Structural Breaks
-\title{Bayesian Shrinkages
+\title{Bayesian Shrinkage in Dynanmic Linear Models}
 
 \include{pygments}
 \begin{document}
@@ -105,18 +104,158 @@ method can be extended.
 \subsection{Bayesian Shrinkage}
 \label{sec:bayesian-shrinkage}
 
-Consider the case of multiple means.
+Consider the case of multiple testing of means,%
+\footnote{This easily extends to linear regression $y_{i} \sim N(\theta_{i} X_{i}, \sigma^{2})$},
+ where
+\begin{equation}
+  \label{eq:13}
+  y_{i} & \sim N(\theta_{i}, \sigma) & & \text{for $i \in 1:n$}}
+\end{equation}
+where the vector $\theta_{1:n}$ is sparse, meaning that it is expected that most $\theta_{i} = 0$.
 
+In Bayesian estimation, there are two main approaches for estimating sparse parameters: discrete mixtures and shrinkage priors \parencite[73]{CarvalhoPolsonScott2009}.
+The discrete-mixture approach models the parameter with prior consisting of a mixture between a point mass at zero and a continuous distribution, i.e. a spike-and-slab prior \parencite{GeorgeMcCulloch1993}.
+\begin{equation}
+  \label{eq:1}
+  \theta_{i} = w \delta_{0} +  (1 - w) g(\theta_{i})
+\end{equation}
+where $w \in [0, 1]$, $\delta_{0}$ is the degenerate distribution at 0, and $g(\theta_{i})$ is the distribution of $\theta_{i} | \theta_{i} \neq 0$.
+\textit{advantages of this model: seperates inclusion and size of signal, w as a test of nonzero. disadvantages: hard to estimate. exact 0s}
 
+The second approach to estimating sparse parameters is shrinkage priors \parencites{Tibshirani1996}{Tipping2001}.
+Shrinkage priors are absolutely continuous distributions centered at zero.
+Shrinkage priors are the Bayesian posterior estimation equivalent of penalized likelihood for posterior mode-finding \parencites{PolsonScott2010}{PolsonScott2012a}.
+For example, the popular Lasso/L1 regularization \parencite{Tibshirani1996} corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the coefficients \parencites{ParkCasella2008}{Hans2009}.
+Other prior distributions correspond to other likelihood penalties, although for some distributions the likelihood penalty may lack a closed form.
+
+The most popular class of Bayesian shrinkage priors are global-local mixtures of normal distributions \parencite{PolsonScott2010}.
+A global-local mixture of normal distributions 
+\begin{equation}
+  \label{eq:3}
+  \begin{aligned}[t]
+    \theta_{t} &= N(0, \tau^{2} \lambda_{i}^{2}) \\ 
+    \lambda_{t}^{2} &\sim p(\lambda_{t}^{2}) \\
+    \tau_{t}^{2} &\sim p(\tau^{2})
+  \end{aligned}
+\end{equation}
+Thus, the prior distribution on the state distribution can be represented a normal distribution centered zero, in which the variance term in which the product of a global variance component $\tau^{2}$ and a local variance component $\lambda_{t}^{2}$.
+The $\lambda_t$ are also called mixing parameters, and their distribution is called the mixing distribution.
+
+Distributions in the global-local class of priors differ in the assumed distribution of the local variance component.%
+Some commonly used shrinkage priors that are scale mixtures of normal distributions include the Student's $t$-distribution, in which the mixing parameters are distributed inverse gamma $\lambda^{2}_{t} \sim \dinvgamma{a, b}$, and the double exponential distribution (Bayesian Lasso), in which the mixing parameters are distributed exponential $\lambda^{2}_{t} \sim \dexp{2}$ \parencite[74]{CarvalhoPolsonScott2009}.
+
+If $g$ is sufficiently heavy-tailed, $\E(\theta_{i} | w, y_{i}) \approx w(y_{i}) y_{i}$. 
+
+The analog of $w$ in the global-local normal distributions is the shrinkage parameter $\kappa$.
+Following standard results, the posterior distribution of $\theta_{i}$ is,
+\begin{equation}
+  \label{eq:11}
+  \E (\theta_{i} | y_{i}, \lambda_{i}, \tau, \sigma^{2}) &= \left(1 - \frac{1}{1 + \lambda^{2}_{i} \tau_{2}} \right) y_{i}
+\end{equation}
+Define the shrinkage parameter $\kappa_{i}$ as,
+\begin{equation}
+  \label{eq:19}
+  \kappa_{i} = \frac{1}{1 + \lambda^{2}_{i} \tau_{2}}
+\end{equation}
+When $\kappa_{i} \approx 0$, there is virtually no shrinkage and $\theta_{i} \approx y_{i}$;
+However, when $\kappa_{i} \approx 1$, there is almost complete shrinkage and $\theta_{i} \approx 0$.
+Note that both $\lambda$ and $\tau$ contribute to the shrinkage parameter. 
+When $\tau$ is small, then most values of $\kappa_{i} \approx 1$ and $\theta$ is sparse.
+However, if $\lambda$ is sufficiently large, it can overwhelm the effect of $\tau$, and $\kappa_{i}$ can be close to 0, leaving $\theta_{i}$ unshrunk.
+Thus, the global variance component $\tau_{i}$ determines the overall sparseness of $\theta_{i:n}$, while the local variance components $\lambda_{i}^{2}$ determine the non-zero values of $\theta_{i}$.
+
+The  distributions of $\kappa$, since $p(\lambda)$ imply prior distributions of $p(\tau$). 
+Discuss prior distributions over kappa.
+
+While there are a ``thicket'' of global-local shrinkage distributions, and the properties of these are still being analyzed, this paper will make use of the horseshoe prior distribution.
+\textit{discuss properties and why I use it.}
+
+While there are a large number of proposed shrinkage priors \parencites{ArmaganDunsonLee2011}{BrownGriffin2010}{PolsonScott2010}, this paper will use the Horseshoe distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
+While, the Horseshoe distribution has no analytical form, it can be represented as a scale-mixture of normal distributions (equation \eqref{eq:3}( in which the local scale components $\lambda$ are distributed half-Cauchy,%
+\footnote{
+The half-Cauchy prior on the scale components $\lambda_{t}$ implies an inverse-Bomega (Bomega prime) distribution on the variance components $\lambda_{t}^{2} = \dinvbomega{\frac{1}{2}, \frac{1}{2}}$, where $\dinvbomega{x; a, b} = \frac{x^{a - 1} (1 + x)^{-a - b}}{B(a, b)}$, where $B$ is the Bomega function.
+The inverse bomega distribution is related to the bomega distribution.
+If $X \sim \dbomega{a, b}$, then $\frac{1}{1 + X} \sim \dinvbomega{a, b}$.
+}
+\begin{equation}
+  \label{eq:6}
+  \lambda_{t} \sim \dhalfcauchy{0, 1}
+\end{equation}
+The Horseshoe prior distribution has many appealing properties as a shrinkage prior distribution.
+Intuitively, these follow from its heavy Cauchy-like tails which allow large signals to remain unshrunk, and its infinitely high spike at zero, which aggressively shrinks noise.
+\footnote{See \textcite{CarvalhoPolsonScott2010}{CarvalhoPolsonScott2009}{DattaGhosh2012} for formal properties of the horseshoe prior.}
+Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior to the normal, Cauchy, and Laplacian (double-exponential) distributions, both near zero and in the tail.
+\begin{figure}
+  \centering
+  \includegraphics{assets/fig-horseshoe1.pdf}
+  \includegraphics{assets/fig-horseshoe2.pdf}
+  \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
+  \label{fig:horseshoe}
+\end{figure}
+
+\subsection{Local Level Model}
+\label{sec:local-level-model}
+
+Now consider estimation of time-varying means using a local level model,
+\begin{equation}
+  \label{eq:5}
+  \begin{aligned}[t]
+    y_{t} &= \mu_{t} + \nu_{t} & \nu_{t} & \sim \dnorm{0, V} \\
+    \mu_{t + 1} &= \mu_{t} + \omega_{t} & \omega_{t} & \sim \dnorm{0, W_{t}} \\
+    \theta & \sim N(m_{0}, C_{0})
+  \end{aligned}
+\end{equation}
+Equation \eqref{eq:5} is the special case of the dynamic linear model in \eqref{eq:8} with $r = n = 1$, and $F_{t} = G_{t} = 1$.
+The model in Equation \eqref{eq:5} is called the \textit{local level model} \parencites[Chapter 2][]{DurbinKoopman2001} or \textit{1st-order polynomial trend model} \parencite[Chapter 2]{WestHarrison1997}.
+
+Since all the component equations in equation \eqref{eq:5} are normal, there are analytic forms of the updating equations.
+\begin{align}
+  \label{eq:18}
+  \theta_{t} | y_{1:t-1} & \sim N(m_{t-1}, R_{t} = C_{t - 1} + W) \\
+  \omega_{t} | y_{1:t-1} & \sim N(m_{t-1}, R_{t} = C_{t - 1} + W) \\
+  \theta_{t} | y_{1:t} & \sim N(m_{t} = m_{t-1} + A_{t} e_{t}, C_{t} = A_{t} V)
+\end{align}
+Then $A_{t} = R_{t} / Q_{t} = \frac{C_{t-1} + W_{t}}{C_{t-1} + W + V}$, where $A_{t} \in [0, 1]$.
+
+For the purposes of this paper, the important feature of the sequential updating is that the filtered estimate of $\theta_{t}$ is a weighted sum of the prior estiamte $m_{t - 1}$ and the forecast error $e_{t} = y_{t} - m_{t - 1}$ with weight $A_{t}$. 
+This could also be rewritten as a weighted sum of $y_{t}$ and $m_{t-1}$, $\theta_{t} | y_{1:t} = (1 - A_{t}) m_{t-1} + A_{t} y_{t}$.
+The weight is a function of the observation and system variances, $A_{t} = R_{t} / Q_{t} = \frac{C_{t-1} + W_{t}}{C_{t-1} + W + V}$.
+
+There are three approaches to shrinkage in the local level model, differing in what quantity they put the prior distribution over.
+\begin{enumerate}
+\item Prior on $A_{t}$
+\item Prior on $\delta_{t}$ 
+\item Prior of $W_{t}$
+\end{enumerate}
+
+Using shrinkage priors to model structural breaks extends and generalizes the use of the $t$-distribution for modeling structural breaks \parencites{HarveyKoopman2000}[184][]{DurbinKoopman2001}{PetrisPetroneOmegal2009}.
+The $t$-distribution is also a scale-mixture of normal distributions and has heavy tails, but does not have a substantial mass near zero, and thus will insufficiently shrink noise distributions.
+
+To summarize, the proposed local level model that is robust to structural breaks is as follows,
+\begin{equation}
+  \label{eq:10}
+  \begin{aligned}[t]
+    y_{t} &\sim \dnorm{\alpha_{t}, H} \\
+    \alpha_{t + 1} &\sim \dnorm{\alpha_{t}, \tau^{2} \lambda^{2}_{t}} \\
+    \lambda^{2}_{t} & \sim \dhalfcauchy{0, 1}
+  \end{aligned}
+\end{equation}
+This model could be completed with the non-informative priors, suggested in \textcite{CarvalhoPolsonScott2009} and \textcite{PolsonScott2010},
+\begin{equation}
+  \label{eq:7}
+  \begin{aligned}[t]
+    p(H) &= \frac{1}{H} \\
+    \tau &\sim \dhalfcauchy{0, H}
+  \end{aligned}
+\end{equation}
+It is important that the prior distribution of the state variance global-component $\tau$ has the same scale as the observation variance $H$ \parencite{PolsonScott2012}.
 
 \subsection{Dynamic Linear Models}
 \label{sec:dynam-line-models}
 
+While the previous section developed Baysian shrinkage for the univariate local level model, Bayesian shrinkage can be generalized to the class of Gaussian Dynamic Linear Models (DLMs).%
+\footnote{Gaussian DLMs are also called normal DLMs or Gaussian linear state space models.}
 A Gaussian dynamic linear model (DLM) for a $n$-dimensional observation sequence $y_{1}, \dots, y_{n}$ is defined by the following set of equations.%
-\footnote{
-Gaussian DLMs are also called normal DLMs or Gaussian linear state space models.
-This paper follows the notation used in \textcite{DurbinKoopman2001}.
-}
 For $t = 1:n$,
 \begin{align}
   \label{eq:8}
@@ -127,7 +266,6 @@ For $t = 1:n$,
   \thomega_{1} & \sim \dmvnorm{m_{0}, C_{0}}{n}
 \end{align}
 
-
 Equation \eqref{eq:8} is the \textit{observation equation} which relates the \textit{observation vector} $y_{t}$ to the \textit{state vector} $\thomega_{t}$.
 Equation \eqref{eq:14} is the \textit{state equation} which describes the evolution of the states over time.
 Equation \eqref{eq:2} is the \textit{initial state equation}.
@@ -136,7 +274,7 @@ The matrices $F_{t}$, $G_{t}$, $V_{t}$, and $W_{t}$ are referred to as the \text
 Let $\mathcal{S}_{t}$ refer to the set of system matrices.
 The matrix $F_{t}$ is the design matrix, $G_{t}$ is the transition matrix, $V_{t}$ is the observation covariance matrix, and $W_{t}$ the state covariance matrix.
 
-Many common models, including ARIMA, structural time-series, regressions with time-varying coefficients, cubic splines, and stochastic volatility models can be represented as DLMs. 
+Many common models, including SARIMA, structural time series models with level, trend, cyclical and seasonal components, regressions with time-varying coefficients, cubic splines, and stochastic volatility models can be represented as DLMs. 
 \textcites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{PetrisPetroneOmegal2009}{ShumwayStoffer2010} provide thorough treatments of state space models and their applications.
 The range of models which can be represented as DLMs means that the methods presented below apply to a wide range of models.
 Any model in which the parameter of interest can be represented as a state in a DLM, can be estimated using the following method to detect structural breaks.
@@ -169,135 +307,6 @@ At $t$ the posterior distribution of $\thomega$ is,
 Note that $m_{t}$ is a weighted combination of the predictive distribution's mean $a_{t}$ and the forecast error. 
 $A_{t}$ is known as the \textit{adaptive} or \textit{gain} matrix.
 Thus the weight given a current data point $y_{t}$ depends on the observation variance $V_{t}$ through $Q_{t}$, and the prior variance $C_{t-1}$ and state covariance matrix $W_{t}$ through $R_{t}$.
-
-\subsection{Local Level Model}
-\label{sec:local-level-model}
-
-For simplicity of exposition, in this section I restrict my attention to a univariate observation vector $y_{1:n}$ with a time-varying mean.
-The corresponding dynamic linear model is
-\begin{equation}
-  \label{eq:5}
-  \begin{aligned}[t]
-    y_{t} &= \mu_{t} + \nu_{t} & \nu_{t} & \sim \dnorm{0, V} \\
-    \mu_{t + 1} &= \mu_{t} + \omega_{t} & \omega_{t} & \sim \dnorm{0, W_{t}}
-  \end{aligned}
-\end{equation}
-Equation \eqref{eq:5} is the special case of the dynamic linear model in \eqref{eq:8} with $r = n = 1$, and $F_{t} = G_{t} = 1$.
-The model in Equation \eqref{eq:5} is called the \textit{local level model} \parencites[Chapter 2][]{DurbinKoopman2001} or \textit{1st-order polynomial trend model} \parencite[Chapter 2]{WestHarrison1997}.
-
-In equation \eqref{eq:5}, the first difference of the state is equal to the value of the state disturbance, $\Delta \theta_{t} = \theta_{t+1} - \theta_{t} = \omega_{t}$.
-Thus, the distribution of parameter differences is the distribution of $\omega_{t}$.
-In many problems in political and social science, the evolution of a parameter is expected to to be stable for long periods of time, with a few changes of possibly large magnitude, i.e. the structural breaks \parencite{Pierson2004}[57][]{RatkovicEng2010}.
-Translated into equation \eqref{eq:5}, this statement means that the researcher has a prior belief that the vector $\omega$ is likely sparse.
-I will refer to a vector as sparse if most elements are 0, and dense if most elements are not zero.
-It is expected that for most periods $\omega_{t} = 0$ or $\omega_{t} \approx 0$, but there are a few periods in which $\omega_{t} \neq 0$, with the possibility that $|\omega_{t}| \gg 0$.
-When cast in this way, the problem of estimating structural breaks within a dynamic linear model is essentially a problem of estimating a sparse parameter vector $\omega$.
-Estimating sparse parameters, especially when the number of observations small relative to the number of observations (large-p, small-n), is a problem that is presently receiving much attention in the areas of penalized or regularized regression, variable selection, and multiple-testing \parencite{CarvalhoPolsonScott2010}.
-Following the convention in that literature, I will refer $\omega_{t} \approx 0$ as ``noise'' and $|\omega_{t}| \gg 0$ as ``signals''.
-In sparse estimation problems, the researcher wants to classify parameters into signals and noise, and estimate the magnitude of the signals.
-In this application, the structural breaks are the signals, and the non-structural breaks are the noise.
-
-Consider a local level model,
-\begin{align}
-  \label{eq:18}
-  \mu_{t} | y_{1:t-1} & \sim N(m_{t-1}, R_{t} = C_{t - 1} + W) \\
-  \omega_{t} | y_{1:t-1} & \sim N(m_{t-1}, R_{t} = C_{t - 1} + W) \\
-  \mu_{t} | y_{1:t} & \sim N(m_{t} = m_{t-1} + A_{t} e_{t}, C_{t} = A_{t} V)
-\end{align}
-
-Then $A_{t} = R_{t} / Q_{t} = \frac{C_{t-1} + W_{t}}{C_{t-1} + W + V}$, where $A_{t} \in [0, 1]$.
-This is influenced by the signal to noise ratio $r = \frac{W}{V}$.
-Then $m_{t} = C_{t} (m_{t-1} / R_{t} + Y_{t} / V_{t}) = A_{t} Y_{t} + (1 - A_{t}) m_{t - 1}$.
-Thus $m_{t}$ is a weighted average of the prior estimate $m_{t-1}$ and the observation $Y_{t}$.
-When $R_{t} < V_{t}$, the prior distribution is more concentrated than the observation variance and $A_{t}$ is closer to 0.
-
-In Bayesian estimation, there are two main approaches for estimating sparse parameters: discrete mixtures and shrinkage priors \parencite[73]{CarvalhoPolsonScott2009}.
-The discrete-mixture approach models the parameter with prior consisting of a mixture between a point mass at zero and a continuous distribution, i.e. a spike-and-slab prior \parencite{GeorgeMcCulloch1993}.
-In the context of estimating TVP, structural breaks are estimated assigning each $\omega_{t}$ a discrete mixture distribution,
-\begin{equation}
-  \label{eq:1}
-  \omega_{t} = w \delta_{0} +  (1 - w) g(\omega_{t})
-\end{equation}
-where $w \in [0, 1]$, $\delta_{0}$ is the degenerate distribution at 0, and $g(\omega_{t})$ is the distribution if $\omega_{t} \neq 0$.
-\textcite{GiordaniKohn2008} propose using \eqref{eq:1} as a flexible model of structural breaks within a continuous state space framework.
-% \footnote{
-% Change-point models \textcite{Chib1998} model structural breaks with a discrete state space model in which the locations of the structural breaks and the values of the parameters within each regime are estimated. 
-% Many change-point model can be reparameterized into an equivalent discrete mixture of disturbance form.
-% }
-
-The second approach to estimating sparse parameters is shrinkage priors \parencites{Tibshirani1996}{Tipping2001}.
-Shrinkage priors are absolutely continuous distributions centered at zero.
-Although shrinkage priors do not mix between signal and noise groups, they are able to approximate the mixture distribution if they have the following features,
-Shrinkage priors are the Bayesian posterior estimation equivalent of penalized likelihood for posterior mode-finding \parencites{PolsonScott2010}{PolsonScott2012a}.
-For example, the popular Lasso/L1 regularization \parencite{Tibshirani1996} corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the coefficients \parencites{ParkCasella2008}{Hans2009}.
-Other prior distributions correspond to other likelihood penalties, although for some distributions the likelihood penalty may lack a closed form.
-
-Almost all proposed and used shrinkage priors can be represented as scale mixtures of normal distributions \parencite{PolsonScott2010}.
-Thus, the prior distribution on the state distribution can be represented a normal distribution centered zero, in which the variance term in which the product of a global variance component $\tau^{2}$ and a local variance component $\lambda_{t}^{2}$.
-The $\lambda_t$ are also called mixing parameters, and their distribution is the mixing distribution.
-\begin{equation}
-  \label{eq:3}
-  \begin{aligned}[t]
-    \omega_{t} &= N(0, \tau^{2} \lambda_{t}^{2}) \\
-    \lambda_{t}^{2} &\sim p(\lambda_{t}^{2})
-  \end{aligned}
-\end{equation}
-Shrinkage priors differ in the distribution of the local variance component.%
-Some commonly used shrinkage priors that are scale mixtures of normal distributions include the Student's $t$-distribution, in which the mixing parameters are distributed inverse gamma $\lambda^{2}_{t} \sim \dinvgamma{a, b}$, and the double exponential distribution (Bayesian Lasso), in which the mixing parameters are distributed exponential $\lambda^{2}_{t} \sim \dexp{2}$ \parencite[74]{CarvalhoPolsonScott2009}.
-\footnote{
-Note that the commonly used $\omega_{t} \sim N(0, Q)$ is trivially a scale-mixture of normal distributions ($\lambda_{t}^{2} = \delta_{1}$).
-However, it does not impose sparsity as it neither has heavy tails nor does it have a large mass at zero.
-}
-
-That most shrinkage priors can be represented as scale mixture of normal distributions is essential for the computational efficiency in estimating DLMs with sparse disturbances.
-This ensures that conditional on $\lambda_{t}$, the dynamic linear model is still has Gaussian errors.
-As discussed in more delta in section \ref{sec:implementation}, this means that the dynamic linear model component of the model can be sampled using efficient block sampling methods that depend on $\omega_{t}$ and $\varepsilon_{t}$ being distributed normal.
-
-While there are a large number of proposed shrinkage priors \parencites{ArmaganDunsonLee2011}{BrownGriffin2010}{PolsonScott2010}, this paper will use the Horseshoe distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
-While, the Horseshoe distribution has no analytical form, it can be represented as a scale-mixture of normal distributions (equation \eqref{eq:3}( in which the local scale components $\lambda$ are distributed half-Cauchy,%
-\footnote{
-The half-Cauchy prior on the scale components $\lambda_{t}$ implies an inverse-Bomega (Bomega prime) distribution on the variance components $\lambda_{t}^{2} = \dinvbomega{\frac{1}{2}, \frac{1}{2}}$, where $\dinvbomega{x; a, b} = \frac{x^{a - 1} (1 + x)^{-a - b}}{B(a, b)}$, where $B$ is the Bomega function.
-The inverse bomega distribution is related to the bomega distribution.
-If $X \sim \dbomega{a, b}$, then $\frac{1}{1 + X} \sim \dinvbomega{a, b}$.
-}
-\begin{equation}
-  \label{eq:6}
-  \lambda_{t} \sim \dhalfcauchy{0, 1}
-\end{equation}
-The Horseshoe prior distribution has many appealing properties as a shrinkage prior distribution.
-Intuitively, these follow from its heavy Cauchy-like tails which allow large signals to remain unshrunk, and its infinitely high spike at zero, which aggressively shrinks noise.
-\footnote{See \textcite{CarvalhoPolsonScott2010}{CarvalhoPolsonScott2009}{DattaGhosh2012} for formal properties of the horseshoe prior.}
-Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior to the normal, Cauchy, and Laplacian (double-exponential) distributions, both near zero and in the tail.
-\begin{figure}
-  \centering
-  \includegraphics{assets/fig-horseshoe1.pdf}
-  \includegraphics{assets/fig-horseshoe2.pdf}
-  \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
-  \label{fig:horseshoe}
-\end{figure}
-\todo[inline]{How much do I need to say about the horseshoe distribution}
-
-Using shrinkage priors to model structural breaks extends and generalizes the use of the $t$-distribution for modeling structural breaks \parencites{HarveyKoopman2000}[184][]{DurbinKoopman2001}{PetrisPetroneOmegal2009}.
-The $t$-distribution is also a scale-mixture of normal distributions and has heavy tails, but does not have a substantial mass near zero, and thus will insufficiently shrink noise distributions.
-
-To summarize, the proposed local level model that is robust to structural breaks is as follows,
-\begin{equation}
-  \label{eq:10}
-  \begin{aligned}[t]
-    y_{t} &\sim \dnorm{\alpha_{t}, H} \\
-    \alpha_{t + 1} &\sim \dnorm{\alpha_{t}, \tau^{2} \lambda^{2}_{t}} \\
-    \lambda^{2}_{t} & \sim \dhalfcauchy{0, 1}
-  \end{aligned}
-\end{equation}
-This model could be completed with the non-informative priors, suggested in \textcite{CarvalhoPolsonScott2009} and \textcite{PolsonScott2010},
-\begin{equation}
-  \label{eq:7}
-  \begin{aligned}[t]
-    p(H) &= \frac{1}{H} \\
-    \tau &\sim \dhalfcauchy{0, H}
-  \end{aligned}
-\end{equation}
-It is important that the prior distribution of the state variance global-component $\tau$ has the same scale as the observation variance $H$ \parencite{PolsonScott2012}.
 
 \subsection{Dynamic Linear Models}
 \label{sec:multivariate}
