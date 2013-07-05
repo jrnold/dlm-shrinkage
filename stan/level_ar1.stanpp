@@ -1,0 +1,55 @@
+// long series AR model
+#include <jeffreys.stanh>
+#include <kalman_seq.stanh>
+data {
+  // dimensions
+  int n; // number of observations
+  // system matrices
+  matrix[1, 2] Z;
+  matrix[2, 2] R;
+  matrix[2, 2] T0;
+  vector[1] c;
+  vector[2] d;
+  real<lower=0.0> P1_1;
+  real a1_1;
+
+  // data
+  matrix[1, n] y;
+}
+transformed data {
+  vector[2] a1;
+  a1[1] <- a1_1;
+  a1[2] <- 0.0;
+}
+parameters {
+  real<lower=0.0> sigma2;
+  vector<lower=0.0>[2] tau;
+  real<lower=-1, upper=1> rho;
+}
+transformed parameters {
+  vector<lower=0.0>[1] H;
+  matrix[rows(T0), cols(T0)] T;
+  matrix<lower=0.0>[2, 2] Q;
+  vector<lower=0.0>[2] P1_diag;
+  matrix[2, 2] P1;
+  H[1] <- sigma2;
+  T <- T0;
+  T[2, 2] <- rho;
+  {
+    vector[2] tau2;
+    for (i in 1:2) {
+      tau2[i] <- pow(tau[i], 2);
+    }
+  }
+  Q <- diag_matrix(tau);
+  P1_diag[1] <- P1_1;
+  P1_diag[2] <- pow(tau[2], 2) / (1 - pow(rho, 2));
+  P1 <- diag_matrix(P1_diag);
+}
+model {
+  matrix[2, 2] RQR;
+  RQR <- R * Q * R';
+  KALMAN_SEQ(y, T, Z, H, RQR, a1, P1, c, d);
+  JEFFREYS(sigma2);
+  tau ~ cauchy(0, sqrt(sigma2));
+}
