@@ -1,5 +1,9 @@
 // Gaussian DLM values
+#ifndef _HEADER_KALMANF
+#define _HEADER_KALMANF
+
 #include <transpose.stanh>
+
 // sequential, no missing values
 #define _KALMANF_SEQ(r, n, y, F, G, V, W, m0, C0) \
 { \
@@ -156,3 +160,4 @@
   } \
 } \
 
+#endif

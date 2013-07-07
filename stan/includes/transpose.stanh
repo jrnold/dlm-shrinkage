@@ -1,1 +1,4 @@
+#ifndef _HEADER_TRANSPOSE
+#define _HEADER_TRANSPOSE
 #define _T '
+#endif
