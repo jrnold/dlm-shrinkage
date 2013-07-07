@@ -1,0 +1,1 @@
+#define _JEFFREYS(x) lp__ <- lp__ - log(x);
