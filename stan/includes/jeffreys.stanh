@@ -1,1 +1,4 @@
-#define JEFFREYS(x) lp__ <- lp__ - log(x);
+#ifndef _HEADER_JEFFREYS
+#define _HEADER_JEFFREYS
+#define _JEFFREYS(x) lp__ <- lp__ - log(x);
+#endif

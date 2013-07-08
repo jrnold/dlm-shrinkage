@@ -68,7 +68,7 @@ LDLIBS_STANC = -L$(STAN_BIN) -lstanc
 all: $(deps) $(objects)
 	@echo $(objects)
 
--include *.d
+-include $(deps)
 
 #.SECONDARY:
 

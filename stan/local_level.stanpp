@@ -14,20 +14,15 @@ data {
 parameters {
   real<lower=0.0> sigma;
   real<lower=0.0> tau;
-  vector<lower=0.0>[T] lambda;
 }
 transformed parameters {
   vector[1] V;
-  matrix[1, 1] W[T];
+  matrix[1, 1] W;
   V[1] <- pow(sigma, 2);
-  for (i in 1:T) {
-    W[i, 1, 1] <- pow(sigma * tau * lambda[i], 2);
-  }
+  W[1, 1] <- pow(sigma * tau, 2);
 }
 model {
-  _KALMANF_SEQ(1, 1, y, F, G, V, W[i], m0, C0);
+  _KALMANF_SEQ(1, 1, y, F, G, V, W, m0, C0);
   _JEFFREYS(sigma);
-  lambda ~ cauchy(0, 1);
-  tau ~ cauchy(0, 1);
 }
 
