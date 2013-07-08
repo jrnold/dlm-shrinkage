@@ -4,7 +4,7 @@
 #' @export prlte0
 NULL
 
-#' Miscellanoues functions
+#' Miscellaneous functions
 #'
 #' @param x Numeric vector
 #'
@@ -26,3 +26,16 @@ prlt0 <- function(x) sum(x < 0) / length(x)
 
 #' @rdname prgt0
 prlte0 <- function(x) sum(x <= 0) / length(x)
+
+expand_dim <- function(x, n) {
+  xdim <- length(dim(x))
+  if (xdim < n) {
+    if (xdim == 0) {
+      array(x, c(length(x), rep(1, n - 1)))
+    } else {
+      array(x, c(dim(x), rep(1, n - length(dim(x)))))
+    }
+  } else {
+    x
+  }
+}

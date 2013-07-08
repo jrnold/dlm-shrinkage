@@ -1,46 +1,33 @@
-Package: sddlm
+Package: bsdlm
 Maintainer: Jeffrey Arnold <jeffrey.arnold@gmail.com>
 Author: Jeffrey Arnold <jeffrey.arnold@gmail.com>
 Version: 0.0.1
 License: GPL-3
-Title: Code for Sparse Disturbance DLM
-Description: Code used in paper on Sparse Disturbance for DLMs
+Title: Code for Bayesian Shrinkage Dlm
+Description: Code used in paper on Bayesian Shrinkage in DLMs
 Depends:
     methods,
 Imports:
     mcmcdb,
     mcmcstats,
-    KFAS,
+    dlm,
     plyr,
     mvtnorm
 Suggests:
     testthat,
     roxygen2
 Collate:
-    'dlm_to_ssmodel-method.R'
     'convergence_parameters-method.R'
-    'DLM-class.R'
-    'DlmLocalLevelNormal-class.R'
     'crosszero.R'
     'dhp.R'
-    'loglik_from_ssm.R'
     'misc.R'
     'rbernoulli.R'
     'sddlm-package.R'
     'sim_struc_break.R'
     'ssm_sim.R'
-    'DlmLocalLevelNormalInter-class.R'
     'mcmcsummary.R'
     'discrepancy.R'
-    'DlmLocalLevelHs-class.R'
-    'DlmSpline-class.R'
-    'DlmSplineHs-class.R'
-    'DlmGreenbacks1-class.R'
-    'DlmGreenbacks2-class.R'
-    'DlmAfghan1-class.R'
-    'DlmAfghan2-class.R'
-    'DlmAfghan3-class.R'
-    'DlmAfghan4-class.R'
-    'DlmAfghan5-class.R'
-    'DlmAfghan6-class.R'
-    'DlmGreenbacks3-class.R'
+    'iter_to_dlm.R'
+    'dlm_filter-method.R'
+    'BsDlmMcmcdb-class.R'
+    'BsDlmLocalLevel-class.R'
