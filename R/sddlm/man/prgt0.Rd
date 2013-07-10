@@ -1,0 +1,30 @@
+\name{prgt0}
+\alias{prgt0}
+\alias{prgte0}
+\alias{prlt0}
+\alias{prlte0}
+\title{Miscellaneous functions}
+\usage{
+  prgt0(x)
+
+  prgte0(x)
+
+  prlt0(x)
+
+  prlte0(x)
+}
+\arguments{
+  \item{x}{Numeric vector}
+}
+\description{
+  Miscellaneous functions
+}
+\section{Details}{
+  \describe{ \item{\code{prgt0}}{Probability \code{x}
+  greater than 0} \item{\code{prle0}}{Probability \code{x}
+  greater than or equal to 0}
+  \item{\code{prlt0}}{Probability \code{x} less than 0}
+  \item{\code{prlte0}}{Probability \code{x} less than or
+  equal to 0} }
+}
+
