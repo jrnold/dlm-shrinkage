@@ -18,7 +18,7 @@ Rlibs:
 makeplots: Rlibs
 	make -C assets
 
-$(obj): $(SRC) $(BIBFILE) makeplots Rlibs local.sty pygments.tex
+$(obj): $(SRC) $(BIBFILE) local.sty pygments.tex #makeplots Rlibs 
 	$(LATEX) $<
 	#$(JABREF) -n true -a $(auxfile),local.bib $(BIBFILE)
 	$(BIBTEX) $(auxfile)

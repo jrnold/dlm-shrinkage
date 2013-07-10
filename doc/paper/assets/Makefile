@@ -15,7 +15,7 @@ build-tables: $(TABLES)
 
 code-%.tex: ../../../stan/%.stanpp
 	@echo $< $@
-	$(PYGMENTIZE) -O style=bw -f latex -o $@ $<
+	$(PYGMENTIZE) -O style=bw -l stan -f latex -o $@ $<
 
 fig-%.pdf: fig-%.R conf.R
 	$(RSCRIPT) $< $@
