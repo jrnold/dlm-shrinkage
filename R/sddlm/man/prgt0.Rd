@@ -3,7 +3,7 @@
 \alias{prgte0}
 \alias{prlt0}
 \alias{prlte0}
-\title{Miscellanoues functions}
+\title{Miscellaneous functions}
 \usage{
   prgt0(x)
 
@@ -17,7 +17,7 @@
   \item{x}{Numeric vector}
 }
 \description{
-  Miscellanoues functions
+  Miscellaneous functions
 }
 \section{Details}{
   \describe{ \item{\code{prgt0}}{Probability \code{x}

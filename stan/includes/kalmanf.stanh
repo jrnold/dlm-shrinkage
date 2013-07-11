@@ -3,7 +3,7 @@
 #define _HEADER_KALMANF
 
 #include <transpose.stanh>
-#include <symmetrize.stanh>
+#include <make_symmetric.stanh>
 
 // sequential, no missing values
 #define _KALMANF_SEQ(r, n, y, F, G, V, W, m0, C0) \
@@ -22,17 +22,17 @@
   for (i in 1:T) { \
     KALMANF_m <- G * KALMANF_m; \
     KALMANF_C <- G _T * KALMANF_C * G + W; \
-    KALMANF_C <- _SYMMETRIZE(KALMANF_C); \
+    KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
     for (j in 1:r) { \
-      KALMANF_Fj <- F[j] _T; \
+      KALMANF_Fj <- col(F, j); \
       KALMANF_f <- dot_product(KALMANF_Fj, KALMANF_m); \
       KALMANF_Q <- KALMANF_Fj _T * KALMANF_C * KALMANF_Fj + V[j]; \
       KALMANF_Q_inv <- 1.0 / KALMANF_Q; \
-      KALMANF_e <- y[i, j] - KALMANF_f; \
+      KALMANF_e <- y[j, i] - KALMANF_f;                      \
       KALMANF_A <- KALMANF_C * KALMANF_Fj * KALMANF_Q_inv; \
       KALMANF_m <- KALMANF_m + KALMANF_A * KALMANF_e; \
       KALMANF_C <- KALMANF_C - KALMANF_Q * KALMANF_A * KALMANF_A _T; \
-      KALMANF_C <- _SYMMETRIZE(KALMANF_C); \
+      KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
       KALMANF_LL[j] <- (-0.5 *  \
                         (log(2 * pi())  \
                          + log(KALMANF_Q_inv)  \
@@ -59,7 +59,7 @@
   for (i in 1:T) { \
     KALMANF_m <- G * KALMANF_m; \
     KALMANF_C <- G _T * KALMANF_C * G + W; \
-    KALMANF_C <- _SYMMETRIZE(KALMANF_C); \
+    KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
     for (j in 1:r) { \
       if (int_step(mask[i, j])) { \
         KALMANF_LL[j] <- 0.0; \
@@ -72,7 +72,7 @@
         KALMANF_A <- KALMANF_C * KALMANF_Fj * KALMANF_Q_inv;            \
         KALMANF_m <- KALMANF_m + KALMANF_A * KALMANF_e;                 \
         KALMANF_C <- KALMANF_C - KALMANF_Q * KALMANF_A * KALMANF_A _T;  \
-	KALMANF_C <- _SYMMETRIZE(KALMANF_C); \
+	KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
         KALMANF_LL[j] <- (-0.5 *                                        \
                           (log(2 * pi())                                \
                            + log(KALMANF_Q_inv)                         \
@@ -156,6 +156,11 @@
                            + log(KALMANF_Q_inv)                         \
                            + KALMANF_Q_inv * pow(KALMANF_e, 2.0)));     \
       } \
+=======
+      KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
+      KALMANF_LL[j] <- (-0.5 * (log(KALMANF_Q)  \
+                                + KALMANF_Q_inv * pow(KALMANF_e, 2))); \
+>>>>>>> 81d48e8c6f60753562fa30708591d3823344cc64
     } \
     lp__ <- lp__ + sum(KALMANF_LL); \
   } \

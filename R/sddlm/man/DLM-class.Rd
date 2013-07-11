@@ -1,35 +1,7 @@
 \docType{class}
-\name{DLM}
-\alias{DLM}
+\name{BsDlmMcmcdb}
+\alias{BsDlmMcmcdb}
 \alias{DLM-class}
-\alias{DlmAfghan1}
-\alias{DlmAfghan1-class}
-\alias{DlmAfghan2}
-\alias{DlmAfghan2-class}
-\alias{DlmAfghan3}
-\alias{DlmAfghan3-class}
-\alias{DlmAfghan4}
-\alias{DlmAfghan4-class}
-\alias{DlmAfghan5}
-\alias{DlmAfghan5-class}
-\alias{DlmAfghan6}
-\alias{DlmAfghan6-class}
-\alias{DlmGreenbacks1}
-\alias{DlmGreenbacks1-class}
-\alias{DlmGreenbacks2}
-\alias{DlmGreenbacks2-class}
-\alias{DlmGreenbacks3}
-\alias{DlmGreenbacks3-class}
-\alias{DlmLocalLevelHs}
-\alias{DlmLocalLevelHs-class}
-\alias{DlmLocalLevelNormal}
-\alias{DlmLocalLevelNormal-class}
-\alias{DlmLocalLevelNormalInter}
-\alias{DlmLocalLevelNormalInter-class}
-\alias{DlmSpline}
-\alias{DlmSpline-class}
-\alias{DlmSplineHs}
-\alias{DlmSplineHs-class}
 \title{DLM Classes}
 \description{
   Classes inheriting from \code{\link{McmcdbWide}} which

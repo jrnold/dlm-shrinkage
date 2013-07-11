@@ -5,7 +5,7 @@
 #' @import mcmcdb
 #' @import mcmcstats
 #' @import plyr
-#' @import KFAS
+#' @import dlm
 #' @import mvtnorm
 #' @exportMethod summary
 NULL
