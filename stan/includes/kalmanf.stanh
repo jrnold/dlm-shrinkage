@@ -3,6 +3,7 @@
 #define _HEADER_KALMANF
 
 #include <transpose.stanh>
+#include <symmetrize.stanh>
 
 // sequential, no missing values
 #define _KALMANF_SEQ(r, n, y, F, G, V, W, m0, C0) \
@@ -21,7 +22,7 @@
   for (i in 1:T) { \
     KALMANF_m <- G * KALMANF_m; \
     KALMANF_C <- G _T * KALMANF_C * G + W; \
-    KALMANF_C <- 0.5 * (KALMANF_C + KALMANF_C _T); \
+    KALMANF_C <- _SYMMETRIZE(KALMANF_C); \
     for (j in 1:r) { \
       KALMANF_Fj <- F[j] _T; \
       KALMANF_f <- dot_product(KALMANF_Fj, KALMANF_m); \
@@ -31,7 +32,7 @@
       KALMANF_A <- KALMANF_C * KALMANF_Fj * KALMANF_Q_inv; \
       KALMANF_m <- KALMANF_m + KALMANF_A * KALMANF_e; \
       KALMANF_C <- KALMANF_C - KALMANF_Q * KALMANF_A * KALMANF_A _T; \
-      KALMANF_C <- 0.5 * (KALMANF_C + KALMANF_C _T); \
+      KALMANF_C <- _SYMMETRIZE(KALMANF_C); \
       KALMANF_LL[j] <- (-0.5 *  \
                         (log(2 * pi())  \
                          + log(KALMANF_Q_inv)  \
@@ -58,7 +59,7 @@
   for (i in 1:T) { \
     KALMANF_m <- G * KALMANF_m; \
     KALMANF_C <- G _T * KALMANF_C * G + W; \
-    KALMANF_C <- 0.5 * (KALMANF_C + KALMANF_C _T); \
+    KALMANF_C <- _SYMMETRIZE(KALMANF_C); \
     for (j in 1:r) { \
       if (int_step(mask[i, j])) { \
         KALMANF_LL[j] <- 0.0; \
@@ -71,7 +72,7 @@
         KALMANF_A <- KALMANF_C * KALMANF_Fj * KALMANF_Q_inv;            \
         KALMANF_m <- KALMANF_m + KALMANF_A * KALMANF_e;                 \
         KALMANF_C <- KALMANF_C - KALMANF_Q * KALMANF_A * KALMANF_A _T;  \
-        KALMANF_C <- 0.5 * (KALMANF_C + KALMANF_C _T);                  \
+	KALMANF_C <- _SYMMETRIZE(KALMANF_C); \
         KALMANF_LL[j] <- (-0.5 *                                        \
                           (log(2 * pi())                                \
                            + log(KALMANF_Q_inv)                         \
