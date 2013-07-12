@@ -103,15 +103,17 @@ method can be extended.
 \subsection{Bayesian Shrinkage}
 \label{sec:bayesian-shrinkage}
 
-Consider a sequence of data generated from time varying means,
-\footnote{This easily extends to linear regression $y_{i} \sim N(\theta_{i} X_{i}, \sigma^{2})$.}, where
+Consider a sequence of data generated from normal distributions with varying means but a common variance,%
+\footnote{This easily extends to linear regression $y_{i} \sim N(\theta_{i} X_{i}, \sigma^{2})$ and other contexts.}, where
 \begin{align}
   \label{eq:13}
   y_{i} & \sim N(\theta_{i}, \sigma) & & \text{for $i \in 1:n$}
 \end{align}
-where the vector $\theta_{1:n}$ is sparse, meaning that most $\theta_{i} = 0$.
-In Bayesian estimation, there are two main approaches for estimating a vector sparse parameters: selection using discrete mixtures and shrinkage using continuous priors \parencite[73]{CarvalhoPolsonScott2009}. 
+where the parameter vector $\theta_{1:n}$ is sparse, meaning that most $\theta_{i} = 0$.
+Let ``signals'' be defined as $\theta_{i} \neq 0$, and ``noise'' as observations in which $\theta_{i} = 0$.
+The objective is to both classify signals and noise, and to estimate the size of the signals.
 
+In Bayesian estimation, there are two main approaches for estimating a vector of sparse parameters: selection using discrete mixtures and shrinkage using continuous priors \parencite[73]{CarvalhoPolsonScott2009}. 
 The discrete-mixture approach models the parameter with prior consisting of a mixture between a point mass at zero and a continuous distribution.
 \begin{equation}
   \label{eq:1}
@@ -119,11 +121,18 @@ The discrete-mixture approach models the parameter with prior consisting of a mi
 \end{equation}
 where $w \in [0, 1]$, $\delta_{0}$ is the degenerate distribution at 0, and $g(\theta_{i})$ is the distribution of $\theta_{i} | \theta_{i} \neq 0$.
 The mixture distribution in equation \eqref{eq:1} is often called a spike-and-slab prior.
+If $g$ is sufficiently heavy-tailed, $\E(\theta_{i} | w, y_{i}) \approx w(y_{i}) y_{i}$ \textcite{PolsonScott2010}, where 
+\begin{equation}
+  \label{eq:7}
+  w(y_{i})  = \frac{w f_{0}(y_{i})}{w f_{0}(y_{i}) + (1 - w) f_{1}(y_{i})}
+\end{equation}
+where $f_{0}(y) = \dnorm(y | 0, \sigma^{2})$ and $f_{1}(y) = \int \dnorm(y | \mu, \sigma^{2}) g(\mu) \,d \mu$.
 The advantage of this approach is that it places a positive probability on $\Pr(\theta_{i} = 0)$ and thus a direct test of that hypothesis.
 However, there are often computational problems estimating these priors in high dimensions.
 
-The shrinkage approaches estimates sparsity using a continuous prior distribution centered at zero \parencites{Tibshirani1996}{Tipping2001}.
-Most proposed Bayesian shrinkage priors in the the class of global-local mixtures of normal distributions \parencite{PolsonScott2010}:
+Shrinkage approaches estimate sparsity using a continuous prior distribution centered at zero.
+Early examples of shrinkage approaches include \parencites{Tibshirani1996}{Tipping2001}.
+Most proposed Bayesian shrinkage priors are in the the class of global-local mixtures of normal distributions \parencite{PolsonScott2010}:
 \begin{equation}
   \label{eq:3}
   \begin{aligned}[t]
@@ -151,31 +160,18 @@ Examples of commonly used shrinkage distributions and their mixing distributions
 \item[Horseshoe] $\lambda^{2}_{i} \sim \dinvbeta{\frac{1}{2}, \frac{1}{2}}$, or equivalently $\lambda_{i} \sim \dhalfcauchy{0, 1}$. \parencite{CarvalhoPolsonScott2010}
 \end{description}
 
-If $g$ is sufficiently heavy-tailed, $\E(\theta_{i} | w, y_{i}) \approx w(y_{i}) y_{i}$.
 The analog of $w$ in the global-local normal distributions is the shrinkage parameter $\kappa$.
-Following standard results, the posterior distribution of $\theta_{i}$ is,
+Following standard results ofa normal model with a normal prior, the posterior distribution of $\theta_{i}$ is,
 \begin{equation}
   \label{eq:11}
   \E (\theta_{i} | y_{i}, \lambda_{i}, \tau, \sigma^{2}) = \left(1 - \frac{1}{1 + \lambda^{2}_{i} \tau_{2}} \right) y_{i}
 \end{equation}
-Define the shrinkage parameter $\kappa_{i}$ as,
-\begin{equation}
-  \label{eq:19}
-  \kappa_{i} = \frac{1}{1 + \lambda^{2}_{i} \tau_{2}}
-\end{equation}
-When $\kappa_{i} \approx 0$, there is virtually no shrinkage and $\theta_{i} \approx y_{i}$;
-However, when $\kappa_{i} \approx 1$, there is almost complete shrinkage and $\theta_{i} \approx 0$.
-Note that both $\lambda$ and $\tau$ contribute to the shrinkage parameter.
-When $\tau$ is small, then most values of $\kappa_{i} \approx 1$ and $\theta$ is sparse.
-However, if $\lambda$ is sufficiently large, it can overwhelm the effect of $\tau$, and $\kappa_{i}$ can be close to 0, leaving $\theta_{i}$ unshrunk.
-Thus, the global variance component $\tau_{i}$ determines the overall sparseness of $\theta_{i:n}$, while the local variance components $\lambda_{i}^{2}$ determine the non-zero values of $\theta_{i}$.
-
 While there are a large number of proposed shrinkage priors \parencites{ArmaganDunsonLee2011}{BrownGriffin2010}{PolsonScott2010}, this paper will use the Horseshoe distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
 While, the Horseshoe distribution has no analytical form, it can be represented as a scale-mixture of normal distributions (equation \eqref{eq:3}( in which the local scale components $\lambda$ are distributed half-Cauchy,%
 \footnote{
 The half-Cauchy prior on the scale components $\lambda_{t}$ implies an inverse-Bomega (Bomega prime) distribution on the variance components $\lambda_{t}^{2} = \dinvbeta{\frac{1}{2}, \frac{1}{2}}$, where $\dinvbeta{x; a, b} = \frac{x^{a - 1} (1 + x)^{-a - b}}{B(a, b)}$, where $B$ is the Beta function.
-The inverse bomega distribution is related to the bomega distribution.
-If $X \sim \dbomega{a, b}$, then $\frac{1}{1 + X} \sim \dinvbeta{a, b}$.
+The inverse beta distribution is related to the Beta distribution.
+If $X \sim \dbeta{a, b}$, then $\frac{1}{1 + X} \sim \dinvbeta{a, b}$.
 }
 \begin{equation}
   \label{eq:6}
@@ -193,6 +189,19 @@ Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior 
   \label{fig:horseshoe}
 \end{figure}
 
+Define the shrinkage parameter $\kappa_{i}$ as,
+\begin{equation}
+  \label{eq:19}
+  \kappa_{i} = \frac{1}{1 + \lambda^{2}_{i} \tau_{2}}
+\end{equation}
+When $\kappa_{i} \approx 0$, there is virtually no shrinkage and $\theta_{i} \approx y_{i}$;
+However, when $\kappa_{i} \approx 1$, there is almost complete shrinkage and $\theta_{i} \approx 0$.
+Note that both $\lambda$ and $\tau$ contribute to the shrinkage parameter.
+When $\tau$ is small, then most values of $\kappa_{i} \approx 1$ and $\theta$ is sparse.
+However, if $\lambda$ is sufficiently large, it can overwhelm the effect of $\tau$, and $\kappa_{i}$ can be close to 0, leaving $\theta_{i}$ unshrunk.
+Thus, the global variance component $\tau_{i}$ determines the overall sparseness of $\theta_{i:n}$, while the local variance components $\lambda_{i}^{2}$ determine the non-zero values of $\theta_{i}$.
+
+Different distributions of $\lambda_{i}$ imply different distributions of 
 Shrinkage priors are the Bayesian posterior estimation equivalent of penalized likelihood for posterior mode-finding \parencites{PolsonScott2010}{PolsonScott2012a}.
 For example, the popular Lasso/L1 regularization \parencite{Tibshirani1996} corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the coefficients \parencites{ParkCasella2008}{Hans2009}.
 Other prior distributions correspond to other likelihood penalties, although for some distributions the likelihood penalty may lack a closed form.
@@ -215,15 +224,18 @@ Equation \eqref{eq:5} is the special case of the dynamic linear model in \eqref{
 
 Since all the component equations in equation \eqref{eq:5} are (multivariate) normal, the joint distribution of $\theta$ and $y$ is multivariate normal.
 Thus, analytical solutions to the distributions of the states and observations conditional on observations are available.
-For each time period $t$, estimate of $\theta_{t}$ can be updated using the following equations,
+For each time period $t$, estimate of $\theta_{t}$ can be updated using the following equations.
+The prior distribution of the state $\theta_{t}$ given observations $y_{1:t-1}$ is,
 \begin{equation}
   \label{eq:23}
   \theta_{t} | y_{1:t-1} & \sim N(m_{t-1}, R_{t} = C_{t - 1} + W)
 \end{equation}
+The predictive distribution of the data $y_{t}$ given observations $y_{1:t-1}$ is,
 \begin{equation}
   \label{eq:25}
   y_{t} | y_{1:t-1} & \sim N(f_{t-1} = m_{t-1}, Q_{t} = C_{t - 1} + W + V)
 \end{equation}
+The posterior distribution $\theta_{t}$ at time $t$ given observations $y_{1:t}$ is,
 \begin{equation}
   \label{eq:26}
   \theta_{t} | y_{1:t} & \sim N(m_{t} = m_{t-1} + A_{t} e_{t}, C_{t} = A_{t} V)
@@ -236,18 +248,6 @@ where $A_{t} \in [0, 1]$ is the adaptation coefficient and $e_{t}$ is the foreca
 \end{align}
 Together equations \eqref{eq:23}-\eqref{eq:26} are known as the \textit{filtering equations}.
 
-\begin{equation}
-  \label{eq:28}
-  p(y_{1:t}) = \prod p(y_{1} | y_{t - 1}) = \prod \dnorm{y_{t}; f_{t}, Q_{t}}
-\end{equation}
-and the log-likelihood is,
-\begin{equation}
-  \label{eq:29}
-  l = - \frac{1}{2} \sum \log | Q_{t} | - \frac{1}{2} e_{t}'
-\end{equation}
-
-The estimation of $\theta_{1:T} | y_{1:T}$ is known as \textit{smoothing}; the smoothing distribution is calculated or samples from by first filtering forward from 1 to $T$, and then calculting or sampling from distributions backwards in time from $T$ to 1.
-
 An important feature of the sequential updating is that the filtered estimate of $\theta_{t}$ is a weighted sum of the prior estimate $m_{t - 1}$ and the forecast error $e_{t} = y_{t} - m_{t - 1}$ where $A_{t}$ is the weight placed on the new observation.
 This could also be rewritten as a weighted sum of the data $y_{t}$ and prior estimate $m_{t-1}$, $\theta_{t} | y_{1:t} = (1 - A_{t}) m_{t-1} + A_{t} y_{t}$.
 The weight is a function of the observation and system variances, $A_{t} = R_{t} / Q_{t} = \frac{C_{t-1} + W_{t}}{C_{t-1} + W + V}$.
@@ -256,14 +256,26 @@ Shrinkage in this case does not refer to $\theta_{t} \to 0$, but to $\theta_{t} 
 A completely shrunk model is a constant mean model in which $\theta_{t} = \theta = m_{0}$ for all $\theta$, which occurs when $A_{t} = 0$ for all $t$.
 A sparse model is one in which most $A_{t} \approx 0$.
 Ideally, a prior distribution could be placed on $A_{1:t}$ that encourages sparsity (both pushing values towards 0 and 1, and regulating the number of sparse parameters).
-In this paper, I consider two approaches to priors that encourage sparse $A_{1:T}$: setting a prior on $W_{1:T}$ and using the standard Kalman filter, and setting a prior on $\delta_{1:T} = 1 - A_{1:T}$ and using the discounting filter.
+In this paper, I consider two approaches to priors that encourage sparse $A_{1:T}$: setting a prior on $W_{1:T}$ and using the standard Kalman filter, and setting a prior on $\delta_{1:T} = 1 - A_{1:T}$.
 
-In a discounting filter, the values of $W_{t}$ are modeled as a discounted value of the prior filtered variance $C_{t-1}$.
-Let $R_{t} = C_{t - 1} + W_{t}$.
-Thus $C_{t-1}$, is the variance of the state if there were no system error $W_{t}$, and the state does not change over time.
-
-Note that in \eqref{eq:25},   
-
+The second case, setting a prior on $\delta_{1:T}$ requires more explanation and a slightly different filter.
+First note that the variance of the prior distribution for $\theta_{t}$  is the sum of the posterior variance of $\theta_{t - 1}$ plus the evolution variance $W_{t}$.
+Thus, the evolution variance serves to increase the uncertainty of the state above the initial uncertainty $C_{t}$.
+Instead of keeping $W_{t}$ fixed, represent $W_{t}$ as a proportion of the posterior variance of the previous period.%
+\footnote{
+  This can also be derived from the local level model using limiting results when $V$ and $W$ are constant. 
+  In the limit, $R = C / (1 - A)$.
+  Thus, in the limit, $W$ is a fraction of the posterior state variance, $W = \frac{A}{1 - A} C$.
+}
+Let $W_{t} = \frac{\delta}{1 - \delta} C_{t - 1}$ where $\delta \in [0, 1]$. 
+This implies that $R_{t} = C_{t - 1} / \delta$.
+Thus the filtered model with discount factors consists of equations \eqref{eq:23}, \eqref{eq:30}, and
+\begin{equation}
+  \label{eq:10}
+  \theta_{t} | y_{1:t-1} & \sim N(m_{t-1}, R_{t} = \delta C_{t - 1})
+\end{equation}
+The discount factor $\delta$ represents the extent to which uncertainty about the state has increased from $t$ to $t - 1$, or conversely the extend to which information about the state has decayed in one period.
+When $\delta \approx 0$, $A \approx 1$ and $m_{t} \approx y_{t}$.
 
 \subsection{Dynamic Linear Models}
 \label{sec:dynam-line-models}
