@@ -22,6 +22,8 @@ standata <- within(nile_data, {
   G <- matrix(1)
 })
 
+iter <- list(sigma = 120.9, tau = 0.38)
+
 timing <-
   system.time(smpls <- run_stan_model(STAN_MODELS(MODEL),
                                       data = standata, seed=SEED,
@@ -33,4 +35,4 @@ res <-
                         model_data = nile_data,
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
-RDATA[[MCMCDB_KEY]] <- res
+RDATA[[MCMCDB_KEY]] <- new("BsDlmLocalLevel", res)
