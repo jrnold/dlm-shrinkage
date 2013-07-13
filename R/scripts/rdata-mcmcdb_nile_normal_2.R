@@ -40,4 +40,4 @@ res <-
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
 
-RDATA[[MCMCDB_KEY]] <- res
+RDATA[[MCMCDB_KEY]] <- new("BsDlmLocalLevelVw", res)
