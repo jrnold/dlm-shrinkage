@@ -10,6 +10,8 @@ CC = g++
 # Level of optimization
 O = 3
 
+STAN_HEADERS = stan_headers/include
+
 # DO NOT EDIT below that line
 ###################################################################################
 
@@ -45,10 +47,10 @@ LDLIBS = -L$(STAN_BIN) -lstan
 LDLIBS_STANC = -L$(STAN_BIN) -lstanc
 
 %.d : %.stanpp
-	cpp -Iincludes -w -nostdinc -MM  -MT $(patsubst %.stanpp,%.stan,$<) $<  -MF $@
+	cpp -I$(STAN_HEADERS) -nostdinc -MM  -MT $(patsubst %.stanpp,%.stan,$<) $<  -MF $@
 
 %.stan : %.stanpp
-	cpp -Iincludes -w -undef -Wundef -nostdinc -std=c11 -P $< $@
+	cpp -I$(STAN_HEADERS) -undef -Wundef -nostdinc -std=c11 -P $< $@
 
 %.cpp : %.stan 
 	@echo ''

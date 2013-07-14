@@ -15,7 +15,7 @@ NULL
 #' \describe{
 #' \item{filter}{An object of class \code{\linkS4class{dlmFiltered}}}
 #' \item{smooth}{The output of \code{\link{dlmSmooth}}}
-#' \item{yrep}{The output of \code{\link{dlmYrep}}}
+#' \item{yrep}{The output of \code{\link{dlmYrep}} using smoothed draws.}
 #' \item{nu}{The output of \code{\link{dlmNu}}}
 #' \item{omega}{The output of \code{\link{dlmOmega}}}
 #' \item{loglik}{The output of \code{\link{dlmLogLikObs}}}
@@ -23,12 +23,14 @@ NULL
 dlm_stats <- function(y, mod) {
   filter <- dlmFilter(y, mod)
   smooth <- dlmSmooth(filter)
-  yrep <- dlmYrep(as.matrix(dropFirst(smooth[["s"]])), mod)
-  mu <- dlmMu(as.matrix(dropFirst(smooth[["s"]])), mod)
-  nu <- dlmNu(y, as.matrix(dropFirst(smooth[["s"]])), mod)
-  omega <- dlmOmega(as.matrix(dropFirst(smooth[["s"]])), mod)
+  sample <- dlmBSample(filter)
+  
+  yrep <- dlmYrep(as.matrix(dropFirst(sample)), mod)
+  mu <- dlmMu(as.matrix(dropFirst(sample)), mod)
+  nu <- dlmNu(y, as.matrix(dropFirst(sample)), mod)
+  omega <- dlmOmega(as.matrix(dropFirst(sample)), mod)
   ll <- dlmLogLikObs(filter)
-  list(filter = filter, smooth = smooth,
+  list(filter = filter, smooth = smooth, sample = sample,
        yrep = yrep, mu = mu,
        nu = nu, omega = omega, loglik = ll)
 }

@@ -1,6 +1,7 @@
 # ---
 # filehash: mcmcdb_nile_normal_1
 # ---
+set.seed(0843210321)
 KEY <- "nile_normal_1"
 MCMCDB <- sprintf("mcmcdb_%s", KEY)
 MCMCSUMMARY <- sprintf("mcmcsummary_%s", KEY)

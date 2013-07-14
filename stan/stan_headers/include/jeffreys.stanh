@@ -1,0 +1,4 @@
+#ifndef STAN_HEADER_JEFFREYS
+#define STAN_HEADER_JEFFREYS
+#define _JEFFREYS(x) lp__ <- lp__ - log(x);
+#endif
