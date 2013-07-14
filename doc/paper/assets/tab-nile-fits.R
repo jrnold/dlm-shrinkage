@@ -18,6 +18,6 @@ rownames(modelfits) <- c("\\Model{Nile}{HS}", "\\Model{Nile}{normal}", "\\Model{
 colnames(modelfits) <- c("WAIC", "$L$", "$p$", "RMSE", "$\\chi^2$")
 print(xtable(modelfits,  digits = 1),
       sanitize.text.function = identity,
-      floating = FALSE,
-      file = FILE)
+      floating = FALSE)
+
 

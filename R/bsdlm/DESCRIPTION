@@ -24,7 +24,6 @@ Collate:
     'rbernoulli.R'
     'sddlm-package.R'
     'sim_struc_break.R'
-    'mcmcsummary.R'
     'discrepancy.R'
     'iter_to_dlm.R'
     'BsDlmMcmcdb-class.R'

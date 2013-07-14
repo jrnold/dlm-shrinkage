@@ -1,0 +1,4 @@
+#ifndef STAN_HEADER_TRANSPOSE
+#define STAN_HEADER_TRANSPOSE
+#define _T '
+#endif

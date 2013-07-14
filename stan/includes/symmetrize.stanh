@@ -1,5 +1,0 @@
-#ifndef _HEADER_SYMMETRIZE
-#define _HEADER_SYMMETRIZE
-#include <transpose.stanh>
-#define _SYMMETRIZE(x) 0.5 * (x + x _T)
-#endif

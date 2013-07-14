@@ -333,12 +333,15 @@ At $t$ the posterior distribution of $\thomega$ is,
   A_{t} = R_{t} F_{t} Q^{-1}_{t} \\
   e_{t} = y_{t} - f_{t}
 \end{align}
-Note that $m_{t}$ is a weighted combination of the predictive distribution's mean $a_{t}$ and the forecast error. 
-$A_{t}$ is known as the \textit{adaptive} or \textit{gain} matrix.
-Thus the weight given a current data point $y_{t}$ depends on the observation variance $V_{t}$ through $Q_{t}$, and the prior variance $C_{t-1}$ and state covariance matrix $W_{t}$ through $R_{t}$.
-
-\subsection{Dynamic Linear Models}
-\label{sec:multivariate}
+Like the local level case, the filtered posterior mean of the state,
+$m_{t}$, is a weighted combination of the predictive distribution's
+mean $a_{t}$ (which in this case is not equal to $m_{t-1}$) and the
+forecast error, $e_{t}$.
+And in the general case, the adaptive coefficient, $A_{t}$, is an $n
+\times r$  matrix.
+Thus the weight given a current data point $y_{t}$ depends on the
+observation variance $V_{t}$ through $Q_{t}$, and the prior variance
+$C_{t-1}$ and state covariance matrix $W_{t}$ through $R_{t}$.
 
 The previous section applied sparse disturbance for the local level model, but the use of shrinkage priors on the state disturbances can easily be extended to the more general DLM in section \ref{sec:dynam-line-models}.
 First, consider the case in which the state disturbances are uncorrelated.
@@ -702,7 +705,7 @@ The Kalman filter section of the \Stan{} code is specialized to the local level 
 \begin{singlespace}
   \include{assets/code-local_level_hs}  
 \end{singlespace}
-
+p
 \end{document}
 
 %%% Local Variables: 

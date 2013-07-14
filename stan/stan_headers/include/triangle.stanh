@@ -1,0 +1,4 @@
+#ifndef STAN_HEADER_TRIANGLE
+#define STAN_HEADER_TRIANGLE
+#define _TRIANGLE_LOG(y) lp__ <- lp__ + log1m(fabs(y));
+#endif

@@ -1,5 +1,5 @@
 #include <transpose.stanh>
-#ifndef _HEADER_MAKE_SYMMETRIC
-#define _HEADER_MAKE_SYMMETRIC
+#ifndef STAN_HEADER_MAKE_SYMMETRIC
+#define STAN_HEADER_MAKE_SYMMETRIC
 #define _MAKE_SYMMETRIC(x) 0.5 * (x + x _T)
 #endif

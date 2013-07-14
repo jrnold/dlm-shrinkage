@@ -1,6 +1,6 @@
 // Gaussian DLM values
-#ifndef _HEADER_KALMANF
-#define _HEADER_KALMANF
+#ifndef STAN_HEADER_KALMANF
+#define STAN_HEADER_KALMANF
 
 #include <transpose.stanh>
 #include <make_symmetric.stanh>
