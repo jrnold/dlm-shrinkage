@@ -49,5 +49,9 @@ All macros names are ALL CAPS with a leading `_`; this means they are invalid *S
 
 ## _TRIANGLE_LOG
 
-`_TRIANGLE_LOG(y)`. The density of the triangle log. `log1m(fabs(y))`. This assumes that `y` is defined as a bounded variable, e.g. `real<lower=a, upper=b> y;`.
+`_TRIANGLE_LOG(y)`. The density of the triangle log. `log1m(fabs(y))`.
+This assumes that `y` is defined as a bounded variable, e.g.
+`real<lower=a, upper=b> y;`.
+
+## _KALMANF
 
