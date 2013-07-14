@@ -4,3 +4,5 @@ FILE <- commandArgs(TRUE)[1]
 source("conf.R")
 source(".nile_fit_plot.R")
 nile_fit_plot("mcmcsummary_nile_hs", FILE)
+nile_fit_plot("mcmcsummary_nile_normal_2", FILE)
+nile_fit_plot("mcmcsummary_nile_normal_1", FILE)

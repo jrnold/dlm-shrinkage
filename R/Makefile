@@ -2,12 +2,12 @@ R = R
 
 all: library build
 
-build: build-sddlm
+build: build-bsdlm
 
-build-sddlm: library/sddlm/DESCRIPTION
+build-bsdlm: library/bsdlm/DESCRIPTION
 
-library/sddlm/DESCRIPTION: sddlm/DESCRIPTION $(wildcard sddlm/R/*.R)
-	$(R) CMD INSTALL --build --library=./library sddlm
+library/bsdlm/DESCRIPTION: bsdlm/DESCRIPTION $(wildcard bsdlm/R/*.R)
+	$(R) CMD INSTALL --build --library=./library bsdlm
 
 library:
 	-mkdir library
