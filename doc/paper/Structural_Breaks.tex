@@ -200,8 +200,9 @@ Note that both $\lambda$ and $\tau$ contribute to the shrinkage parameter.
 When $\tau$ is small, then most values of $\kappa_{i} \approx 1$ and $\theta$ is sparse.
 However, if $\lambda$ is sufficiently large, it can overwhelm the effect of $\tau$, and $\kappa_{i}$ can be close to 0, leaving $\theta_{i}$ unshrunk.
 Thus, the global variance component $\tau_{i}$ determines the overall sparseness of $\theta_{i:n}$, while the local variance components $\lambda_{i}^{2}$ determine the non-zero values of $\theta_{i}$.
+Different distributions of $\lambda_{i}$ imply different distributions of $\kappa_{i}$.
+In other words, shrinkage priors can be thought of as different prior distributions over the shrinkage parameter $\kappa_{i}$.
 
-Different distributions of $\lambda_{i}$ imply different distributions of 
 Shrinkage priors are the Bayesian posterior estimation equivalent of penalized likelihood for posterior mode-finding \parencites{PolsonScott2010}{PolsonScott2012a}.
 For example, the popular Lasso/L1 regularization \parencite{Tibshirani1996} corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the coefficients \parencites{ParkCasella2008}{Hans2009}.
 Other prior distributions correspond to other likelihood penalties, although for some distributions the likelihood penalty may lack a closed form.
@@ -209,8 +210,7 @@ Other prior distributions correspond to other likelihood penalties, although for
 \subsection{Local Level Model}
 \label{sec:local-level-model}
 
-In \eqref{eq:13}, the data were not ordered in time. 
-Now, consider the estimation of time-varying means using a local level model%
+Now, consider the estimation of time-varying means using a local level model,
 \footnote{Also called the \textit{1st-order polynomial trend model} \parencite[Chapter 2]{WestHarrison1997} or random walk with noise.}
 \begin{equation}
   \label{eq:5}
@@ -220,6 +220,8 @@ Now, consider the estimation of time-varying means using a local level model%
     \theta & \sim N(m_{0}, C_{0})
   \end{aligned}
 \end{equation}
+This is perhaps the simplest time-varying parameter model.
+It differs from the multiple mean model in \eqref{eq:13} in that the means are temporally related by a random walk.
 Equation \eqref{eq:5} is the special case of the dynamic linear model in \eqref{eq:8} with $r = n = 1$, and $F_{t} = G_{t} = 1$.
 
 Since all the component equations in equation \eqref{eq:5} are (multivariate) normal, the joint distribution of $\theta$ and $y$ is multivariate normal.
