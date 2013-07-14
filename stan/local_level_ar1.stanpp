@@ -1,5 +1,5 @@
 /*
-  Univariate local level model
+  Univariate local level model with AR(1) components
  */
 #include <kalmanf.stanh>
 #include <jeffreys.stanh>
