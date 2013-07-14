@@ -1,0 +1,44 @@
+/*
+  Univariate local level model
+ */
+#include <kalmanf.stanh>
+#include <jeffreys.stanh>
+data {
+  int T;
+  matrix[1, T] y;
+  matrix[1, 1] F;
+  matrix[2, 2] G0;
+  vector[1] m0;
+  cov_matrix[1] C0;
+  real rho_lb;
+  real rho_ub;
+}
+transformed data {
+  int r;
+  int n;
+  r <- 1;
+  n <- 1;
+}
+parameters {
+  real<lower=0.0> sigma;
+  real<lower=0.0>[2] tau;
+  real<lower=rho_lb, upper=rho_ub> rho;
+}
+transformed parameters {
+  vector<lower=0.0>[1] V;
+  vector<lower=0.0>[2] W_diag;
+  matrix[2, 2] W;
+  matrix[2, 2] G;
+  G <- G0;
+  G[2, 2] <- rho;
+  V[1] <- pow(sigma, 2);
+  for (i in 1:2) {
+    W_diag[1] <- pow(tau[1] * sigma, 2);
+  }
+}
+model {
+  _KALMANF_SEQ(r, n, y, F, G, V, W, m0, C0);
+  _JEFFREYS(sigma);
+  tau ~ cauchy(0, 1);
+}
+
