@@ -48,9 +48,8 @@ LDLIBS_STANC = -L$(STAN_BIN) -lstanc
 
 %.d : %.stanpp
 	cpp -I$(STAN_HEADERS) -nostdinc -MM  -MT $(patsubst %.stanpp,%.stan,$<) $<  -MF $@
-
 %.stan : %.stanpp
-	cpp -I$(STAN_HEADERS) -undef -Wundef -nostdinc -std=c11 -P $< $@
+	cpp -I$(STAN_HEADERS) -w -undef -Wundef -nostdinc -std=c11 -P $< $@
 
 %.cpp : %.stan 
 	@echo ''

@@ -1,9 +1,9 @@
 // Gaussian DLM values
-#ifndef STAN_HEADER_KALMANF
-#define STAN_HEADER_KALMANF
-
 #include <transpose.stanh>
 #include <make_symmetric.stanh>
+
+#ifndef STAN_HEADER_KALMANF
+#define STAN_HEADER_KALMANF
 
 // sequential, no missing values
 #define _KALMANF_SEQ(r, n, y, F, G, V, W, m0, C0) \
@@ -156,11 +156,9 @@
                            + log(KALMANF_Q_inv)                         \
                            + KALMANF_Q_inv * pow(KALMANF_e, 2.0)));     \
       } \
-=======
       KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
       KALMANF_LL[j] <- (-0.5 * (log(KALMANF_Q)  \
                                 + KALMANF_Q_inv * pow(KALMANF_e, 2))); \
->>>>>>> 81d48e8c6f60753562fa30708591d3823344cc64
     } \
     lp__ <- lp__ + sum(KALMANF_LL); \
   } \

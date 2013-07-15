@@ -8,15 +8,19 @@ data {
 }
 parameters {
   real<lower=0.0> sigma;
-  real<lower=0.0> tau;
+  vector<lower=0.0>[2] tau;
   vector<lower=0.0>[T] lambda;
+  real<lower=-1.0, upper=1.0> rho;
 }
 transformed parameters {
   vector[1] V;
-  matrix[1, 1] W[T];
+  matrix[2, 2] W[T];
   V[1] <- pow(sigma, 2);
   for (i in 1:T) {
-    W[i, 1, 1] <- pow(sigma * tau * lambda[i], 2);
+    vector[2] W_diag;
+    W_diag[1] <- pow(sigma * tau[1] * lambda[i], 2);
+    W_diag[2] <- pow(sigma * tau[2], 2);
+    W[i] <- diag_matrix(W_diag);
   }
 }
 model {

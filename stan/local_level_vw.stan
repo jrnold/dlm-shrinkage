@@ -1,5 +1,3 @@
-      KALMANF_C <- 0.5 * (KALMANF_C + KALMANF_C '); KALMANF_LL[j] <- (-0.5 * (log(KALMANF_Q) + KALMANF_Q_inv * pow(KALMANF_e, 2))); >>>>>>> 81d48e8c6f60753562fa30708591d3823344cc64
-    } lp__ <- lp__ + sum(KALMANF_LL); } }
 data {
   int T;
   matrix[1, T] y;
