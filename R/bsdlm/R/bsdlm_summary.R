@@ -9,10 +9,9 @@ NULL
 #' @param ... Options passed to \code{\link{laply}}.
 #' @return \code{list} with the results of \code{\link{dlm_stats}} for each iteration
 #' of \code{object}
-bsdlm_summary <- function(object, chain_id = NULL, iter = NULL, ...) {
+bsdlm_summary <- function(object, data = mcmcdb_data(object), chain_id = NULL, iter = NULL, ...) {
   ret <- list()
   to_dlm <- iter_to_dlm(object)
-  data <- mcmcdb_data(object)
   FUN <- function(iter, to_dlm, y) {
     dlm_stats(y, to_dlm(iter))
   }
@@ -24,6 +23,7 @@ bsdlm_summary <- function(object, chain_id = NULL, iter = NULL, ...) {
   }
   loglik <- simplify2array(ret[["loglik"]]) # rows = obs, cols = iters
   yrep <- simplify2array(ret[["yrep"]]) # rows = obs, cols = iters
+  y <- data$y
   ret[["lppd"]] <- log(apply(exp(loglik), 1, mean))
   ret[["waic"]] <- waic(loglik)
   ret[["dic"]] <- dic(-2 * apply(loglik, 2, sum))

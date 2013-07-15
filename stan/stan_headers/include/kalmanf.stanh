@@ -35,7 +35,7 @@
       KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
       KALMANF_LL[j] <- (-0.5 *  \
                         (log(2 * pi())  \
-                         + log(KALMANF_Q_inv)  \
+                         + log(KALMANF_Q)  \
                          + KALMANF_Q_inv * pow(KALMANF_e, 2.0))); \
     } \
     lp__ <- lp__ + sum(KALMANF_LL); \
@@ -75,7 +75,7 @@
 	KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
         KALMANF_LL[j] <- (-0.5 *                                        \
                           (log(2 * pi())                                \
-                           + log(KALMANF_Q_inv)                         \
+                           + log(KALMANF_Q)                         \
                            + KALMANF_Q_inv * pow(KALMANF_e, 2.0)));     \
       } \
     } \
@@ -113,7 +113,7 @@
       KALMANF_C <- 0.5 * (KALMANF_C + KALMANF_C _T); \
       KALMANF_LL[j] <- (-0.5 *  \
                         (log(2 * pi())  \
-                         + log(KALMANF_Q_inv)  \
+                         + log(KALMANF_Q)  \
                          + KALMANF_Q_inv * pow(KALMANF_e, 2.0))); \
     } \
     lp__ <- lp__ + sum(KALMANF_LL); \
@@ -151,14 +151,10 @@
         KALMANF_m <- KALMANF_m + KALMANF_A * KALMANF_e;                 \
         KALMANF_C <- KALMANF_C - KALMANF_Q * KALMANF_A * KALMANF_A _T;  \
         KALMANF_C <- 0.5 * (KALMANF_C + KALMANF_C _T);                  \
-        KALMANF_LL[j] <- (-0.5 *                                        \
-                          (log(2 * pi())                                \
-                           + log(KALMANF_Q_inv)                         \
+        KALMANF_LL[j] <- (-0.5 * (log(2 * pi())                         \
+                           + log(KALMANF_Q)                             \
                            + KALMANF_Q_inv * pow(KALMANF_e, 2.0)));     \
       } \
-      KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
-      KALMANF_LL[j] <- (-0.5 * (log(KALMANF_Q)  \
-                                + KALMANF_Q_inv * pow(KALMANF_e, 2))); \
     } \
     lp__ <- lp__ + sum(KALMANF_LL); \
   } \
