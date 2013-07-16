@@ -1,13 +1,13 @@
-KEY <- "seatbelts2"
+KEY <- "seatbelts1"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 
 SEED <- c(43542530304)
-ITER <- 2^13
-WARMUP <- 2^12
-NSAMPLES <- 2^10
+ITER <- 2^10
+WARMUP <- 2^9
+NSAMPLES <- 2^9
 THIN <- (ITER - WARMUP) / NSAMPLES
 
-MODEL <- "seatbelts2"
+MODEL <- "seatbelts1"
 
 y <- log(as.numeric(datasets::UKDriverDeaths))
 
@@ -16,12 +16,11 @@ mod <- dlmModPoly(1) + dlmModSeas(12)
 standata <- within(list(), {
   y <- t(y)
   T <- length(y)
-  n <- 12
   F <- t(mod$FF)
   G <- mod$GG
-  m0 <- rep(0, n)
-  C0 <- matrix(0, n, n)
-  diag(C0) <- rep(1e7, n)
+  n <- ncol(G)
+  m0 <- array(rep(0, n))
+  C0 <- diag(rep(1e7, n))
 })
 
 timing <-
@@ -35,4 +34,4 @@ res <-
                         model_data = standata,
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
-RDATA[[MCMCDB_KEY]] <- new("BsDlmSeatbelts2", res)
+RDATA[[MCMCDB_KEY]] <- new("BsDlmSeatbelts1", res)
