@@ -1,9 +1,9 @@
 // Gaussian DLM values
-#include <transpose.stanh>
-#include <make_symmetric.stanh>
-
 #ifndef STAN_HEADER_KALMANF
 #define STAN_HEADER_KALMANF
+
+#include <transpose.stanh>
+#include <make_symmetric.stanh>
 
 // sequential, no missing values
 #define _KALMANF_SEQ(r, n, y, F, G, V, W, m0, C0) \
@@ -21,27 +21,27 @@
     KALMANF_C <- C0; \
     for (KALMANF_i in 1:ncol(y)) { \
       KALMANF_m <- G * KALMANF_m; \
-      KALMANF_C <- G * KALMANF_C * G _T + W;\
-      KALMANF_C <- 0.5 * (KALMANF_C + KALMANF_C _T);\
+      KALMANF_C <- G * KALMANF_C * G _T + W; \
+      KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C);       \
       for (KALMANF_j in 1:r) { \
         KALMANF_Fj <- col(F, KALMANF_j); \
         KALMANF_f <- dot_product(KALMANF_Fj, KALMANF_m); \
         KALMANF_Q <- KALMANF_Fj _T * KALMANF_C * KALMANF_Fj + V[j]; \
         KALMANF_Q_inv <- 1.0 / KALMANF_Q; \
-        KALMANF_e <- y[KALMANF_j, KALMANF_i] - KALMANF_f;                      \
+        KALMANF_e <- y[KALMANF_j, KALMANF_i] - KALMANF_f; \
         KALMANF_A <- KALMANF_C * KALMANF_Fj * KALMANF_Q_inv; \
         KALMANF_m <- KALMANF_m + KALMANF_A * KALMANF_e; \
         KALMANF_C <- KALMANF_C - KALMANF_Q * KALMANF_A * KALMANF_A _T; \
-        KALMANF_C <- 0.5 * (KALMANF_C + KALMANF_C _T);\
+        KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
         LL[j] <- (-0.5   \
                   * (log(KALMANF_Q)  \
                     + KALMANF_Q_inv * pow(KALMANF_e, 2))); \
       } \
       lp__ <- lp__ + sum(KALMANF_LL); \
     } \
-  }
+  } 
 
-#define _KALMANF_SEQ(r, n, y, F, G, V, W, m0, C0) \
+#define _KALMANF(r, n, y, F, G, V, W, m0, C0) \
     real KALMANF_LL; \
     vector[n] KALMANF_m;  \
     matrix[n, n] KALMANF_C;  \
@@ -55,23 +55,23 @@
     KALMANF_m <- m0;  \
     KALMANF_C <- C0;  \
     for (KALMANF_i in 1:T) {  \
-      a <- G * KALMANF_m;  \
-      R <- G * KALMANF_C * G _T + W; \
-      R <- 0.5 * (R + R _T); \
+      KALMANF_a <- G * KALMANF_m;  \
+      KALMANF_R <- G * KALMANF_C * G _T + W; \
+      KALMANF_R <- _MAKE_SYMMETRIC(KALMANF_R); \
       KALMANF_f <- F _T * a; \
       KALMANF_Q <- F _T * R * F + V; \
-      KALMANF_Q <- 0.5 * (KALMANF_Q + KALMANF_Q _T); \
+      KALMANF_Q <- _MAKE_SYMMETRIC(KALMANF_Q); \
       KALMANF_Q_inv <- inverse(KALMANF_Q); \
-      err <- col(y, KALMANF_i) - KALMANF_f;                       \
+      err <- col(y, KALMANF_i) - KALMANF_f; \
       KALMANF_A <- R * F * KALMANF_Q_inv; \
       KALMANF_m <- a + KALMANF_A * err; \
-      KALMANF_C <- R - KALMANF_A * KALMANF_Q * KALMANF_A _T;  \
-      KALMANF_C <- 0.5 * (KALMANF_C + KALMANF_C _T); \
+      KALMANF_C <- R - KALMANF_A * KALMANF_Q * KALMANF_A _T; \
+      KALMANF_C <- _MAKE_SYMMETRIC(KALMANF_C); \
       KALMANF_LL <- (-0.5 \
              * (log_determinant(KALMANF_Q) \
                 + err _T * KALMANF_Q_inv * err)); \
       lp <- lp + KALMANF_LL; \
     }  \
-  } \
+  }
 
 #endif
