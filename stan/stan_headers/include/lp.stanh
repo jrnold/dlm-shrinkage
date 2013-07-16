@@ -1,0 +1,4 @@
+#ifndef STAN_HEADER_LP
+#define STAN_HEADER_LP
+#define _LP(x) lp__ <- lp__ + x
+#endif
