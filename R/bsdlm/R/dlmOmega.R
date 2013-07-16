@@ -6,6 +6,7 @@
 #' @param m latent states
 #' @param mod An object of class \code{dlm}.
 #' @return \code{array}
+#' @export
 dlmOmega <- function(m, mod) {
   FUN <- function(i) {
     G_i <- dlmGet(mod, "G", i - 1)

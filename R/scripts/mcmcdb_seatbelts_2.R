@@ -1,4 +1,4 @@
-KEY <- "seatbelts1"
+KEY <- "seatbelts2"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 
 SEED <- c(43542530304)
@@ -7,7 +7,7 @@ WARMUP <- 2^12
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
 
-MODEL <- "seatbelts1"
+MODEL <- "seatbelts2"
 
 y <- log(as.numeric(datasets::UKDriverDeaths))
 
@@ -35,4 +35,4 @@ res <-
                         model_data = standata,
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
-RDATA[[MCMCDB_KEY]] <- new("BsDlmSeatbelts1", res)
+RDATA[[MCMCDB_KEY]] <- new("BsDlmSeatbelts2", res)

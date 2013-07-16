@@ -11,7 +11,7 @@ dlmYrep <- function(m, mod) {
   FUN <- function(i, mod, m) {
     F_i <- dlmGet(mod, "F", i)
     V_i <- dlmGet(mod, "V", i)
-    mu <- F_i %*% m[i, , drop=FALSE]
+    mu <- F_i %*% t(m[i, , drop=FALSE])
     as.numeric(rmvnorm(1, mu, as.matrix(V_i)))
   }
   laply(seq_len(nrow(m)), FUN, mod = mod, m = m)
