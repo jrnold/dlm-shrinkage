@@ -14,16 +14,14 @@ data {
 }
 parameters {
   real<lower=0.0> sigma;
-  vector<lower=0.0>[2] tau;
+  real<lower=0.0> tau;
 }
 transformed parameters {
   vector<lower=0.0>[1] V;
   vector[n] W_diag;
   matrix[n, n] W;
-  for (i in 1:2) {
-    W_diag[i] <- pow(sigma * tau[i], 2);
-  }
-  for (i in 3:n) {
+  W_diag[1] <- pow(sigma * tau, 2);
+  for (i in 2:n) {
     W_diag[i] <- 0.0;
   }
   W <- diag_matrix(W_diag);
