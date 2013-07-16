@@ -10,7 +10,7 @@
 dlmOmega <- function(m, mod) {
   FUN <- function(i) {
     G_i <- dlmGet(mod, "G", i - 1)
-    m[i, , drop=FALSE] - G_i %*% m[i - 1, , drop=FALSE]
+    m[i, ] - G_i %*% m[i - 1, ]
   }
   laply(2:nrow(m), FUN)
 }

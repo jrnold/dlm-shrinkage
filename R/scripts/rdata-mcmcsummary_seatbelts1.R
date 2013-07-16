@@ -1,5 +1,5 @@
 # ---
-# filehash: mcmcdb_seatbelts2
+# filehash: mcmcdb_seatbelts1
 # ---
 set.seed(0843210321)
 KEY <- "seatbelts1"

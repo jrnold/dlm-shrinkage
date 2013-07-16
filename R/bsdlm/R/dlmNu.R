@@ -13,7 +13,7 @@ dlmNu <- function(y, m, mod) {
     F_i <- dlmGet(mod, "F", i)
     if (is.null(dim(y))) y_i <- y[i]
     else y_i <- y[i, ]
-    y_i - F_i %*% t(m[i, , drop=FALSE])
+    y_i - F_i %*% m[i, ]
   }
   laply(seq_len(nrow(m)), FUN)
 }
