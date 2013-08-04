@@ -1,3 +1,6 @@
 [submodule "lib/CDB13"]
 	path = lib/CDB13
 	url = https://github.com/jrnold/CDB13
+[submodule "lib/stan_headers"]
+	path = lib/stan_headers
+	url = git@github.com:jrnold/stan_headers.git

@@ -1,4 +1,4 @@
-libPaths(c("./R/library", .libPaths()))
+.libPaths(c("./R/library", .libPaths()))
 
 suppressPackageStartupMessages({
   # CRAN
