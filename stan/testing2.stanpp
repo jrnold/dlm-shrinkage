@@ -1,0 +1,23 @@
+# include <make_symmetric.stanh>
+data {
+  int r;
+  int n;
+  int T;
+  matrix[r, T] y;
+  matrix[n, r] F;
+  matrix[r, r] V;
+  matrix[n, n] G;
+  matrix[n, n] W;
+  vector[n] m0;
+  matrix[n, n] C0;
+}
+parameters {
+  real foo;
+}
+transformed parameters {
+  real lp;
+  {
+}
+model {
+  foo ~ normal(0, 1);
+}

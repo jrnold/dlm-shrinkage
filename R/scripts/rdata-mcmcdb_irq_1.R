@@ -35,7 +35,7 @@ timing <-
                                       thin = THIN))
 res <- 
   mcmcdb_wide_from_stan(smpls,
-                        model_data = nile_data,
+                        model_data = standata,
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
 

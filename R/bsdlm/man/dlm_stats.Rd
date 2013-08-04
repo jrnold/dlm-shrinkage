@@ -16,10 +16,11 @@
   A \code{list} with elements \describe{ \item{filter}{An
   object of class \code{\linkS4class{dlmFiltered}}}
   \item{smooth}{The output of \code{\link{dlmSmooth}}}
-  \item{yrep}{The output of \code{\link{dlmYrep}}}
-  \item{nu}{The output of \code{\link{dlmNu}}}
-  \item{omega}{The output of \code{\link{dlmOmega}}}
-  \item{loglik}{The output of \code{\link{dlmLogLikObs}}} }
+  \item{yrep}{The output of \code{\link{dlmYrep}} using
+  smoothed draws.} \item{nu}{The output of
+  \code{\link{dlmNu}}} \item{omega}{The output of
+  \code{\link{dlmOmega}}} \item{loglik}{The output of
+  \code{\link{dlmLogLikObs}}} }
 }
 \description{
   Calculate misc stats for a DLM

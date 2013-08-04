@@ -2,7 +2,8 @@
 \alias{bsdlm_summary}
 \title{DLM Summary values for a Bsdlm Object}
 \usage{
-  bsdlm_summary(object, chain_id = NULL, iter = NULL, ...)
+  bsdlm_summary(object, data = mcmcdb_data(object),
+    chain_id = NULL, iter = NULL, ...)
 }
 \arguments{
   \item{object}{An object of class \code{BsDlmMcmcdb}.}

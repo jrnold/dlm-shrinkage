@@ -1,28 +1,26 @@
-nile <- RDATA[["nile"]]
-source("nile_data.R")
-
-KEY <- "nile_hs"
+KEY <- "seatbelts1"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 
 SEED <- c(43542530304)
-ITER <- 2^13
-WARMUP <- 2^12
-NSAMPLES <- 2^10
+ITER <- 2^10
+WARMUP <- 2^9
+NSAMPLES <- 2^9
 THIN <- (ITER - WARMUP) / NSAMPLES
 
 MODEL <- "seatbelts1"
 
-y <- as.numeric(datasets::UKDriverDeaths)
+y <- log(as.numeric(datasets::UKDriverDeaths))
 
 mod <- dlmModPoly(1) + dlmModSeas(12)
 
 standata <- within(list(), {
-  y <- y
-  n <- length(y)
+  y <- t(y)
+  T <- length(y)
   F <- t(mod$FF)
   G <- mod$GG
-  m0 <- c(mean(y), 0)
-  C0 <- matrix(c(var(y), 0, 0, 1e7), 2, 2)
+  n <- ncol(G)
+  m0 <- array(rep(0, n))
+  C0 <- diag(rep(1e7, n))
 })
 
 timing <-
@@ -33,7 +31,7 @@ timing <-
                                       thin = THIN))
 res <- 
   mcmcdb_wide_from_stan(smpls,
-                        model_data = nile_data,
+                        model_data = standata,
                         model_name = MODEL)
 res@metadata[["system_time"]] <- timing
-
+RDATA[[MCMCDB_KEY]] <- new("BsDlmSeatbelts1", res)
