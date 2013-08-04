@@ -414,7 +414,16 @@ Almost always observation disturbances are expected to be non-zero;
 there are many statistical models in which the parameters are time-invariant, but none in without observation errors.%
 Outliers are not the few periods in which $\nu_{t} \neq 0$, but are instead the few periods with observation disturbances of very large magnitudes, $|\nu_{t}| \gg 0$.
 In this case, it is more important for the shrinkage prior to have heavy tails than have a spike at zero. 
-For that reason, the $t$-distribution, which is commonly used to model outliers in Bayesian regression and DLMs \parencite{West1984}, is likely sufficient for most applications.
+For that reason, the $t$-distribution, which is commonly used to model
+outliers in Bayesian regression and DLMs \parencite{West1984}, is
+likely sufficient for most applications.
+
+\subsection{Comparison to Other Methods}
+\label{sec:comp-other-meth-1}
+
+Compare to smooth and break method.
+
+Compare to stochastic volatility methods.
 
 \section{Implementation}
 \label{sec:implementation}

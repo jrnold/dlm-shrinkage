@@ -25,7 +25,7 @@ transformed parameters {
   }
 }
 model {
-  _KALMANF_SEQ(1, 1, y, F, G, V, W[i], m0, C0);
+  _KALMANF_SEQ(1, 1, y, F, G, V, W[KALMANF_i], m0, C0);
   _JEFFREYS(sigma);
   lambda ~ cauchy(0, 1);
   tau ~ cauchy(0, 1);

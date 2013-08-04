@@ -2,8 +2,8 @@ KEY <- "seatbelts2"
 MCMCDB_KEY <- sprintf("mcmcdb_%s", KEY)
 
 SEED <- c(43542530304)
-ITER <- 2^13
-WARMUP <- 2^12
+ITER <- 2^11
+WARMUP <- 2^10
 NSAMPLES <- 2^10
 THIN <- (ITER - WARMUP) / NSAMPLES
 

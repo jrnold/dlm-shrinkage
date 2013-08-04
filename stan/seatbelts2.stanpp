@@ -22,7 +22,7 @@ transformed parameters {
   matrix[n, n] W[T];
   for (i in 1:T) {
     vector[n] W_diag;
-    W_diag[1] <- pow(sigma * tau * lambda[i], 2);
+    W_diag[1] <- pow(tau * lambda[i], 2);
     for (j in 2:n) {
       W_diag[j] <- 0.0;
     }
@@ -31,7 +31,7 @@ transformed parameters {
   V[1] <- pow(sigma, 2);
 }
 model {
-  _KALMANF_SEQ(1, n, y, F, G, V, W[i], m0, C0);
+  _KALMANF_SEQ(1, n, y, F, G, V, W[KALMANF_i], m0, C0);
   _JEFFREYS(sigma);
   tau ~ cauchy(0, 1);
   lambda ~ cauchy(0, 1);

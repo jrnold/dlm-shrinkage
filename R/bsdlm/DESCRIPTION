@@ -41,3 +41,5 @@ Collate:
     'BsDlmLocalLevelHs-class.R'
     'BsDlmSeatbelts1.R'
     'BsDlmSeatbelts2.R'
+    'BsDlmSeatbelts3.R'
+    'dlmSim.R'

@@ -1,6 +1,5 @@
 seatbelt_fit_plot <- function(key, file) {
-  states <- laply(RDATA[[key]][["sample"]], function(x) x[ , 2])
-  states <- laply(RDATA[[key]][["yrep"]], as.numeric)
+  states <- laply(RDATA[[key]][["sample"]], function(x) x[ , 1])
   states_m <- ddply(melt(states), "Var2",
                     function(df) mcmc3valsummary(df$value))
   states_m <- states_m[-1, ]

@@ -22,7 +22,7 @@ NULL
 #' }
 dlm_stats <- function(y, mod) {
   filter <- dlmFilter(y, mod)
-  smooth <- dlmSmooth(filter)
+#  smooth <- dlmSmooth(filter)
   sample <- dlmBSample(filter)
   
   yrep <- dlmYrep(as.matrix(dropFirst(sample)), mod)
@@ -30,7 +30,7 @@ dlm_stats <- function(y, mod) {
   nu <- dlmNu(y, as.matrix(dropFirst(sample)), mod)
   omega <- dlmOmega(as.matrix(dropFirst(sample)), mod)
   ll <- dlmLogLikObs(filter)
-  list(filter = filter, smooth = smooth, sample = sample,
+  list(sample = sample,
        yrep = yrep, mu = mu,
        nu = nu, omega = omega, loglik = ll)
 }
