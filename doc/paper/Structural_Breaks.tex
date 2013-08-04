@@ -24,7 +24,6 @@
 }
 \title{Bayesian Shrinkage in Dynanmic Linear Models}
 
-\include{pygments}
 \begin{document}
 
 \maketitle{}
@@ -104,20 +103,23 @@ method can be extended.
 \label{sec:bayesian-shrinkage}
 
 Consider a sequence of data generated from normal distributions with varying means but a common variance,%
-\footnote{This easily extends to linear regression $y_{i} \sim N(\theta_{i} X_{i}, \sigma^{2})$ and other contexts.}, where
+\footnote{
+  This easily extends to linear regression $y_{i} \sim N(\theta_{i} X_{i}, \sigma^{2})$ and other contexts.
+}
 \begin{align}
   \label{eq:13}
   y_{i} & \sim N(\theta_{i}, \sigma) & & \text{for $i \in 1:n$}
 \end{align}
-where the parameter vector $\theta_{1:n}$ is sparse, meaning that most $\theta_{i} = 0$.
-Let ``signals'' be defined as $\theta_{i} \neq 0$, and ``noise'' as observations in which $\theta_{i} = 0$.
-The objective is to both classify signals and noise, and to estimate the size of the signals.
+Furthermore, suppose that the parameter vector $\theta_{1:n}$ is sparse, meaning that most $\theta_{i} = 0$.
+Define ``signals'' as those observations where $\theta_{i} \neq 0$, and ``noise'' as those observations where $\theta_{i} = 0$.
+In sparse estimation, the analyst's objective is to both classify signals and noise and estimate the size of the signals.
 
-In Bayesian estimation, there are two main approaches for estimating a vector of sparse parameters: selection using discrete mixtures and shrinkage using continuous priors \parencite[73]{CarvalhoPolsonScott2009}. 
-The discrete-mixture approach models the parameter with prior consisting of a mixture between a point mass at zero and a continuous distribution.
+In Bayesian estimation, there are two main classes of methods for estimating a vector of sparse parameters which differ in the class of prior distribution used for $\theta$. 
+Selection methods use discrete mixtures, while shrinkage methods use continuous priors \parencite[73]{CarvalhoPolsonScott2009}. 
+The discrete-mixture approach models the parameter with prior consisting of a mixture between a point mass at zero and a continuous distribution for non-zero elements,
 \begin{equation}
   \label{eq:1}
-  \theta_{i} = w \delta_{0} +  (1 - w) g(\theta_{i})
+  \theta_{i} = w \delta_{0} +  (1 - w) g(\theta_{i}) \text{,}
 \end{equation}
 where $w \in [0, 1]$, $\delta_{0}$ is the degenerate distribution at 0, and $g(\theta_{i})$ is the distribution of $\theta_{i} | \theta_{i} \neq 0$.
 The mixture distribution in equation \eqref{eq:1} is often called a spike-and-slab prior.
@@ -126,11 +128,14 @@ If $g$ is sufficiently heavy-tailed, $\E(\theta_{i} | w, y_{i}) \approx w(y_{i})
   \label{eq:7}
   w(y_{i})  = \frac{w f_{0}(y_{i})}{w f_{0}(y_{i}) + (1 - w) f_{1}(y_{i})}
 \end{equation}
-where $f_{0}(y) = \dnorm(y | 0, \sigma^{2})$ and $f_{1}(y) = \int \dnorm(y | \mu, \sigma^{2}) g(\mu) \,d \mu$.
-The advantage of this approach is that it places a positive probability on $\Pr(\theta_{i} = 0)$ and thus a direct test of that hypothesis.
-However, there are often computational problems estimating these priors in high dimensions.
+and $f_{0}(y) = \dnorm(y | 0, \sigma^{2})$ and $f_{1}(y) = \int \dnorm(y | \mu, \sigma^{2}) g(\mu) \,d \mu$.
+The advantage of the selection approach is that it places a positive probability on the event that $theta_{i} = 0$, and thus provides a direct test of that hypothesis.
+The disadvantages of the selection approach are both conception and computational.
+Conceptually, it may be implausible that $\theta_{i}$ would ever exactly be 0.
+Computationally, spike-and-slab prior distributions can become intractable in high dimensions since the discrete distribution has a space of $2^{k}$ where $k$ is the number of paramters.
 
 Shrinkage approaches estimate sparsity using a continuous prior distribution centered at zero.
+
 Early examples of shrinkage approaches include \parencites{Tibshirani1996}{Tipping2001}.
 Most proposed Bayesian shrinkage priors are in the the class of global-local mixtures of normal distributions \parencite{PolsonScott2010}:
 \begin{equation}
@@ -210,7 +215,9 @@ Other prior distributions correspond to other likelihood penalties, although for
 \subsection{Local Level Model}
 \label{sec:local-level-model}
 
-Now, consider the estimation of time-varying means using a local level model,
+In equation \ref{eq:13}, the means of each observation were independent, but drawn from a common distribution.
+In the time-varying parameter case, the observations are ordered and the mean of each observation depends on the mean of the previous observation.
+The simplest case of this is the local-level model in which the means evolve as a random walk,
 \footnote{Also called the \textit{1st-order polynomial trend model} \parencite[Chapter 2]{WestHarrison1997} or random walk with noise.}
 \begin{equation}
   \label{eq:5}
@@ -220,11 +227,8 @@ Now, consider the estimation of time-varying means using a local level model,
     \theta & \sim N(m_{0}, C_{0})
   \end{aligned}
 \end{equation}
-This is perhaps the simplest time-varying parameter model.
-It differs from the multiple mean model in \eqref{eq:13} in that the means are temporally related by a random walk.
-Equation \eqref{eq:5} is the special case of the dynamic linear model in \eqref{eq:8} with $r = n = 1$, and $F_{t} = G_{t} = 1$.
 
-Since all the component equations in equation \eqref{eq:5} are (multivariate) normal, the joint distribution of $\theta$ and $y$ is multivariate normal.
+Since all the component equations in equation \eqref{eq:5} are (multivariate) normal, the joint distribution of $\theta$ and $y$ is also multivariate normal.
 Thus, analytical solutions to the distributions of the states and observations conditional on observations are available.
 For each time period $t$, estimate of $\theta_{t}$ can be updated using the following equations.
 The prior distribution of the state $\theta_{t}$ given observations $y_{1:t-1}$ is,
@@ -249,41 +253,38 @@ where $A_{t} \in [0, 1]$ is the adaptation coefficient and $e_{t}$ is the foreca
   e_{t} = y_{t} - f_{t-1} = y_{t} - m_{t-1}
 \end{align}
 Together equations \eqref{eq:23}-\eqref{eq:26} are known as the \textit{filtering equations}.
+After filtering, the values of $p(\theta_{t} | y_{1:T})$ can be sampled in a process known as forward filtering backward sample.
+However, only the filtering equation and a forward pass through the data is needed to calculate the likelihood of equation \eqref{eq:5}
+.
 
-An important feature of the sequential updating is that the filtered estimate of $\theta_{t}$ is a weighted sum of the prior estimate $m_{t - 1}$ and the forecast error $e_{t} = y_{t} - m_{t - 1}$ where $A_{t}$ is the weight placed on the new observation.
-This could also be rewritten as a weighted sum of the data $y_{t}$ and prior estimate $m_{t-1}$, $\theta_{t} | y_{1:t} = (1 - A_{t}) m_{t-1} + A_{t} y_{t}$.
-The weight is a function of the observation and system variances, $A_{t} = R_{t} / Q_{t} = \frac{C_{t-1} + W_{t}}{C_{t-1} + W + V}$.
-
-Shrinkage in this case does not refer to $\theta_{t} \to 0$, but to $\theta_{t} \to \theta_{t-1}$.
-A completely shrunk model is a constant mean model in which $\theta_{t} = \theta = m_{0}$ for all $\theta$, which occurs when $A_{t} = 0$ for all $t$.
-A sparse model is one in which most $A_{t} \approx 0$.
-Ideally, a prior distribution could be placed on $A_{1:t}$ that encourages sparsity (both pushing values towards 0 and 1, and regulating the number of sparse parameters).
-In this paper, I consider two approaches to priors that encourage sparse $A_{1:T}$: setting a prior on $W_{1:T}$ and using the standard Kalman filter, and setting a prior on $\delta_{1:T} = 1 - A_{1:T}$.
-
-The second case, setting a prior on $\delta_{1:T}$ requires more explanation and a slightly different filter.
-First note that the variance of the prior distribution for $\theta_{t}$  is the sum of the posterior variance of $\theta_{t - 1}$ plus the evolution variance $W_{t}$.
-Thus, the evolution variance serves to increase the uncertainty of the state above the initial uncertainty $C_{t}$.
-Instead of keeping $W_{t}$ fixed, represent $W_{t}$ as a proportion of the posterior variance of the previous period.%
-\footnote{
-  This can also be derived from the local level model using limiting results when $V$ and $W$ are constant. 
-  In the limit, $R = C / (1 - A)$.
-  Thus, in the limit, $W$ is a fraction of the posterior state variance, $W = \frac{A}{1 - A} C$.
-}
-Let $W_{t} = \frac{\delta}{1 - \delta} C_{t - 1}$ where $\delta \in [0, 1]$. 
-This implies that $R_{t} = C_{t - 1} / \delta$.
-Thus the filtered model with discount factors consists of equations \eqref{eq:23}, \eqref{eq:30}, and
+An important feature of the sequential updating of the filter is that $m_{t} = E p(\theta_{t} | y_{t})$ is a weighted sum of the mean of the prior,  $m_{t - 1}$, and the forecast error $e_{t} = y_{t} - m_{t - 1}$, where $A_{t}$ is the weight placed on the new observation.
+Equation \eqref{eq:26} can also be rewritten as a weighted sum of the data $y_{t}$ and prior estimate $m_{t-1}$, 
 \begin{equation}
-  \label{eq:10}
-  \theta_{t} | y_{1:t-1} & \sim N(m_{t-1}, R_{t} = \delta C_{t - 1})
+  \label{eq:18}
+  \theta_{t} | y_{1:t} = (1 - A_{t}) m_{t-1} + A_{t} y_{t}
 \end{equation}
-The discount factor $\delta$ represents the extent to which uncertainty about the state has increased from $t$ to $t - 1$, or conversely the extend to which information about the state has decayed in one period.
-When $\delta \approx 0$, $A \approx 1$ and $m_{t} \approx y_{t}$.
+The key feature of the adaption coefficient is that 
+The weight is a function of the observation and system variances, 
+\begin{equation}
+  \label{eq:24}
+  A_{t} = R_{t} / Q_{t} = \frac{C_{t-1} + W_{t}}{C_{t-1} + W + V}
+\end{equation}
+
+In this case, the estimates of $\theta_{t}$ are not shrunk towards 0, but are shrunk towards the previous period's value, $\theta_{t-1}$.
+Alternatively, in this case, the shrinkage is not over the values of $\theta_{t}$, but the values of the one period differences $\theta_{t} - \theta_{t -1}$.
+A model with complete shrinkage is the constant mean model in which $\theta_{t} = m_{0}$ for all $t$, which occurs when $A_{t} = 0$ for all $t$.
+A sparse model is one in which most $A_{t} \approx 0$, but a few $A_{t}$ can be far from 0.
+Ideally, a prior distribution could be placed on $A_{1:t}$ that encourages sparsity, both pushing values towards 0 and 1, and regulating the number of sparse parameters.
 
 \subsection{Dynamic Linear Models}
 \label{sec:dynam-line-models}
 
-While the previous section developed Baysian shrinkage for the univariate local level model, Bayesian shrinkage can be generalized to the class of Gaussian Dynamic Linear Models (DLMs).%
+The local level model in the previous section is a special case of a wider class of time-series models known as Gaussian Dynamic Linear Models (DLMs).%
 \footnote{Gaussian DLMs are also called normal DLMs or Gaussian linear state space models.}
+With minor alterations, the shrinkage methods developed in the previous section can generalize to DLMs.
+Many common models, including SARIMA, structural time series models with level, trend, cyclical and seasonal components, regressions with time-varying coefficients, cubic splines, and stochastic volatility models can be represented as DLMs. 
+\textcites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{PetrisPetroneOmegal2009}{ShumwayStoffer2010} provide thorough treatments of state space models and their applications.
+
 A Gaussian dynamic linear model (DLM) for a $n$-dimensional observation sequence $y_{1}, \dots, y_{n}$ is defined by the following set of equations.%
 For $t = 1:n$,
 \begin{align}
@@ -294,7 +295,6 @@ For $t = 1:n$,
   \label{eq:2}
   \thomega_{1} & \sim \dmvnorm{m_{0}, C_{0}}{n}
 \end{align}
-
 Equation \eqref{eq:8} is the \textit{observation equation} which relates the \textit{observation vector} $y_{t}$ to the \textit{state vector} $\thomega_{t}$.
 Equation \eqref{eq:14} is the \textit{state equation} which describes the evolution of the states over time.
 Equation \eqref{eq:2} is the \textit{initial state equation}.
@@ -303,13 +303,11 @@ The matrices $F_{t}$, $G_{t}$, $V_{t}$, and $W_{t}$ are referred to as the \text
 Let $\mathcal{S}_{t}$ refer to the set of system matrices.
 The matrix $F_{t}$ is the design matrix, $G_{t}$ is the transition matrix, $V_{t}$ is the observation covariance matrix, and $W_{t}$ the state covariance matrix.
 
-Many common models, including SARIMA, structural time series models with level, trend, cyclical and seasonal components, regressions with time-varying coefficients, cubic splines, and stochastic volatility models can be represented as DLMs. 
-\textcites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{PetrisPetroneOmegal2009}{ShumwayStoffer2010} provide thorough treatments of state space models and their applications.
 The range of models which can be represented as DLMs means that the methods presented below apply to a wide range of models.
 Any model in which the parameter of interest can be represented as a state in a DLM, can be estimated using the following method to detect structural breaks.
 \todo[inline]{Should I be talking about ``detecting'' structural  breaks or dealing with large changes (heavy tailed distributions)?}
 
-For Gaussian dynamic linear models, the system in \eqref{eq:8} through \eqref{eq:14} can be updated sequentially with conjugate forms.%
+As in the local level model, since all equations in \eqref{eq:8} through \eqref{eq:14} are multivariate normal, they can be updated sequentially with conjugate forms.%
 \footnote{See \textcite[Section 4.3][]{WestHarrison1997} for proofs.}
 The prior for the state vector at time $t$ is $\thomega_{t} \sim N(a_{t}, R_{t})$ where
 \begin{align}
@@ -382,6 +380,7 @@ To generalize the horseshoe prior distribution to matrix variate random variable
   \label{eq:17}
   \lambda_{t,i} &= \dhalfcauchy{0, 1} & \text{for $i \in 1:q$}
 \end{align}
+
 
 \subsection{Classifying Structural Breaks}
 \label{sec:structural-breaks}
@@ -484,10 +483,9 @@ Discrete mixture
 
 Ratkovic
 
-\begin{equation}
-  \label{eq:24}
-  
-\end{equation}
+A cubic smoothing spline can be estimated within the 
+
+ 
 
 \section{Examples}
 \label{sec:examples}
@@ -714,7 +712,29 @@ The Kalman filter section of the \Stan{} code is specialized to the local level 
 \begin{singlespace}
   \include{assets/code-local_level_hs}  
 \end{singlespace}
-p
+
+\subsection{Sparse Discount Filter}
+\label{sec:sparse-disc-filt}
+
+An alternative approach to sparse disturbances in a DLM is to directly set a prior on the the discount factors, $\delta_{1:T}$. 
+First note that the variance of the prior distribution for $\theta_{t}$  is the sum of the posterior variance of $\theta_{t - 1}$ plus the evolution variance $W_{t}$.
+Thus, the evolution variance serves to increase the uncertainty of the state above the initial uncertainty $C_{t}$.
+Instead of keeping $W_{t}$ fixed, represent $W_{t}$ as a proportion of the posterior variance of the previous period.%
+\footnote{
+  This can also be derived from the local level model using limiting results when $V$ and $W$ are constant. 
+  In the limit, $R = C / (1 - A)$.
+  Thus, in the limit, $W$ is a fraction of the posterior state variance, $W = \frac{A}{1 - A} C$.
+}
+Let $W_{t} = \frac{\delta}{1 - \delta} C_{t - 1}$ where $\delta \in [0, 1]$. 
+This implies that $R_{t} = C_{t - 1} / \delta$.
+Thus the filtered model with discount factors consists of equations \eqref{eq:23}, \eqref{eq:30}, and
+\begin{equation}
+  \label{eq:10}
+  \theta_{t} | y_{1:t-1} & \sim N(m_{t-1}, R_{t} = \delta C_{t - 1})
+\end{equation}
+The discount factor $\delta$ represents the extent to which uncertainty about the state has increased from $t$ to $t - 1$, or conversely the extend to which information about the state has decayed in one period.
+When $\delta \approx 0$, $A \approx 1$ and $m_{t} \approx y_{t}$.
+
 \end{document}
 
 %%% Local Variables: 

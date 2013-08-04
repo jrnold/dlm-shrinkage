@@ -1,0 +1,272 @@
+\documentclass[final]{beamer}
+
+\usetheme{local}
+%\usetheme{Berlin}
+
+\usepackage{fancyvrb}
+
+\setbeamerfont{itemize}{size=\normalsize}
+\setbeamerfont{itemize/enumerate body}{size=\normalsize}
+\setbeamerfont{itemize/enumerate subbody}{size=\normalsize}
+\setbeamersize{text margin left=1cm, text margin right=1cm}
+% \beamertemplategridbackground[1cm]
+
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[orientation=landscape,size=A0,grid,debug]{beamerposter}
+\usepackage{array}
+
+\usepackage{amsmath,amsthm, amssymb, latexsym}
+\usepackage{exscale}
+\usepackage{tikz}
+
+% Programming Languages
+\newcommand{\proglang}[1]{\textsf{#1}}
+\newcommand{\RLang}{\proglang{R}}
+\newcommand{\Stan}{\proglang{Stan}}
+\newcommand{\pkg}[1]{\textbf{#1}}
+
+% Math operators, misc
+\DeclareMathOperator{\E}{E}
+\DeclareMathOperator{\Median}{Median}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\diag}{diag}
+\newcommand{\tran}{^\top}
+
+% Used to typeset distributions
+\newcommand{\dist}[1]{\mathcal{#1}}
+\newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
+\newcommand{\dnorm}[1]{\ensuremath{\dist{N}\paren{#1}}}
+\newcommand{\dmvnorm}[2]{\ensuremath{\dist{N}_{#2}\paren{#1}}}
+\newcommand{\dt}[2]{\ensuremath{\dist{T}_{#1}\paren{#2}}}
+\newcommand{\dcauchy}[1]{\ensuremath{\dist{C}\paren{#1}}}
+\newcommand{\dhalfcauchy}[1]{\ensuremath{\dist{C}^{+}\paren{#1}}}
+\newcommand{\dbeta}[1]{\ensuremath{\dist{B}\paren{#1}}}
+\newcommand{\dinvbeta}[1]{\ensuremath{\dist{IB}\paren{#1}}}
+\newcommand{\dgamma}[1]{\ensuremath{\dist{G}\paren{#1}}}
+\newcommand{\dinvgamma}[1]{\ensuremath{\dist{IG}\paren{#1}}}
+\newcommand{\dwishart}[1]{\ensuremath{\dist{W}\paren{#1}}}
+\newcommand{\dinvwishart}[1]{\ensuremath{\dist{IW}\paren{#1}}}
+\newcommand{\dunif}[1]{\ensuremath{\dist{U}\paren{#1}}}
+\newcommand{\dexp}[1]{\ensuremath{\dist{E}\paren{#1}}}
+
+\usepackage{arev}
+\usepackage{eulervm}
+
+\newcommand{\Model}[2]{$\mathcal{M}$(#1, #2)}
+
+\def \ColOne {.15\textwidth}
+\def \ColTwo {.32\textwidth}
+
+ % Title, Author, Institute
+\title{Bayesian Shrinkage in Dynamic Linear Models}
+\subtitle{Unifying Smoothing and Structural Break Models}
+\author{Jeffrey B. Arnold}
+\newcommand{\authoremail}{jeffrey.arnold@gmail.com}
+\institute[University of Rochester]{University of Rochester}
+\date[2013-07-18]{July 18, 2013}
+
+\begin{document}
+
+\begin{frame}[fragile]
+  \begin{columns}[t]
+
+    \begin{column}{\ColTwo}
+
+      \begin{block}{Sparse Time Varying Parameters}
+        \begin{align*}
+          y_{t} &\sim \mu_{t} + \nu_{t} & \nu \sim \dnorm{0, \sigma^{2}} \\
+          \mu_{t} & \sim \mu_{t-1} + \omega_{t}
+        \end{align*}
+        where $\omega_{t}$ may be \textbf{sparse}, most $\omega_{t} \approx 0$ with a few $\omega_{t} \gg 0$.
+      \end{block}
+
+      \begin{block}{Distribution of the system variance ($\omega_{t}$)}
+        To model sparse time-varying parameters, use a shrinkage prior for the distribution of $\omega_{t}$.
+        Almost all Bayesian shrinkage priors can be represented as global-local scale-mixtures of normal distributions (Polson and Scott 2010),
+        \begin{align*}
+          \omega_{t} & \sim \dnorm{0, \sigma^{2} \tau^{2} \lambda^{2}_{t}} \\
+        \end{align*}
+        which differ in the prior distributions of $\tau^{2}$ and $\lambda^{2}_{t}$.
+        This class includes the Laplacian and t-distributions.
+
+        \vspace{1ex}
+        This paper will use the \textbf{horseshoe prior} (Carvalho, Polson, and Lopes 2009),
+        \begin{align*}
+          \lambda_{t} &\sim \dhalfcauchy{0, 1}
+        \end{align*}
+        
+        \vspace{1ex}
+        The horseshoe prior distribution density compared to other distributions,
+        \begin{center}
+          \includegraphics{assets/fig-horseshoe1}
+        \end{center}
+      \end{block}
+
+      \begin{block}{Shrinkage of $\theta_{t}$}
+        Suppose $\theta_{t - 1} | y_{1:t - 1} \sim \dnorm{m_{t-1}, C_{t-1}}$, then
+        \begin{equation}
+          m_{t} = \E (p(\theta_{t} | y_{1:t})) = m_{t-1} + (1 - \delta_{t}) (y_{t} - m_{t-1})
+        \end{equation}
+        where $\delta_{t}$ is the shrinkage parameter,
+        \begin{equation}
+          \delta_{t} = \frac{V_{t}}{W_{t} + C_{t} + V_{t}}
+        \end{equation}
+        As $\delta_{t} \to 1$, $m_{t} \to m_{t - 1}$. As $W_{t} \to \infty$, $\delta_{t} \to 0$.
+
+        \vspace{1ex}
+        The distribution of $W_{t}$ implies a distribution of $\delta_{t}$.
+        Suppose $W_{t}$ distributed horseshoe, $V_{t} = 1$, $C_{t} = 0$, and $\tau^{2} = 1$,
+        then $\delta_{t} \sim \dbeta{\frac{1}{2}, \frac{1}{2}}$,
+
+        \begin{center}
+          \includegraphics{assets/fig-delta}          
+        \end{center}
+
+      \end{block}
+
+      \begin{block}{Features}
+        \begin{itemize}
+
+        \item \textbf{Continuous model expansion} of smoothing and change point (structural break models)
+        \item \textbf{Flexibile} extends to the more general Dynamic Linear Model case
+          \begin{align*}
+            y_{t} &= F_{t} \tran \theta_{t} + \nu_{t} & \nu_{t} & \sim \dnorm{0, V_{t}} \\
+            \theta_{t} &= G_{t} \theta_{t - 1} + \omega_{t} & \omega_{t} & \sim \dnorm{0, W_{t}} \\
+          \end{align*}
+          This incorporates multivariate $y_{t}$, most time series models, and regression models.
+        \item \textbf{Implementable} in standard software
+        \item No assumption of a fixed number of structural breaks
+        \item Allows for structural breaks in multiple parameters
+        \item No assumption $\omega_{t} = 0$ in order to capture scale differences
+        \item Focuses on the feature of substantive interest, the distribution of $\theta_{t} - \theta_{t-1}$, not $t$.
+        \end{itemize}
+      \end{block}
+
+    \end{column}
+
+    \begin{column}{\ColTwo}
+      \begin{block}{Nile River Flow}
+        \begin{columns}
+          \begin{column}{0.5\textwidth}
+            \includegraphics{assets/fig-nile}            
+          \end{column}
+          \begin{column}{0.5\textwidth}
+            Annual flow of the Nile river at Aswan. The Aswan high dam
+            was built in 1898.  (Cobb 1978, Durbin and Koopmans 2001)
+
+            \vspace{1ex}
+            For all models,
+            \begin{align*}
+              y_{t} &\sim \dnorm{\theta_{t}, V} \\
+              \theta_{t} & \sim \dnorm{\theta_{t-1}, V W_{t}}
+            \end{align*}
+            where the value of $W_{t}$ differs between models,
+            \vspace{1ex}
+            \begin{center}
+            \begin{tabular}{p{2.5in}p{4.5in}}
+              model & $W_t$ \\
+              \hline{}%
+              \texttt{normal\_1} & $\tau^{2}$ \\
+              \texttt{normal\_2} & $10^{6}$ for $t$ of year 1899, else $W_{t} = \tau^{2}$ \\
+              \texttt{hs} & $\tau^{2} \lambda^{2}$, $\lambda_{t} \sim \dhalfcauchy{0, 1}$.
+            \end{tabular}
+
+            \begin{block}{Model fits}
+              \input{assets/tab-nile-fits.tex}              
+            \end{block}
+
+            \end{center}
+
+          \end{column}
+        \end{columns}
+
+      \end{block}
+
+      \begin{block}{UK Driving Deaths}
+        \begin{columns}
+          \begin{column}{0.5\textwidth}
+            \includegraphics{assets/fig-uk-drivers}
+          \end{column}
+          \begin{column}{0.5\textwidth}
+
+            The monthly totals of car drivers in Great Britain killed, January 1969--December 1984. A law requiring the wearing of seatbelts went into effect in January 1983.
+
+            \vspace{1ex}
+            All models have a stochastic level and deterministic monthly components.
+            \begin{align*}
+              y_{t} &\sim N(\mu_{t} + \gamma_{1,t}, V) \\
+              \mu_{t} &\sim N(\mu_{t-1}, V W_{t}) \\
+              \gamma_{1,t} & = - \sum_{j = 1}^{11} \gamma_{j, t - 1} \\
+              \gamma_{j,t} & =  \gamma_{j - 1, t - 1} & \text{for $j = 2:11$}
+            \end{align*}
+
+            \vspace{1ex}
+            The models differ in the distribution of $W_{t}$,
+            \begin{center}
+              \vspace{1ex}
+              \begin{tabular}{p{2.5in}p{4.5in}}
+                model & $W_t$ \\
+                \hline{}%
+                \texttt{seatbelts1} & $\tau^{2}$ \\
+                \texttt{seatbelts2} & $\tau^{2} \lambda^{2}$, $\lambda_{t} \sim \dhalfcauchy{0, 1}$ \\
+                \texttt{seatbelts3} & $10^{6}$ for $t$ of January 1983, else $W_{t} = \tau^{2}$
+              \end{tabular}
+
+              \begin{block}{Model fits}
+                \input{assets/tab-seatbelts-fits.tex}                
+              \end{block}
+
+            \end{center}
+          \end{column}
+        \end{columns}
+      \end{block}
+
+    \end{column}
+
+    \begin{column}{\ColTwo}
+      \begin{block}{Estimating DLMs}
+        \begin{quote}
+          This class of model [Dynamic Linear Models] is usually best handled not
+          in general purpose computer programs for MCMC-based Bayesian analysis such
+          as WinBUGS or JAGS. ... My experience is that tens
+          to hundreds of millions of iterations --- taking several days of CPU time on even
+          fast desktop computers --- are required so as to satisfactorily explore the posterior
+          density for problems with large T using \texttt{WinBUGS} or \texttt{JAGS}. 
+          (Jackman 2009, p. 477)
+        \end{quote}
+      \end{block}
+      
+      \begin{block}{Two-Step Practical Algorithm}
+        Let $\theta$ be the latent states, and $\phi$ be all other parameters.
+        
+        \begin{enumerate}
+        \item Take a sample $\left\{ \phi \right\}_{1:n}$ from $p(\phi | y_{t})$ using NUTS Hamiltonian Monte Carlo (HMC) in \Stan{}.
+          Calculate log-likelihood contribution of $p(y_{t} | \phi)$ for DLM using Kalman Filter.
+        \item For each $i$ in $\left\{ \phi \right\}_{1:n}$, draw one sample $p(\theta | y, \phi)$ \textit{en bloc} using Forward Filter Backwards Sample (FFBS) algorithm.
+        \end{enumerate}
+      \end{block}
+
+      \begin{block}{Sampling parameters $p(\phi | y)$}
+          Log-likelihood of DLM is calculated with the Kalman filter and written in in pure \Stan{} code.
+          A library of reusable \Stan{} code is provided as CPP macros (\url{http://github.com/jrnold/stan_macros}).
+
+          \vspace{1em}
+          \BVerbatimInput[fontfamily=tt]{local_level_hs.stanpp}
+          
+      \end{block}
+
+      \begin{block}{Sampling latent states $p(\theta | y, \phi)$}
+
+        Uses new \RLang{} library \textbf{mcmcdb} (\url{http://github.com/jrnold/mcmcdb}) for easy post-processing of MCMC samples.
+
+        \vspace{1em}
+        \BVerbatimInput[fontfamily=tt]{example.R}
+        
+      \end{block}
+
+    \end{column}
+  \end{columns}
+\end{frame}
+\end{document}
