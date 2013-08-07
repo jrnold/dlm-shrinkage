@@ -1,8 +1,7 @@
+#' @include utilities.R
 #' @export array_to_tvmat
 #' @export tvmat_to_array
 NULL
-
-is_constant <- function(x) sum(duplicated(x)) == (length(x) - 1)
 
 array_to_tvmat <- function(x) {
   X_const <- x[, , 1]
@@ -15,7 +14,7 @@ array_to_tvmat <- function(x) {
       tv_data <- x[is_tv, drop=FALSE]
       dim(tv_data) <- c(n_tv_ind, n)
       Jx <- matrix(0, dim(x)[1], dim(x)[2])
-      Jx[tv_ind] <- 1:n_tv_ind
+      Jx[is_tv] <- 1:n_tv_ind
       list(constant = X_const, indices = Jx, tv_data = t(tv_data))
     } else {
       list(constant = x[ , , 1], indices = NULL, tv_data = NULL)

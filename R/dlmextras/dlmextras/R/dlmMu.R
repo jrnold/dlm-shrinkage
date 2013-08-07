@@ -1,3 +1,6 @@
+#' @include utilities.R
+NULL
+
 #' DLM mean response
 #'
 #' Returns mean response from a DLM model.

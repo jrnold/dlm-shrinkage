@@ -1,3 +1,6 @@
+#' @include utilities.R
+NULL
+
 #' @export
 dlmSim <- function(mod, n=NULL) {
   y <- matrix(0, ncol=ncol(mod$V), nrow=n)

@@ -1,6 +1,7 @@
-#' @export dlmModArray
+#' @include utilities.R
 NULL
 
+#' @export
 dlmModArray <- function(FF, GG, V, W, m0, C0) {
   i <- 0
   X <- NULL

@@ -1,3 +1,6 @@
+#' @include utilities.R
+NULL
+
 #' DLM system disturbances
 #'
 #' Return the system disturbances of a DLM model

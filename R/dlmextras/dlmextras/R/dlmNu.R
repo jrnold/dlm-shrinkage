@@ -1,3 +1,6 @@
+#' @include utilities.R
+NULL
+
 #' DLM Observation Disturbances
 #'
 #' Returnes the estimated observation disturbances of

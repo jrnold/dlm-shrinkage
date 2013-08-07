@@ -1,3 +1,6 @@
+#' @include utilities.R
+NULL
+
 #' DLM predicted responses
 #'
 #' Returns one simulation from the predicted response of
