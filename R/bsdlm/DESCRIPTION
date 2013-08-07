@@ -12,7 +12,7 @@ Imports:
     mcmcstats,
     dlm,
     plyr,
-    mvtnorm
+    dlmextras (>= 0.0.1)
 Suggests:
     testthat,
     roxygen2
