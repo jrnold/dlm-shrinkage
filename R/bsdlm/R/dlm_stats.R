@@ -1,8 +1,3 @@
-#' @include dlmYrep.R
-#' @include dlmMu.R
-#' @include dlmNu.R
-#' @include dlmOmega.R
-#' @include dlmLogLikObs.R
 #' @export dlm_stats
 NULL
 
