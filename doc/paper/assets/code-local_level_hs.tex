@@ -5,28 +5,28 @@
 \PY{c+c1}{\PYZsh{}include \PYZlt{}kalmanf.stanh\PYZgt{}}
 \PY{c+c1}{\PYZsh{}include \PYZlt{}jeffreys.stanh\PYZgt{}}
 \PY{k+kn}{data} \PY{p}{\PYZob{}}
-  \PY{k+kt}{int} \PY{k+kr}{T}\PY{p}{;}
-  \PY{k+kt}{matrix}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,} \PY{k+kr}{T}\PY{p}{]} \PY{n}{y}\PY{p}{;}
+  \PY{k+kt}{int} \PY{n}{T}\PY{p}{;}
+  \PY{k+kt}{matrix}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{T}\PY{p}{]} \PY{n}{y}\PY{p}{;}
   \PY{k+kt}{matrix}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{]} \PY{n}{F}\PY{p}{;}
   \PY{k+kt}{matrix}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{]} \PY{n}{G}\PY{p}{;}
   \PY{k+kt}{vector}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{n}{m0}\PY{p}{;}
   \PY{k+kt}{cov\PYZus{}matrix}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{n}{C0}\PY{p}{;}
 \PY{p}{\PYZcb{}}
 \PY{k+kn}{parameters} \PY{p}{\PYZob{}}
-  \PY{k+kt}{real}\PY{p}{\PYZlt{}}\PY{k+kr}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{p}{\PYZgt{}} \PY{n}{sigma}\PY{p}{;}
-  \PY{k+kt}{real}\PY{p}{\PYZlt{}}\PY{k+kr}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{p}{\PYZgt{}} \PY{n}{tau}\PY{p}{;}
-  \PY{k+kt}{vector}\PY{p}{\PYZlt{}}\PY{k+kr}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{p}{\PYZgt{}}\PY{p}{[}\PY{k+kr}{T}\PY{p}{]} \PY{n}{lambda}\PY{p}{;}
+  \PY{k+kt}{real}\PY{o}{\PYZlt{}}\PY{k}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{o}{\PYZgt{}} \PY{n}{sigma}\PY{p}{;}
+  \PY{k+kt}{real}\PY{o}{\PYZlt{}}\PY{k}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{o}{\PYZgt{}} \PY{n}{tau}\PY{p}{;}
+  \PY{k+kt}{vector}\PY{o}{\PYZlt{}}\PY{k}{lower}\PY{o}{=}\PY{l+m+mf}{0.0}\PY{o}{\PYZgt{}}\PY{p}{[}\PY{n}{T}\PY{p}{]} \PY{n}{lambda}\PY{p}{;}
 \PY{p}{\PYZcb{}}
 \PY{k+kn}{transformed parameters} \PY{p}{\PYZob{}}
   \PY{k+kt}{vector}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{n}{V}\PY{p}{;}
-  \PY{k+kt}{matrix}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{]} \PY{n}{W}\PY{p}{[}\PY{k+kr}{T}\PY{p}{]}\PY{p}{;}
-  \PY{n}{V}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n+nb}{pow}\PY{p}{(}\PY{n}{sigma}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;}
-  \PY{k+kr}{for} \PY{p}{(}\PY{n}{i} \PY{k+kr}{in} \PY{l+m+mi}{1}\PY{p}{:}\PY{k+kr}{T}\PY{p}{)} \PY{p}{\PYZob{}}
-    \PY{n}{W}\PY{p}{[}\PY{n}{i}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{]} \PY{p}{\PYZlt{}}\PY{o}{\PYZhy{}} \PY{n+nb}{pow}\PY{p}{(}\PY{n}{sigma} \PY{o}{*} \PY{n}{tau} \PY{o}{*} \PY{n}{lambda}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;}
+  \PY{k+kt}{matrix}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{]} \PY{n}{W}\PY{p}{[}\PY{n}{T}\PY{p}{]}\PY{p}{;}
+  \PY{n}{V}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{\PYZlt{}\PYZhy{}} \PY{n+nb}{pow}\PY{p}{(}\PY{n}{sigma}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;}
+  \PY{k}{for} \PY{p}{(}\PY{n}{i} \PY{k}{in} \PY{l+m+mi}{1}\PY{p}{:}\PY{n}{T}\PY{p}{)} \PY{p}{\PYZob{}}
+    \PY{n}{W}\PY{p}{[}\PY{n}{i}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{]} \PY{o}{\PYZlt{}\PYZhy{}} \PY{n+nb}{pow}\PY{p}{(}\PY{n}{sigma} \PY{o}{*} \PY{n}{tau} \PY{o}{*} \PY{n}{lambda}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;}
   \PY{p}{\PYZcb{}}
 \PY{p}{\PYZcb{}}
 \PY{k+kn}{model} \PY{p}{\PYZob{}}
-  \PY{err}{\PYZus{}}\PY{n}{KALMANF\PYZus{}SEQ}\PY{p}{(}\PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{F}\PY{p}{,} \PY{n}{G}\PY{p}{,} \PY{n}{V}\PY{p}{,} \PY{n}{W}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{m0}\PY{p}{,} \PY{n}{C0}\PY{p}{)}\PY{p}{;}
+  \PY{err}{\PYZus{}}\PY{n}{KALMANF\PYZus{}SEQ}\PY{p}{(}\PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{F}\PY{p}{,} \PY{n}{G}\PY{p}{,} \PY{n}{V}\PY{p}{,} \PY{n}{W}\PY{p}{[}\PY{n}{KALMANF\PYZus{}i}\PY{p}{]}\PY{p}{,} \PY{n}{m0}\PY{p}{,} \PY{n}{C0}\PY{p}{)}\PY{p}{;}
   \PY{err}{\PYZus{}}\PY{n}{JEFFREYS}\PY{p}{(}\PY{n}{sigma}\PY{p}{)}\PY{p}{;}
   \PY{n}{lambda} \PY{o}{\PYZti{}} \PY{n+nb}{cauchy}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}\PY{p}{;}
   \PY{n}{tau} \PY{o}{\PYZti{}} \PY{n+nb}{cauchy}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}\PY{p}{;}

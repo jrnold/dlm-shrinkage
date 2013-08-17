@@ -1,5 +1,6 @@
 \documentclass{article}
 
+\usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage[margin=1in]{geometry}
@@ -14,8 +15,9 @@
 \usepackage{setspace}
 \doublespace
 
+\input{pygments}
+
 \usepackage{todonotes}
-\usepackage{hyperref}
 
 \usepackage{local}
 
@@ -289,13 +291,13 @@ A Gaussian dynamic linear model (DLM) for a $n$-dimensional observation sequence
 For $t = 1:n$,
 \begin{align}
   \label{eq:8}
-  \underset{r \times 1}{y_t} &= \underset{n \times r}{F_{t}}' \, \underset{n \times 1}{\thomega_t} + \underset{r \times 1}{\nu_t} & \nu_{t} &\sim \dmvnorm{0, V_{t}}{q} \\
+  \underset{r \times 1}{y_t} &= \underset{n \times r}{F_{t}}' \, \underset{n \times 1}{\omega_t} + \underset{r \times 1}{\nu_t} & \nu_{t} &\sim \dmvnorm{0, V_{t}}{q} \\
   \label{eq:14}
-  \underset{n \times 1}{\thomega_{t+1}} &= \underset{n \times n}{G_{t}} \, \underset{n \times 1}{\thomega_{t}} + \underset{n \times 1}{\omega_{t}} & \omega_{t} &\sim \dmvnorm{0, W_{t}}{n} \\
+  \underset{n \times 1}{\omega_{t+1}} &= \underset{n \times n}{G_{t}} \, \underset{n \times 1}{\omega_{t}} + \underset{n \times 1}{\omega_{t}} & \omega_{t} &\sim \dmvnorm{0, W_{t}}{n} \\
   \label{eq:2}
-  \thomega_{1} & \sim \dmvnorm{m_{0}, C_{0}}{n}
+  \omega_{1} & \sim \dmvnorm{m_{0}, C_{0}}{n}
 \end{align}
-Equation \eqref{eq:8} is the \textit{observation equation} which relates the \textit{observation vector} $y_{t}$ to the \textit{state vector} $\thomega_{t}$.
+Equation \eqref{eq:8} is the \textit{observation equation} which relates the \textit{observation vector} $y_{t}$ to the \textit{state vector} $\omega_{t}$.
 Equation \eqref{eq:14} is the \textit{state equation} which describes the evolution of the states over time.
 Equation \eqref{eq:2} is the \textit{initial state equation}.
 The vectors $\nu_{t}$ and $\omega_{t}$ are referred to as the \textit{observation} and \textit{state disturbances}, respectively.
@@ -309,23 +311,23 @@ Any model in which the parameter of interest can be represented as a state in a 
 
 As in the local level model, since all equations in \eqref{eq:8} through \eqref{eq:14} are multivariate normal, they can be updated sequentially with conjugate forms.%
 \footnote{See \textcite[Section 4.3][]{WestHarrison1997} for proofs.}
-The prior for the state vector at time $t$ is $\thomega_{t} \sim N(a_{t}, R_{t})$ where
+The prior for the state vector at time $t$ is $\omega_{t} \sim N(a_{t}, R_{t})$ where
 \begin{align}
   \label{eq:13}
-  \thomega_{t} | y_{t} &= 
+  \omega_{t} | y_{t} &= 
   a_{t} &= G_{t} m_{t-1} \\
   R_{t} &= G_{t} C_{t-1} G'_{t-1} + W_{t}
 \end{align}
 At $t-1$ the one step ahead predictive distribution of $y_{t}$ is,
 \begin{align}
   \label{eq:13}
-  y_{t} | \thomega_{t} & \sim N(f_{t}, Q_{t}) \\
+  y_{t} | \omega_{t} & \sim N(f_{t}, Q_{t}) \\
   Q_{t} &= 
 \end{align}
-At $t$ the posterior distribution of $\thomega$ is,
+At $t$ the posterior distribution of $\omega$ is,
 \begin{align}
   \label{eq:15}
-  \thomega_{t} | y_{t} \sim N(m_{t}, C_{t}) \\
+  \omega_{t} | y_{t} \sim N(m_{t}, C_{t}) \\
   m_{t} = a_{t} + A_{t} e_{t} \\
   C_{t} = R_{t} - A_{t} Q_{t} A_{t}' \\
   A_{t} = R_{t} F_{t} Q^{-1}_{t} \\
@@ -340,6 +342,7 @@ And in the general case, the adaptive coefficient, $A_{t}$, is an $n
 Thus the weight given a current data point $y_{t}$ depends on the
 observation variance $V_{t}$ through $Q_{t}$, and the prior variance
 $C_{t-1}$ and state covariance matrix $W_{t}$ through $R_{t}$.
+
 
 The previous section applied sparse disturbance for the local level model, but the use of shrinkage priors on the state disturbances can easily be extended to the more general DLM in section \ref{sec:dynam-line-models}.
 First, consider the case in which the state disturbances are uncorrelated.

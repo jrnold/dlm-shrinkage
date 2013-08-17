@@ -1,4 +1,4 @@
-RC = Structural_Breaks.tex
+SRC = Structural_Breaks.tex
 BIBFILE = $(HOME)/texmf/bibtex/bib/default.bib
 JABREF = jabref
 BIBTEX = bibtex8
@@ -18,9 +18,8 @@ Rlibs:
 makeplots: Rlibs
 	make -C assets
 
-$(obj): $(SRC) $(BIBFILE) local.sty pygments.tex #makeplots Rlibs 
+$(obj): $(SRC) $(BIBFILE) local.sty pygments.tex makeplots
 	$(LATEX) $<
-	#$(JABREF) -n true -a $(auxfile),local.bib $(BIBFILE)
 	$(BIBTEX) $(auxfile)
 	$(LATEX) $<
 	$(LATEX) $<
