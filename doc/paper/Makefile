@@ -1,4 +1,4 @@
-RC = Structural_Breaks.tex
+SRC = Structural_Breaks.tex
 BIBFILE = $(HOME)/texmf/bibtex/bib/default.bib
 JABREF = jabref
 BIBTEX = bibtex8
