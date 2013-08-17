@@ -93,7 +93,7 @@ This paper shows how a combination of \Stan{}, a general purpose Bayesian softwa
 \end{enumerate}
 
 Section \ref{sec:struct-breaks-state} derives the sparse-disturbance DLM.
-PSection \ref{sec:implementation} describes a method to sample from SDDLMs using \Stan{}.
+Section \ref{sec:implementation} describes a method to sample from SDDLMs using \Stan{}.
 Section \ref{sec:examples} uses the SDDLMs in several example applications: Nile river flow dataset \ref{sec:nile}, George W. Bush's approval ratings \ref{sec:george-w.-bush}, and TBD.
 Section \ref{sec:conclusion} concludes with discussion of how this
 method can be extended.
@@ -114,31 +114,32 @@ Consider a sequence of data generated from normal distributions with varying mea
 \end{align}
 Furthermore, suppose that the parameter vector $\theta_{1:n}$ is sparse, meaning that most $\theta_{i} = 0$.
 Define ``signals'' as those observations where $\theta_{i} \neq 0$, and ``noise'' as those observations where $\theta_{i} = 0$.
-In sparse estimation, the analyst's objective is to both classify signals and noise and estimate the size of the signals.
+In sparse estimation, the analyst's objective is both to classify signals and noise and estimate the size of the signals.
 
-In Bayesian estimation, there are two main classes of methods for estimating a vector of sparse parameters which differ in the class of prior distribution used for $\theta$. 
-Selection methods use discrete mixtures, while shrinkage methods use continuous priors \parencite[73]{CarvalhoPolsonScott2009}. 
-The discrete-mixture approach models the parameter with prior consisting of a mixture between a point mass at zero and a continuous distribution for non-zero elements,
+In Bayesian estimation, there are two main classes of methods for estimating a vector of sparse parameters.
+These approaches differ in the class of prior distribution of $\theta$. 
+Selection methods model $\theta_{i}$ with a discrete mixture, while shrinkage methods use a continuous prior \parencite[73]{CarvalhoPolsonScott2009}. 
+The discrete-mixture approach models $\theta_{i}$ with a prior consisting of a mixture between a point mass at zero and a continuous distribution for non-zero elements,
 \begin{equation}
   \label{eq:1}
   \theta_{i} = w \delta_{0} +  (1 - w) g(\theta_{i}) \text{,}
 \end{equation}
 where $w \in [0, 1]$, $\delta_{0}$ is the degenerate distribution at 0, and $g(\theta_{i})$ is the distribution of $\theta_{i} | \theta_{i} \neq 0$.
 The mixture distribution in equation \eqref{eq:1} is often called a spike-and-slab prior.
-If $g$ is sufficiently heavy-tailed, $\E(\theta_{i} | w, y_{i}) \approx w(y_{i}) y_{i}$ \textcite{PolsonScott2010}, where 
+If $g$ is sufficiently heavy-tailed, then $\E(\theta_{i} | w, y_{i}) \approx w(y_{i}) y_{i}$ \parencite{PolsonScott2010}, where 
 \begin{equation}
   \label{eq:7}
   w(y_{i})  = \frac{w f_{0}(y_{i})}{w f_{0}(y_{i}) + (1 - w) f_{1}(y_{i})}
 \end{equation}
-and $f_{0}(y) = \dnorm(y | 0, \sigma^{2})$ and $f_{1}(y) = \int \dnorm(y | \mu, \sigma^{2}) g(\mu) \,d \mu$.
-The advantage of the selection approach is that it places a positive probability on the event that $theta_{i} = 0$, and thus provides a direct test of that hypothesis.
-The disadvantages of the selection approach are both conception and computational.
-Conceptually, it may be implausible that $\theta_{i}$ would ever exactly be 0.
-Computationally, spike-and-slab prior distributions can become intractable in high dimensions since the discrete distribution has a space of $2^{k}$ where $k$ is the number of paramters.
+and $f_{0}(y) = \dnorm{y | 0, \sigma^{2}}$ and $f_{1}(y) = \int \dnorm{y | \mu, \sigma^{2}} g(\mu) \,d \mu$.
+The advantage of selection methods are that they place a positive probability on the event that $\theta_{i} = 0$, and thus provides a direct test of that hypothesis.
+There are both conceptual and computational disadvantages to these methods.
+Conceptually, it may be implausible that $\theta_{i}$ is exactly equal to 0, especially for social science phenomena (CITE GELMAN).
+Computationally, spike-and-slab priors can become intractable in high dimensions since the discrete part of the prior distribution has a support of cardinality $2^{k}$ where $k$ is the number of paramters.
 
 Shrinkage approaches estimate sparsity using a continuous prior distribution centered at zero.
-
 Early examples of shrinkage approaches include \parencites{Tibshirani1996}{Tipping2001}.
+Shinkage priors are the Bayesian equivalent of penalized likelihood and regularized regression.
 Most proposed Bayesian shrinkage priors are in the the class of global-local mixtures of normal distributions \parencite{PolsonScott2010}:
 \begin{equation}
   \label{eq:3}
@@ -150,29 +151,43 @@ Most proposed Bayesian shrinkage priors are in the the class of global-local mix
 \end{equation}
 A global-local normal distribution is a scale mixture of normal distributions in which the variance is the product of a global variance component $\tau^{2}$ and a local variance component $\lambda_{t}^{2}$.
 The $\lambda_t$ are also called mixing parameters, and their distribution is called the mixing distribution.
-Distributions in the global-local class of priors differ in the assumed distribution of the local variance component.%
-Some commonly used shrinkage priors that are scale mixtures of normal distributions include the Student's $t$-distribution, in which the mixing parameters are distributed inverse gamma $\lambda^{2}_{t} \sim \dinvgamma{a, b}$, and the double exponential distribution (Bayesian Lasso), in which the mixing parameters are distributed exponential $\lambda^{2}_{t} \sim \dexp{2}$ \parencite[74]{CarvalhoPolsonScott2009}.
-Examples of commonly used shrinkage distributions and their mixing distributions include \textcite{PolsonScott2010}:%
+Distributions in the global-local class of priors differ in the assumed distribution of the local variance component. 
+Examples of commonly used shrinkage distributions and their mixing distributions include \parencite{PolsonScott2010}:%
 \footnote{A normal prior, as used in ridge regression, is the trivial case in which $\lambda_{i} = 1$ for all $i$.}
 \begin{description}
 \item[Student's t] The mixing distribution is Inverse gamma, $p(\lambda_{i}) = \dinvgamma{\xi / 2, \xi \tau^{2} / 2}$ where $\xi$ are the degrees of freedom. \parencite{Tipping2001}
-\item[Double Exponential (Lasso)] The mixing distribution is exponential,
-  \begin{equation*}
+\item[Double Exponential (Lasso)] The mixing distribution is exponential \parencites{ParkCasella2008}{Hans2009},
+\begin{equation*}
     \begin{aligned}[t]
       p(\lambda_{i} | \tau_{i}) &= \frac{1}{2 \tau^{2}} \exp (\lambda_{i}^{2} / 2 \tau^{2}) \\
       p(\tau^{2}) &\sim \dinvgamma{\xi / 2, \xi d^{2} / 3}
     \end{aligned}
   \end{equation*}
-\item[Normal-Gamma] $\lambda^{2}_{i} \sim \dgamma{a, b}$. \parencite{CaronDoucet2008}{BrownGriffin2010}
+\item[Normal-Gamma] $\lambda^{2}_{i} \sim \dgamma{a, b}$. \parencites{CaronDoucet2008}{BrownGriffin2010}
 \item[Horseshoe] $\lambda^{2}_{i} \sim \dinvbeta{\frac{1}{2}, \frac{1}{2}}$, or equivalently $\lambda_{i} \sim \dhalfcauchy{0, 1}$. \parencite{CarvalhoPolsonScott2010}
 \end{description}
 
 The analog of $w$ in the global-local normal distributions is the shrinkage parameter $\kappa$.
-Following standard results ofa normal model with a normal prior, the posterior distribution of $\theta_{i}$ is,
+Following standard results of a normal model with a normal prior, the posterior distribution of $\theta_{i}$ is,
 \begin{equation}
   \label{eq:11}
-  \E (\theta_{i} | y_{i}, \lambda_{i}, \tau, \sigma^{2}) = \left(1 - \frac{1}{1 + \lambda^{2}_{i} \tau_{2}} \right) y_{i}
+  E ( \theta_{i} | y_{i}, \lambda_{i}, \tau, \sigma^{2} )  = (1 - \kappa_{i}) y_{i} \text{,}
 \end{equation}
+where, 
+\begin{equation}
+  \label{eq:19}
+  \kappa_{i} = \frac{1}{1 + \lambda^{2}_{i} \tau^{2}}
+\end{equation}
+When $\kappa_{i} \approx 0$, there is virtually no shrinkage and $\theta_{i} \approx y_{i}$;
+However, when $\kappa_{i} \approx 1$, there is almost complete shrinkage and $\theta_{i} \approx 0$.
+Note that both $\lambda$ and $\tau$ contribute to the shrinkage parameter.
+When $\tau$ is small, then most values of $\kappa_{i} \approx 1$ and $\theta$ is sparse.
+However, if $\lambda$ is sufficiently large, it can overwhelm the effect of $\tau$, and $\kappa_{i}$ can be close to 0, leaving $\theta_{i}$ unshrunk.
+Thus, the global variance component $\tau$ determines the overall sparseness of $\theta_{1:n}$, while the local variance components $\lambda_{i}^{2}$ determine the non-zero values of $\theta_{i}$.
+It follows that different distributions of $\lambda_{i}$ imply different distributions of the shrinkage prior $\kappa_{i}$.
+In other words, shrinkage priors can equivalently be thought of as different prior distributions over the shrinkage parameter $\kappa_{i}$.
+For example, the horseshoe distribution is so-called because it implies a U-shaped distribution over the the shrinkage parameter, $p(\kappa_{i}) = \dbeta{\frac{1}{2}, \frac{1}{2}}$.
+
 While there are a large number of proposed shrinkage priors \parencites{ArmaganDunsonLee2011}{BrownGriffin2010}{PolsonScott2010}, this paper will use the Horseshoe distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
 While, the Horseshoe distribution has no analytical form, it can be represented as a scale-mixture of normal distributions (equation \eqref{eq:3}( in which the local scale components $\lambda$ are distributed half-Cauchy,%
 \footnote{
@@ -186,7 +201,7 @@ If $X \sim \dbeta{a, b}$, then $\frac{1}{1 + X} \sim \dinvbeta{a, b}$.
 \end{equation}
 The Horseshoe prior distribution has many appealing properties as a shrinkage prior distribution.
 Intuitively, these follow from its heavy Cauchy-like tails which allow large signals to remain unshrunk, and its infinitely high spike at zero, which aggressively shrinks noise.
-\footnote{See \textcite{CarvalhoPolsonScott2010}{CarvalhoPolsonScott2009}{DattaGhosh2012} for formal properties of the horseshoe prior.}
+\footnote{See \textcites{CarvalhoPolsonScott2010}{CarvalhoPolsonScott2009}{DattaGhosh2012} for formal properties of the horseshoe prior.}
 Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior to the normal, Cauchy, and Laplacian (double-exponential) distributions, both near zero and in the tail.
 \begin{figure}
   \centering
@@ -195,24 +210,6 @@ Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior 
   \caption{The density of the horseshoe prior distribution (in black) compared with the densities of the normal, Cauchy, and Laplacian distributions (in gray).}
   \label{fig:horseshoe}
 \end{figure}
-
-Define the shrinkage parameter $\kappa_{i}$ as,
-\begin{equation}
-  \label{eq:19}
-  \kappa_{i} = \frac{1}{1 + \lambda^{2}_{i} \tau_{2}}
-\end{equation}
-When $\kappa_{i} \approx 0$, there is virtually no shrinkage and $\theta_{i} \approx y_{i}$;
-However, when $\kappa_{i} \approx 1$, there is almost complete shrinkage and $\theta_{i} \approx 0$.
-Note that both $\lambda$ and $\tau$ contribute to the shrinkage parameter.
-When $\tau$ is small, then most values of $\kappa_{i} \approx 1$ and $\theta$ is sparse.
-However, if $\lambda$ is sufficiently large, it can overwhelm the effect of $\tau$, and $\kappa_{i}$ can be close to 0, leaving $\theta_{i}$ unshrunk.
-Thus, the global variance component $\tau_{i}$ determines the overall sparseness of $\theta_{i:n}$, while the local variance components $\lambda_{i}^{2}$ determine the non-zero values of $\theta_{i}$.
-Different distributions of $\lambda_{i}$ imply different distributions of $\kappa_{i}$.
-In other words, shrinkage priors can be thought of as different prior distributions over the shrinkage parameter $\kappa_{i}$.
-
-Shrinkage priors are the Bayesian posterior estimation equivalent of penalized likelihood for posterior mode-finding \parencites{PolsonScott2010}{PolsonScott2012a}.
-For example, the popular Lasso/L1 regularization \parencite{Tibshirani1996} corresponds to \textit{maximum a posteriori} (MAP) estimation with a Laplacian (double exponential) prior on the coefficients \parencites{ParkCasella2008}{Hans2009}.
-Other prior distributions correspond to other likelihood penalties, although for some distributions the likelihood penalty may lack a closed form.
 
 \subsection{Local Level Model}
 \label{sec:local-level-model}
@@ -236,17 +233,17 @@ For each time period $t$, estimate of $\theta_{t}$ can be updated using the foll
 The prior distribution of the state $\theta_{t}$ given observations $y_{1:t-1}$ is,
 \begin{equation}
   \label{eq:23}
-  \theta_{t} | y_{1:t-1} & \sim N(m_{t-1}, R_{t} = C_{t - 1} + W)
+  \theta_{t} | y_{1:t-1}  \sim N(m_{t-1}, R_{t} = C_{t - 1} + W)
 \end{equation}
 The predictive distribution of the data $y_{t}$ given observations $y_{1:t-1}$ is,
 \begin{equation}
   \label{eq:25}
-  y_{t} | y_{1:t-1} & \sim N(f_{t-1} = m_{t-1}, Q_{t} = C_{t - 1} + W + V)
+  y_{t} | y_{1:t-1}  \sim N(f_{t-1} = m_{t-1}, Q_{t} = C_{t - 1} + W + V)
 \end{equation}
 The posterior distribution $\theta_{t}$ at time $t$ given observations $y_{1:t}$ is,
 \begin{equation}
   \label{eq:26}
-  \theta_{t} | y_{1:t} & \sim N(m_{t} = m_{t-1} + A_{t} e_{t}, C_{t} = A_{t} V)
+  \theta_{t} | y_{1:t} \sim N(m_{t} = m_{t-1} + A_{t} e_{t}, C_{t} = A_{t} V)
 \end{equation}
 where $A_{t} \in [0, 1]$ is the adaptation coefficient and $e_{t}$ is the forecast error, defined as
 \begin{align}
@@ -291,13 +288,13 @@ A Gaussian dynamic linear model (DLM) for a $n$-dimensional observation sequence
 For $t = 1:n$,
 \begin{align}
   \label{eq:8}
-  \underset{r \times 1}{y_t} &= \underset{n \times r}{F_{t}}' \, \underset{n \times 1}{\omega_t} + \underset{r \times 1}{\nu_t} & \nu_{t} &\sim \dmvnorm{0, V_{t}}{q} \\
+  \underset{r \times 1}{y_t} &= \underset{n \times r}{F_{t}}' \, \underset{n \times 1}{\theta_t} + \underset{r \times 1}{\nu_t} & \nu_{t} &\sim \dmvnorm{0, V_{t}}{q} \\
   \label{eq:14}
-  \underset{n \times 1}{\omega_{t+1}} &= \underset{n \times n}{G_{t}} \, \underset{n \times 1}{\omega_{t}} + \underset{n \times 1}{\omega_{t}} & \omega_{t} &\sim \dmvnorm{0, W_{t}}{n} \\
+  \underset{n \times 1}{\theta_{t+1}} &= \underset{n \times n}{G_{t}} \, \underset{n \times 1}{\theta_{t}} + \underset{n \times 1}{\omega_{t}} & \omega_{t} &\sim \dmvnorm{0, W_{t}}{n} \\
   \label{eq:2}
-  \omega_{1} & \sim \dmvnorm{m_{0}, C_{0}}{n}
+  \theta_{1} & \sim \dmvnorm{m_{0}, C_{0}}{n}
 \end{align}
-Equation \eqref{eq:8} is the \textit{observation equation} which relates the \textit{observation vector} $y_{t}$ to the \textit{state vector} $\omega_{t}$.
+Equation \eqref{eq:8} is the \textit{observation equation} which relates the \textit{observation vector} $y_{t}$ to the \textit{state vector} $\theta_{t}$.
 Equation \eqref{eq:14} is the \textit{state equation} which describes the evolution of the states over time.
 Equation \eqref{eq:2} is the \textit{initial state equation}.
 The vectors $\nu_{t}$ and $\omega_{t}$ are referred to as the \textit{observation} and \textit{state disturbances}, respectively.
@@ -311,23 +308,23 @@ Any model in which the parameter of interest can be represented as a state in a 
 
 As in the local level model, since all equations in \eqref{eq:8} through \eqref{eq:14} are multivariate normal, they can be updated sequentially with conjugate forms.%
 \footnote{See \textcite[Section 4.3][]{WestHarrison1997} for proofs.}
-The prior for the state vector at time $t$ is $\omega_{t} \sim N(a_{t}, R_{t})$ where
+The prior for the state vector at time $t$ is $\theta_{t} \sim N(a_{t}, R_{t})$ where
 \begin{align}
   \label{eq:13}
-  \omega_{t} | y_{t} &= 
+  \theta_{t} | y_{t} &= 
   a_{t} &= G_{t} m_{t-1} \\
   R_{t} &= G_{t} C_{t-1} G'_{t-1} + W_{t}
 \end{align}
 At $t-1$ the one step ahead predictive distribution of $y_{t}$ is,
 \begin{align}
   \label{eq:13}
-  y_{t} | \omega_{t} & \sim N(f_{t}, Q_{t}) \\
+  y_{t} | \theta_{t} & \sim N(f_{t}, Q_{t}) \\
   Q_{t} &= 
 \end{align}
-At $t$ the posterior distribution of $\omega$ is,
+At $t$ the posterior distribution of $\theta$ is,
 \begin{align}
   \label{eq:15}
-  \omega_{t} | y_{t} \sim N(m_{t}, C_{t}) \\
+  \theta_{t} | y_{t} \sim N(m_{t}, C_{t}) \\
   m_{t} = a_{t} + A_{t} e_{t} \\
   C_{t} = R_{t} - A_{t} Q_{t} A_{t}' \\
   A_{t} = R_{t} F_{t} Q^{-1}_{t} \\
@@ -354,7 +351,7 @@ First, consider the case in which the state disturbances are uncorrelated.
   \label{eq:20}
   \begin{aligned}[t]
     \omega_{t,i} &\sim \dnorm{0, \lambda_{t,i}^{2} \tau_{i}} \\
-    \lambda_{t,i} & \dhalfcauchy{0, 1}
+    \lambda_{t,i} & \sim \dhalfcauchy{0, 1}
   \end{aligned}
 \end{equation}
 where $\lambda$ is a $n \times r$ matrix, and $\tau$ is a $r \times 1$ vector.
@@ -537,8 +534,8 @@ The intervention is modeled as follows,
 \begin{equation}
   \label{eq:12}
   \begin{aligned}[t]
-    \omega_{t} & \sim \dnorm{0, \tau_{t}^{2} + \zomega_{t}^{2}} \\
-    \zomega_{t} & = 
+    \omega_{t} & \sim \dnorm{0, \tau_{t}^{2} + \omega_{t}^{2}} \\
+    \omega_{t} & = 
     \begin{cases}
       10^{6} & \text{if $t = 28$} \\
       0 & \text{otherwise}
@@ -585,17 +582,17 @@ However, this example shows that a scale mixture of normal distributions can bot
 \begin{figure}[htpb]
   \centering
   \begin{subfigure}{1.0\textwidth}
-    \includegraphics{assets/fig-nile1}
+    %\includegraphics{assets/fig-nile1}
     \caption{\Model{nile}{hs}}
     \label{fig:nile-posterior-1}    
   \end{subfigure}
   \begin{subfigure}{1.0\textwidth}
-    \includegraphics{assets/fig-nile2}
+    %\includegraphics{assets/fig-nile2}
     \caption{\Model{nile}{normal3}}
     \label{fig:nile-posterior-2}
   \end{subfigure}
   \begin{subfigure}{1.0\textwidth}
-    \includegraphics{assets/fig-nile3}
+    %\includegraphics{assets/fig-nile3}
     \caption{\Model{nile}{inter}}
     \label{fig:nile-posterior-3}
   \end{subfigure}
@@ -612,14 +609,14 @@ However, this example shows that a scale mixture of normal distributions can bot
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics{assets/fig-nile-omega}
+  %\includegraphics{assets/fig-nile-omega}
   \caption{Plot of $p(\omega | y)$ from each model of Nile flows.}
   \label{fig:nile-omega}
 \end{figure}
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics{assets/fig-nile-lambda}
+  %\includegraphics{assets/fig-nile-lambda}
   \caption{Plot of $\Median p(\lambda | y)$ from \Model{nile}{hs}}
   \label{fig:nile-lambda}
 \end{figure}
@@ -713,7 +710,7 @@ This is an example \Stan{} model for a local level DLM with Horseshoe Prior dist
 The Kalman filter section of the \Stan{} code is specialized to the local level model case.
 
 \begin{singlespace}
-  \include{assets/code-local_level_hs}  
+%  \include{assets/code-local_level_hs}  
 \end{singlespace}
 
 \subsection{Sparse Discount Filter}
@@ -733,7 +730,7 @@ This implies that $R_{t} = C_{t - 1} / \delta$.
 Thus the filtered model with discount factors consists of equations \eqref{eq:23}, \eqref{eq:30}, and
 \begin{equation}
   \label{eq:10}
-  \theta_{t} | y_{1:t-1} & \sim N(m_{t-1}, R_{t} = \delta C_{t - 1})
+  \theta_{t} | y_{1:t-1} \sim N(m_{t-1}, R_{t} = \delta C_{t - 1})
 \end{equation}
 The discount factor $\delta$ represents the extent to which uncertainty about the state has increased from $t$ to $t - 1$, or conversely the extend to which information about the state has decayed in one period.
 When $\delta \approx 0$, $A \approx 1$ and $m_{t} \approx y_{t}$.
