@@ -2,7 +2,7 @@ SRC = Structural_Breaks.tex
 BIBFILE = $(HOME)/texmf/bibtex/bib/default.bib
 JABREF = jabref
 BIBTEX = bibtex8
-LATEX = pdflatex -interaction batchmode
+LATEX = xelatex -interaction batchmode -synctex=1
 ROOTDIR = ../../
 
 depends = $(wildcard plots/*.tex) $(wildcard plots/*.pdf)

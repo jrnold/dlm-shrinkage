@@ -155,7 +155,7 @@ Distributions in the global-local class of priors differ in the assumed distribu
 Examples of commonly used shrinkage distributions and their mixing distributions include \parencite{PolsonScott2010}:%
 \footnote{A normal prior, as used in ridge regression, is the trivial case in which $\lambda_{i} = 1$ for all $i$.}
 \begin{description}
-\item[Student's t] The mixing distribution is Inverse gamma, $p(\lambda_{i}) = \dinvgamma{\xi / 2, \xi \tau^{2} / 2}$ where $\xi$ are the degrees of freedom. \parencite{Tipping2001}
+\item[Student's t] The mixing distribution is inverse gamma, $p(\lambda_{i}) = \dinvgamma{\xi / 2, \xi \tau^{2} / 2}$ where $\xi$ are the degrees of freedom. \parencite{Tipping2001}
 \item[Double Exponential (Lasso)] The mixing distribution is exponential \parencites{ParkCasella2008}{Hans2009},
 \begin{equation*}
     \begin{aligned}[t]
@@ -163,33 +163,41 @@ Examples of commonly used shrinkage distributions and their mixing distributions
       p(\tau^{2}) &\sim \dinvgamma{\xi / 2, \xi d^{2} / 3}
     \end{aligned}
   \end{equation*}
-\item[Normal-Gamma] $\lambda^{2}_{i} \sim \dgamma{a, b}$. \parencites{CaronDoucet2008}{BrownGriffin2010}
-\item[Horseshoe] $\lambda^{2}_{i} \sim \dinvbeta{\frac{1}{2}, \frac{1}{2}}$, or equivalently $\lambda_{i} \sim \dhalfcauchy{0, 1}$. \parencite{CarvalhoPolsonScott2010}
+\item[Normal-Gamma] The mixing distribution is gamma, $\lambda^{2}_{i} \sim \dgamma{a, b}$ \parencites{CaronDoucet2008}{BrownGriffin2010}.
+\item[Horseshoe] The mixing distribution is inverse-beta $\lambda^{2}_{i} \sim \dinvbeta{\frac{1}{2}, \frac{1}{2}}.$ 
+Equivalently, $\lambda_{i} \sim \dhalfcauchy{0, 1}$ \parencite{CarvalhoPolsonScott2010}.
 \end{description}
 
 The analog of $w$ in the global-local normal distributions is the shrinkage parameter $\kappa$.
-Following standard results of a normal model with a normal prior, the posterior distribution of $\theta_{i}$ is,
+Following standard results from a normal distribution with a normal prior on the mean and known variance, the posterior distribution of $\theta_{i}$ is
 \begin{equation}
   \label{eq:11}
-  E ( \theta_{i} | y_{i}, \lambda_{i}, \tau, \sigma^{2} )  = (1 - \kappa_{i}) y_{i} \text{,}
+  \E ( \theta_{i} | y_{i}, \lambda_{i}, \tau, \sigma^{2} )  = (1 - \kappa_{i}) y_{i} \text{,}
 \end{equation}
-where, 
+where
 \begin{equation}
   \label{eq:19}
-  \kappa_{i} = \frac{1}{1 + \lambda^{2}_{i} \tau^{2}}
+  \kappa_{i} = \frac{1}{1 + \lambda^{2}_{i} \tau^{2}} \text{.}
 \end{equation}
-When $\kappa_{i} \approx 0$, there is virtually no shrinkage and $\theta_{i} \approx y_{i}$;
+When $\kappa_{i} \approx 0$, there is virtually no shrinkage and $\theta_{i} \approx y_{i}$.
 However, when $\kappa_{i} \approx 1$, there is almost complete shrinkage and $\theta_{i} \approx 0$.
 Note that both $\lambda$ and $\tau$ contribute to the shrinkage parameter.
 When $\tau$ is small, then most values of $\kappa_{i} \approx 1$ and $\theta$ is sparse.
-However, if $\lambda$ is sufficiently large, it can overwhelm the effect of $\tau$, and $\kappa_{i}$ can be close to 0, leaving $\theta_{i}$ unshrunk.
+However, for any given observation, if $\lambda_{i}^{2}$ is sufficiently large, it can overwhelm the effect of $\tau$, and $\kappa_{i}$ can be close to 0, leaving $\theta_{i}$ unshrunk.
 Thus, the global variance component $\tau$ determines the overall sparseness of $\theta_{1:n}$, while the local variance components $\lambda_{i}^{2}$ determine the non-zero values of $\theta_{i}$.
-It follows that different distributions of $\lambda_{i}$ imply different distributions of the shrinkage prior $\kappa_{i}$.
-In other words, shrinkage priors can equivalently be thought of as different prior distributions over the shrinkage parameter $\kappa_{i}$.
+
+Note that different different distributions of $\lambda_{i}$ imply different distributions of the shrinkage prior $\kappa_{i}$.
+The implied distribution of the shrinkage prior provides an intuitive way to understand the shrinkage behavior of prior distributions.
 For example, the horseshoe distribution is so-called because it implies a U-shaped distribution over the the shrinkage parameter, $p(\kappa_{i}) = \dbeta{\frac{1}{2}, \frac{1}{2}}$.
 
 While there are a large number of proposed shrinkage priors \parencites{ArmaganDunsonLee2011}{BrownGriffin2010}{PolsonScott2010}, this paper will use the Horseshoe distribution \parencites{CarvalhoPolsonScott2009}{CarvalhoPolsonScott2010}{PolsonScott2010}{PolsonScott2012}{DattaGhosh2012}.
-While, the Horseshoe distribution has no analytical form, it can be represented as a scale-mixture of normal distributions (equation \eqref{eq:3}( in which the local scale components $\lambda$ are distributed half-Cauchy,%
+
+A ``good'' shrinkage prior should have two properties: tail-robustness and super-efficiency.
+The horseshoe prior distribution is one of the few shrinkage priors that possess these two quantities.
+It may not be the optimal distribution, and this is an area which is rapidly developing.
+However, it seems to be a good ``default'' shrinkage prior that will likely work well in most circumstances.
+
+While the Horseshoe distribution has no analytical form, it can be represented as a scale-mixture of normal distributions (equation \eqref{eq:3}( in which the local scale components $\lambda$ are distributed half-Cauchy,%
 \footnote{
 The half-Cauchy prior on the scale components $\lambda_{t}$ implies an inverse-Bomega (Bomega prime) distribution on the variance components $\lambda_{t}^{2} = \dinvbeta{\frac{1}{2}, \frac{1}{2}}$, where $\dinvbeta{x; a, b} = \frac{x^{a - 1} (1 + x)^{-a - b}}{B(a, b)}$, where $B$ is the Beta function.
 The inverse beta distribution is related to the Beta distribution.
@@ -214,9 +222,9 @@ Figure \ref{fig:horseshoe} compares the density function of the Horseshoe Prior 
 \subsection{Local Level Model}
 \label{sec:local-level-model}
 
-In equation \ref{eq:13}, the means of each observation were independent, but drawn from a common distribution.
+In equation \ref{eq:13}, the means for each observation are independent, but drawn from a common distribution.
 In the time-varying parameter case, the observations are ordered and the mean of each observation depends on the mean of the previous observation.
-The simplest case of this is the local-level model in which the means evolve as a random walk,
+The simplest case of this is the local-level model in which the parameters evolve as a random walk,
 \footnote{Also called the \textit{1st-order polynomial trend model} \parencite[Chapter 2]{WestHarrison1997} or random walk with noise.}
 \begin{equation}
   \label{eq:5}
@@ -228,22 +236,30 @@ The simplest case of this is the local-level model in which the means evolve as 
 \end{equation}
 
 Since all the component equations in equation \eqref{eq:5} are (multivariate) normal, the joint distribution of $\theta$ and $y$ is also multivariate normal.
-Thus, analytical solutions to the distributions of the states and observations conditional on observations are available.
 For each time period $t$, estimate of $\theta_{t}$ can be updated using the following equations.
-The prior distribution of the state $\theta_{t}$ given observations $y_{1:t-1}$ is,
+The prior distribution of the state $\theta_{t}$, given observations $y_{1:(t-1)}$, is
 \begin{equation}
   \label{eq:23}
-  \theta_{t} | y_{1:t-1}  \sim N(m_{t-1}, R_{t} = C_{t - 1} + W)
+  \begin{aligned}[t]
+    \theta_{t} | y_{1:(t-1)} & \sim N(m_{t-1}, R_{t}) \\
+    R_{T} & = C_{t - 1} + W
+  \end{aligned}
 \end{equation}
-The predictive distribution of the data $y_{t}$ given observations $y_{1:t-1}$ is,
+The predictive distribution of the data $y_{t}$, given observations $y_{1:(t-1)}$, is
 \begin{equation}
   \label{eq:25}
-  y_{t} | y_{1:t-1}  \sim N(f_{t-1} = m_{t-1}, Q_{t} = C_{t - 1} + W + V)
+  \begin{aligned}[t]
+    y_{t} | y_{1:(t-1)}  \sim N(f_{t-1}, Q_{t}) \\
+    f_{t-1} & m_{t-1} \\
+    Q_{t} & C_{t - 1} + W + V
+  \end{aligned}
 \end{equation}
-The posterior distribution $\theta_{t}$ at time $t$ given observations $y_{1:t}$ is,
+The posterior distribution $\theta_{t}$ at time $t$, given observations $y_{1:t}$, is
 \begin{equation}
   \label{eq:26}
-  \theta_{t} | y_{1:t} \sim N(m_{t} = m_{t-1} + A_{t} e_{t}, C_{t} = A_{t} V)
+  \begin{aligned}
+    \theta_{t} | y_{1:t} \sim N(m_{t} = m_{t-1} + A_{t} e_{t}, C_{t} = A_{t} V)    
+  \end{aligned}
 \end{equation}
 where $A_{t} \in [0, 1]$ is the adaptation coefficient and $e_{t}$ is the forecast error, defined as
 \begin{align}
@@ -251,29 +267,34 @@ where $A_{t} \in [0, 1]$ is the adaptation coefficient and $e_{t}$ is the foreca
   A_{t} = R_{t} / Q_{t} = \frac{C_{t-1} + W_{t}}{C_{t-1} + W + V} \\
   e_{t} = y_{t} - f_{t-1} = y_{t} - m_{t-1}
 \end{align}
-Together equations \eqref{eq:23}-\eqref{eq:26} are known as the \textit{filtering equations}.
-After filtering, the values of $p(\theta_{t} | y_{1:T})$ can be sampled in a process known as forward filtering backward sample.
-However, only the filtering equation and a forward pass through the data is needed to calculate the likelihood of equation \eqref{eq:5}
-.
+Together equations \eqref{eq:23}-\eqref{eq:26} are known as the \textit{filtering equations} or the Kalman filter.
+After filtering, the values of $p(\theta_{t} | y_{1:T})$ can be sampled by forward filtering backward sample.
+However, only the filtering equations are needed to calculate the likelihood of equation \eqref{eq:5},
+\begin{equation}
+  \label{eq:27}
+  p(y_{1:t} | V, W_{t}) \propto -\frac{1}{2} \sum_{i = 1}^{t}  \left( \log | Q_{t} |  + e_{t}^{2} / Q_{t} \right)
+\end{equation}
 
-An important feature of the sequential updating of the filter is that $m_{t} = E p(\theta_{t} | y_{t})$ is a weighted sum of the mean of the prior,  $m_{t - 1}$, and the forecast error $e_{t} = y_{t} - m_{t - 1}$, where $A_{t}$ is the weight placed on the new observation.
-Equation \eqref{eq:26} can also be rewritten as a weighted sum of the data $y_{t}$ and prior estimate $m_{t-1}$, 
+An important feature of the filtering equations is that the filtered estimate of the mean, $m_{t} = E p(\theta_{t} | y_{t})$, is a weighted sum of the mean of the prior,  $m_{t - 1}$, and the forecast error $e_{t} = y_{t} - m_{t - 1}$.
+Equation \eqref{eq:26} can also be rewritten as a weighted sum of the new observation $y_{t}$ and the prior mean $m_{t-1}$,
 \begin{equation}
   \label{eq:18}
   \theta_{t} | y_{1:t} = (1 - A_{t}) m_{t-1} + A_{t} y_{t}
 \end{equation}
-The key feature of the adaption coefficient is that 
-The weight is a function of the observation and system variances, 
+The adaptation coefficient is the weight assigned to the new observation and is a function of the observation and system variances,
 \begin{equation}
   \label{eq:24}
   A_{t} = R_{t} / Q_{t} = \frac{C_{t-1} + W_{t}}{C_{t-1} + W + V}
 \end{equation}
+
 
 In this case, the estimates of $\theta_{t}$ are not shrunk towards 0, but are shrunk towards the previous period's value, $\theta_{t-1}$.
 Alternatively, in this case, the shrinkage is not over the values of $\theta_{t}$, but the values of the one period differences $\theta_{t} - \theta_{t -1}$.
 A model with complete shrinkage is the constant mean model in which $\theta_{t} = m_{0}$ for all $t$, which occurs when $A_{t} = 0$ for all $t$.
 A sparse model is one in which most $A_{t} \approx 0$, but a few $A_{t}$ can be far from 0.
 Ideally, a prior distribution could be placed on $A_{1:t}$ that encourages sparsity, both pushing values towards 0 and 1, and regulating the number of sparse parameters.
+
+Sparsity in this case is over $omega$, not $\theta$.
 
 \subsection{Dynamic Linear Models}
 \label{sec:dynam-line-models}
@@ -282,7 +303,7 @@ The local level model in the previous section is a special case of a wider class
 \footnote{Gaussian DLMs are also called normal DLMs or Gaussian linear state space models.}
 With minor alterations, the shrinkage methods developed in the previous section can generalize to DLMs.
 Many common models, including SARIMA, structural time series models with level, trend, cyclical and seasonal components, regressions with time-varying coefficients, cubic splines, and stochastic volatility models can be represented as DLMs. 
-\textcites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{PetrisPetroneOmegal2009}{ShumwayStoffer2010} provide thorough treatments of state space models and their applications.
+\textcites{WestHarrison1997}{DurbinKoopman2001}{CommandeurKoopman2007}{PetrisPetroneEtal2009}{ShumwayStoffer2010} provide thorough treatments of state space models and their applications.
 
 A Gaussian dynamic linear model (DLM) for a $n$-dimensional observation sequence $y_{1}, \dots, y_{n}$ is defined by the following set of equations.%
 For $t = 1:n$,
@@ -393,7 +414,7 @@ This is the Bayesian equivalent to the auxiliary residual test of \textcites{Jon
 In addition to the use of a credible interval rather than a confidence interval, the Bayesian method differs from the auxiliary residual test in that it integrates over the posterior distribution of the state matrices $S_{t}$ rather fixing them at point estimates.
 Note that in some applications, especially those in which the transition matrix $T_{t}$ includes parameters, it may make more sense to use the posterior distribution of the difference in the states, $p(\Delta \alpha_{t - 1} | y)$.
 
-The second method uses the local variance components $\lambda_{t}$ to identify structural breaks \parencite[179-180]{PetrisPetroneOmegal2009}.
+The second method uses the local variance components $\lambda_{t}$ to identify structural breaks \parencite[179-180]{PetrisPetroneEtal2009}.
 If $\lambda_{t} = 1$, then the state disturbance is distributed normal with a scale equal to the global scale $\omega_{t} \sim N(0, \tau^{2})$.
 Thus, the local shrinkage parameters $\lambda$ are relative measure of how much each $\omega_{t}$ is shrunk towards zero.
 Values of $\lambda_{t} > 1$ ($\lambda_{t} < 1$) indicate state disturbances that are dispersed (shrunk) relative to the global scale.
@@ -417,13 +438,6 @@ For that reason, the $t$-distribution, which is commonly used to model
 outliers in Bayesian regression and DLMs \parencite{West1984}, is
 likely sufficient for most applications.
 
-\subsection{Comparison to Other Methods}
-\label{sec:comp-other-meth-1}
-
-Compare to smooth and break method.
-
-Compare to stochastic volatility methods.
-
 \section{Implementation}
 \label{sec:implementation}
 
@@ -431,7 +445,7 @@ MCMC sampling from a dynamic linear model is challenging due to the temporal dep
 Although full conditional distributions for a Gibbs sampler can be easily specified \parencite{CarlinGelfandSmith1992}, in practice sampling each $\alpha_{t}$ will almost always result in slow convergence and highly correlated posterior samples.
 However, for Gaussian dynamic linear models there exist more efficient block sampling algorithms which sample $\alpha_{1:n}$ as a single block, improving the the speed of convergence and the number of effective samples.%
 \footnote{See \textcite{ReisSalazarGamerman2006} for a comparison of the efficiency of various sampling methods, and \textcite{migon2005dynamic} for an overview of the various sampling methods.}
-These block methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamOmegal2009}.%
+These block methods include the Forward-Filter Backward Smoothing algorithm of \textcite{CarterKohn1994} and \textcite{Fruehwirth-Schnatter1994}, as well as more efficient simulation smoothers of \textcite{DeJongShephard1995}, \textcite{DurbinKoopman2002}, \textcite{StricklandTurnerDenhamEtal2009}.%
 An alternative approach to block sampling, is to sample directly from the posterior $p(\alpha | y, S)$ which for GDLMs is a multivariate normal distribution with a sparse, block diagonal covariance matrix, samples can be drawn directly from the posterior distribution \parencites{migon2005dynamic}{ChanJeliazkov2009}.
 However, none of these more efficient algorithms are included in the commonly used general-purpose Bayesian software programs (\proglang{BUGS}, \proglang{JAGS}, and PyMc).
 Thus, for savings in computational time a researcher needs to trade-off programmer time to implement a custom MCMC sampler that uses one of the block sampling methods.
@@ -677,7 +691,7 @@ The results are similar to that for the Nile river data; the horseshoe prior mod
 \subsection{Greenbacks}
 \label{sec:greenbacks}
 
-The paper \textcite{WillardGuinnaneOmegal1996} finds turning points in the prices of Union currency against gold during the American Civil War using the multiple structural break method of Perron et al (2003).
+The paper \textcite{WillardGuinnaneEtal1996} finds turning points in the prices of Union currency against gold during the American Civil War using the multiple structural break method of Perron et al (2003).
 
 \textit{I've only run a few preliminary models with this so far, but the results do not show clean structural breaks like the Bush and Nile examples. It looks more like a simple smoothing.}
 
@@ -744,11 +758,11 @@ When $\delta \approx 0$, $A \approx 1$ and $m_{t} \approx y_{t}$.
 
 %  LocalWords:  Carvallho TVP RatkovicEng CalderiaZorn Spirling eq DV
 %  LocalWords:  CarvalhoPolsonScott ARIMA DLM DurbinKoopman unshrunk
-%  LocalWords:  PetrisPetroneOmegal WestHarrison GiordaniKohn Laplacian
+%  LocalWords:  PetrisPetroneEtal WestHarrison GiordaniKohn Laplacian
 %  LocalWords:  PolsonScott DLMs DattaGhosh Jeffrey's MVN JongPenzer
 %  LocalWords:  Balke nile petris ReisSalazarGamerman CarterKohn PyMc
 %  LocalWords:  Fruehwirth Schnatter smoothers DeJongShephard migon
-%  LocalWords:  StricklandTurnerDenhamOmegal ChanJeliazkov MCMC Weis hs
+%  LocalWords:  StricklandTurnerDenhamEtal ChanJeliazkov MCMC Weis hs
 %  LocalWords:  Jeliazkov KFAS HMC spirling bayesian Pierson Tusell
 %  LocalWords:  GeorgeMcCulloch Tibshirani ParkCasella BrownGriffin
 %  LocalWords:  ArmaganDunsonLee HarveyKoopman CarlinGelfandSmith DIC
