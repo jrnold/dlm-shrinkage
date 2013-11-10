@@ -94,3 +94,16 @@ $\eta_t$        $r \times 1$
 $a_1$           $m \times 1$
 
 This is initialized with the filtered states.
+
+# Algorithms
+
+## Local Level
+
+
+### Filter
+
+### Backward sample
+
+## General
+
+### Filter

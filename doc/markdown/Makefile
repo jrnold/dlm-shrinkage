@@ -1,3 +1,2 @@
-PANDOC = $(HOME)/.cabal/bin/pandoc
-notation.pdf: notation.md
-	$(PANDOC) -o $@ $^
+algorithms.pdf: algorithms.tex
+	xelatex algorithms.tex
