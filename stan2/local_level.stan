@@ -61,6 +61,5 @@ transformed parameters {
   }
 }
 model {
-  
   tau ~ cauchy(0, 1);
 }

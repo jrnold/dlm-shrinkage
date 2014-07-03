@@ -36,7 +36,6 @@
   Unlike many structural break methods it does not require the number of structural breaks to be specified ex ante, and can estimate this from the data.
   Since many shrinkage priors are scale-mixture of normal distributions, the dynamic linear model is conditionally Gaussian, and can be efficiently sampled or maximized; 
   a \Stan{} implementation of this method is presented.
-  These models are used in several examples including the Nile river data, George W. Bush approval rating and TBD.
 \end{abstract}
 
 \section{Introduction}
@@ -98,7 +97,7 @@ Section \ref{sec:examples} uses the SDDLMs in several example applications: Nile
 Section \ref{sec:conclusion} concludes with discussion of how this
 method can be extended.
 
-\section{Structural Breaks in a State Space Model}
+\section{Structural Breaks within a State Space Model}
 \label{sec:struct-breaks-state}
 
 \subsection{Bayesian Shrinkage}
@@ -488,18 +487,6 @@ Separating the sampling of $p(\alpha_{t} | y, S)$ from $p(S | y)$ has a few prac
 In some cases, e.g. many ARIMA models, only parameters in the system matrices are of interest, and thus the step $p(\alpha | y, S)$ can be skipped.
 Second, once a sample from $p(S | y)$ is obtained, the sampling of $p(\alpha | y, S)$ can be done in parallel.
 
-\section{Comparison to Other Methods}
-\label{sec:comp-other-meth}
-
-Discrete state space approaches
-
-Discrete mixture
-
-Ratkovic
-
-A cubic smoothing spline can be estimated within the 
-
- 
 
 \section{Examples}
 \label{sec:examples}
