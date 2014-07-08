@@ -1,39 +1,41 @@
+---
+...
 # Data
 
-- Nile River data. @ZeileisKleiberKramerEtAl2003
-- UK Road Deaths from Harvey and Durbin, 2 breaks. @ZeileisKleiberKramerEtAl2003
+- Nile River data. @ZeileisKleiberKramerEtAl2003, ``datasets::Nile``
+- UK Road Deaths from Harvey and Durbin, 2 breaks. @ZeileisKleiberKramerEtAl2003, ``datasets::UKDriverDeaths``
 - Index of oil prices in Germany, quarterly 1960-1991. @ZeileisKleiberKramerEtAl2003, Multiple breaks. ``strucchange::OilPrice``.
 - US Real Interest Rates. ``strucchange::RealInt``
 - datasets in R package **strucchange**
 - @KillickEckley2014
 
-   - GBM
-   - Irish wind speed
-   - ``datasets::discoveries``
+    - GBM
+    - Irish wind speed
+    - ``datasets::discoveries``
 
 - blocks, heavisine data: @DonohoJohnstone1994
 - **changepoint**
 
-   - HC1:                     G+C Content in Human Chromosome 1
-   - Lai2005fig3:             Normalized glioblastoma profile 13
-   - Lai2005fig4:             Normalized glioblastoma profile for an excerpt of chromosome 7, the EGFR locus.
-   - ftse100:                 FTSE 100 Daily Returns: 2nd April 1984 - 13th September 2012
-   - wave.c44137:             Wave data from buoy c44137
+	- HC1:                     G+C Content in Human Chromosome 1
+	- Lai2005fig3:             Normalized glioblastoma profile 13
+	- Lai2005fig4:             Normalized glioblastoma profile for an excerpt of chromosome 7, the EGFR locus.
+	- ftse100:                 FTSE 100 Daily Returns: 2nd April 1984 - 13th September 2012
+	- wave.c44137:             Wave data from buoy c44137
 
 - **strucchange**
 
-   - BostonHomicide:          Youth Homicides in Boston
-   - DJIA:                    Dow Jones Industrial Average
-   - GermanM1:                German M1 Money Demand
-   - Grossarl:                Marriages, Births and Deaths in Grossarl
-   - PhillipsCurve:           UK Phillips Curve Equation Data
-   - RealInt:                 US Ex-post Real Interest Rate
-   - SP2001:                  S&P 500 Stock Prices
-   - USIncExp:                Income and Expenditures in the US
-   - durab:                   US Labor Productivity
-   - historyM1 (GermanM1):    German M1 Money Demand
-   - monitorM1 (GermanM1):   German M1 Money Demand
-   - scPublications:          Structural Change Publications
+	- BostonHomicide:          Youth Homicides in Boston
+	- DJIA:                    Dow Jones Industrial Average
+	- GermanM1:                German M1 Money Demand
+	- Grossarl:                Marriages, Births and Deaths in Grossarl
+	- PhillipsCurve:           UK Phillips Curve Equation Data
+	- RealInt:                 US Ex-post Real Interest Rate
+	- SP2001:                  S&P 500 Stock Prices
+	- USIncExp:                Income and Expenditures in the US
+	- durab:                   US Labor Productivity
+	- historyM1 (GermanM1):    German M1 Money Demand
+	- monitorM1 (GermanM1):    German M1 Money Demand
+	- scPublications:          Structural Change Publications
 
 - **bcp**
 
@@ -64,7 +66,7 @@ and additional
 - $\mu_t = n - 1, 1 \leq n \leq 11$, $\mu n = 21 - n, 12 \leq n \leq 20$
 - $\mu_t = 10 - 0.1 (n - 11)^2, 1 \leq n \leq 20$
 
-@BarryHartigan1992 20 "scenes. Also used in **bcp**. See ErdmanEmerson2007 for the scenes.
+@BarryHartigan1992 20 "scenes". Also used in **bcp**. See ErdmanEmerson2007 for the scenes.
 Compared using MSE.
 
 
@@ -125,7 +127,7 @@ Papers, 55:349–374, 2014.
 - @BarryHartigan1992 Using a product partition to calculate change points.
 - @ErdmanEmerson2008, @ErdmanEmerson2007 Implement a fast version of the @BarryHartigan1992 algorithm in the R package **bcp**
 - @Fearnhead2006
-- Chib algorithm
+- @Chib1998
 - @Lavielle2005
 
 # Software
@@ -138,3 +140,58 @@ The changepoint repository <http://www.changepoint.info/>.
 - **strucchange**
 - **changepoint**: @KimTrusinaMinnhagenEtAl2004
 - **cpm** sequential non-parametric change
+
+# Shrinkage
+
+Examples of shrinkage estimators
+
+The standard problem is for Bayesian means,
+$$
+\begin{aligned}
+y_i &= \theta_i + \epsilon_i \\
+\epsilon_i &\sim N(0, \sigma^2)
+\end{aligned}
+$$
+
+- Student t [@Tipping2001]
+- Double-exponential [@ParkCasella2008, @Hans2009]
+- Normal/Jeffreys $p(\lambda_i^2) \propto 1 / \lambda_i^2$  @Figueiredo2003, @BaeMallick2004
+- Strawderman-Berger
+- Normal / Exponential-gamma
+- Normal / Gamma
+- Normal / Inverse-gamma
+- Horseshoe Prior. $p(\lambda_i^2) = IB(1/2, 1/2)$, local variances are distributed inverted beta, while local scales are distributed half-cauchy $p(\lambda_i) = C^+(0, 1)$.
+- Normal / Inverted-beta $p(\lambda_i^2) = IB(a, b)$
+- Double Pareto
+
+Notes
+
+The problem is to estimate $\beta$ in
+$$
+y | \beta  \sim N(\beta, \sigma^2 I) \\
+$$
+when $\beta$ is believed to be sparse.
+$$
+\begin{aligned}[t]
+\beta_i | \tau^, \lambda_i^2 & \sim N(0, \tau^2 \lambda_i^2) \\
+\lambda_i^2 & \sim \pi(\lambda_i^2) \\
+(\tau^2, \sigma^2) & \sim \pi(\tau^2, \sigma^2)
+\end{aligned}
+$$
+Asymptotic differences between plugin and prior distributions for estimates of $\tau$.
+
+## Choice of prior for $\tau$
+
+In general, plugin and priors do not produce the same penalty, even asymptotically @PolsonScott2010, p. 9.
+
+Priors
+
+- Jeffreys' Prior. $p(\sigma^2, \tau^2) \propto \sigma^{-2} (\sigma^2 + \tau^2)^{-1}$. Improper prior, but a proper posterior. Independent Jeffreys' priors on $\tau^2$ and $\sigma^2$ does not ensure a proper posterior.
+- proper Jeffrey's Prior. $p(\sigma^2, \tau^2) \propto \frac{\sigma^2}{\sigma^2 + \tau^2} \cdot \frac{1}{\sigma^2} = (\sigma^2 + \tau^2)^{-2}$ Ensures that $(\tau^2 | \sigma^2)$ is proper.
+- half-Cauchy prior on the scale $\tau \sim C^+(0, \sigma)$.
+
+Plugin estiamtes
+
+- $\nu = 1 / \tau$ , $\hat \nu = \sqrt{\log p}$ where $p$ is the number of variables.
+  This is a Bonferroni like correction.
+- Conjecture that $\tau \sim C^+(0, \sigma (\log p)^{1/2})$
