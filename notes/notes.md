@@ -13,7 +13,33 @@
     - Irish wind speed
     - ``datasets::discoveries``
 
-- blocks, heavisine data: @DonohoJohnstone1994
+- Set of 4 functional datasets used in @Fearnhead2005a, @DonohoJohnstone1994, @DonohoJohnstone1995a, @DenisonMallickSmith1998, 
+
+    - Blocks
+    - Heavysine
+    - Bumps
+    - Doppler
+
+
+Example in Ratkovic
+
+$$
+\begin{aligned}
+sim_{jump}(x_i) = -2 f(x_i / 100) + 8 I(x_i > 200) - 4 I (x_i > 500) + 2 I (x_i > 800) + u_i \\
+sim_{nojump}{x_i} = -s f (x_i / 100) + u_i
+\end{aligned}
+$$
+
+with
+
+- Gaussian noise: $var(u_i) \in \{1, 4\}$, $cor(u_i, u_{i-1} = 0$.
+- AR(1) noise: $var(u_i) \in \{1, 4\}$, $cor(u_i, u_{i-1} = 0.4$
+- Sample sizes $n \in \{100 ,200, 500\}$
+- $f$ is a Bessel function of the 2nd type
+
+
+Comparisons: Kalman filter (`StructTS` in R **stats**), and smoothing spline (`ssanova()` in R **gss**) and R package.
+
 - **changepoint**
 
 	- HC1:                     G+C Content in Human Chromosome 1
@@ -70,49 +96,6 @@ and additional
 Compared using MSE.
 
 
-# Comparisons
-
-- @BarryHartigan. Average MSE of estimators
-
-# Lit Review
-
-Some good overviews are
-
-- overview: 
-
-   - @ZeileisLeischHornikEtAl2002, discusses Dynamic Programming
-   - bcp packge: dynamic programming, circular binary segmentation, bayesian product partition
-   - strucchange package: @KimTrusinaMinnhagenEtAl2004
-   - Citations for introduction : http://www.changepoint.info/introduction.html
-   - @JandhyalaFotopoulosMacNeillEtAl2013 is a recent overview
-
-- *PELT* @KillickEckleyEwansEtAl2010, @KillickFearnheadEckley2012
-- *Least squares estimator* @Yao1984
-- *Dynamic programming*, *segment neighborhood algorithm*:  @BaiPerron1998, @Bai1997, @BaiPerron2003. For minimum segment length or maximum number of breaks,
-obtain optimal break point locations by minimizing within segment sums of squares, using a dynamic programming algorithm
-- Implemtations of the dynamic programming algorithm in the R package **strucchange**: @ZeileisKleiberKramerEtAl2003, @ZeileisLeischHornikEtAl2002
-- *Binary segmentation* @SenSrivastava1975, @ScottKnott1974
-- *Circular binary segmentation*, a variant of binary segmentation. @OlshenVenkatramanLucitoEtAl2004
-- Total Variation / Lasso penalties
-
-   - @HarchaouiLevy-Leduc2010 proposes total variation
-   - @ChanYauZhang2014 Using Group LASSO for structural break AR model
-   - Fused Lasso gives examples that are essentially structural breaks.
-   - @RojasWahberg2014 Fused Lasso
-
-- Fused Lasso is used for Trend Filtering (of which change points are a 0-polynomial):
-
-   - @KimKohBoydEtAl2009
-   - @Tibshirani2014
-
-Also see
-
-G. Ciuperca. A general criterion to determine the number of change-points. Statistics &
-Probability Letters, 81:1267–1275, 2011.
-G. Ciuperca. Model selection by LASSO methods in a change-point model. Statistical
-Papers, 55:349–374, 2014.
-- Donoho and Johnstone using wavelet shrinkage for function approximation.
-
 ## Political Science Examples
 
 - @CalderiaZorn1998
@@ -134,88 +117,70 @@ Papers, 55:349–374, 2014.
 
 The changepoint repository <http://www.changepoint.info/>. 
 
-## R package
+### Changeponts
 
-- **bcp**
+
+## Citations
+
+### Shrinkage
+
+- Dirichlet-Laplace Priors: @BhattacharyaPatiPillaiEtAl2014
+- Generalized Double-Pareto: \cite{ArmaganDunsonLee2013a}
+- Horseshoe: [@CarvalhoPolsonScott2010, @CarvalhoPolsonScott2009, @DattaGhosh2012, @BhadraDattaPolsonEtAl2015a, @PasKleijnVaart2014a]
+
+    - A simple sampler for the horseshoe estimator: MakalicSchmidt2015a
+
+- Three-parameter beta: Armagan et al
+- Normal-exponential-gamma: @BrownGriffin2010
+- Bridge
+- Lasso
+- Normal-Jeffreys
+- On half-Cauchy as global scale parameter: @PolsonScott2012
+
+
+### Changepoint
+
+
+## R packages
+
+- **changepoint**: @KillickEckley2014 . Mean, variance, and mean-variance changepoints using: binary segmentation, segment neighborhood, PELT
 - **strucchange**
-- **changepoint**: @KimTrusinaMinnhagenEtAl2004
+- **bcp** Bayesian change-point estimator
 - **cpm** sequential non-parametric change
+- **sde**
+- MCMCpack functions for changepoints in linear normal, Poisson, ordered probit, and probit models: MCMCbinaryChange, MCMCoprobitChange, MCMCpoissonChange, MCMCregressChange
+- Hidden Markov Models for ChibAlgorithm: depmixS4
 
-# Shrinkage
+### Software for Dynamic linear models
 
-Examples of shrinkage estimators
+- JSS issue on dynamic models: @CommandeurKoopmanOoms2011, @petris2011state
+- Overview of Kalman filters in R: @Tusell2011
+- R packages
 
-The standard problem is for Bayesian means,
-$$
-\begin{aligned}
-y_i &= \theta_i + \epsilon_i \\
-\epsilon_i &\sim N(0, \sigma^2)
-\end{aligned}
-$$
+    - DLM: @Petris2010a
+    - KFAS
+    - sspir
+    - FKF
+    - dse: 
+    - StructTS in base R
 
-- Student t [@Tipping2001]
-- Double-exponential [@ParkCasella2008, @Hans2009]
-- Normal/Jeffreys $p(\lambda_i^2) \propto 1 / \lambda_i^2$  @Figueiredo2003, @BaeMallick2004
-- Strawderman-Berger
-- Normal / Exponential-gamma
-- Normal / Gamma
-- Normal / Inverse-gamma
-- Horseshoe Prior. $p(\lambda_i^2) = IB(1/2, 1/2)$, local variances are distributed inverted beta, while local scales are distributed half-cauchy $p(\lambda_i) = C^+(0, 1)$.
-- Normal / Inverted-beta $p(\lambda_i^2) = IB(a, b)$
-- Double Pareto
+### Texts or Overviews of Dynamic Linear Models
 
-Notes
-
-The problem is to estimate $\beta$ in
-$$
-y | \beta  \sim N(\beta, \sigma^2 I) \\
-$$
-when $\beta$ is believed to be sparse.
-$$
-\begin{aligned}[t]
-\beta_i | \tau^, \lambda_i^2 & \sim N(0, \tau^2 \lambda_i^2) \\
-\lambda_i^2 & \sim \pi(\lambda_i^2) \\
-(\tau^2, \sigma^2) & \sim \pi(\tau^2, \sigma^2)
-\end{aligned}
-$$
-Asymptotic differences between plugin and prior distributions for estimates of $\tau$.
-
-## Choice of prior for $\tau$
-
-In general, plugin and priors do not produce the same penalty, even asymptotically @PolsonScott2010, p. 9.
-
-Priors
-
-- Jeffreys' Prior. $p(\sigma^2, \tau^2) \propto \sigma^{-2} (\sigma^2 + \tau^2)^{-1}$. Improper prior, but a proper posterior. Independent Jeffreys' priors on $\tau^2$ and $\sigma^2$ does not ensure a proper posterior.
-- proper Jeffrey's Prior. $p(\sigma^2, \tau^2) \propto \frac{\sigma^2}{\sigma^2 + \tau^2} \cdot \frac{1}{\sigma^2} = (\sigma^2 + \tau^2)^{-2}$ Ensures that $(\tau^2 | \sigma^2)$ is proper.
-- half-Cauchy prior on the scale $\tau \sim C^+(0, \sigma)$.
-
-Plugin estiamtes
-
-- $\nu = 1 / \tau$ , $\hat \nu = \sqrt{\log p}$ where $p$ is the number of variables.
-  This is a Bonferroni like correction.
-- Conjecture that $\tau \sim C^+(0, \sigma (\log p)^{1/2})$
-
-- Enno Mammen and Sara van de Geer "Locally adaptive regression splines", Annals of Statistics, 1997. Use of total variation penalty.
-- Robert Tibshirani and Michael Saunders and Saharon Rosset and Ji Zhu and Keith Knight, "Sparsity and Smoothness via the Fused Lasso", J.R. Statist. Soc. B, 2005
-- Jun Liu and Lei Yuan and Jieping Ye, "An Efficient Algorithm for a Class of Fused Lasso Problems",
-- Holger Hoefling "A path algorithm for the Fused Lasso Signal Approximator"
-- Donaoh and Johnstone
-- Minjung Kyung, Jeff Gill, Malay Ghosh, and George Casella, "Penalized Regression, Standard Errors and Bayesian Lassos", Bayesian Analaysis (2010)
-- Harchaoui and Levy-Leduc, "Multiple Change-point Estimation with a Total Variation Penalty", JASA 2009
-- Alessandro Rinaldo, "Properties and Refinements of the Fused Lasso"
-- Zaid Harchaoui and Celine Levy-Leduc, "Catching Change-points  with Lasso"
-- M. Lavielle. Using penalized contrasts for the change-points problems. Signal Processing, 85(8):1501–1510, 2005.
-- Bhattacharya, Pati, PIllai, Dunson, "Bayesian Shrinkage"
-- Bhattacharya, Pati, PIllai, Dunson, "Dirichlet-Laplace priors for Optimal Shrinkage"
-- Bachman, Precup, "Improved Estimation in Time Varying Models"
-- Rojas and Wahlberg, "On Change Point Detection Using the Fused Lasso Method"
+- @Harvey1990
+- @WestHarrison1997
+- @ShumwayStoffer2010
+- @DurbinKoopman2012
+- @CommandeurKoopman2007
+- @PetrisPetroneEtAl2009
 
 
-Example:
 
-- Rinaldo, p. 17
-- Blocks in Donoho and Johnstone, p. 1201, Tabl 1
-- Well-log data: Cappe- Hidden Markov
-- Rojas and Walhberg
+## Misc
+
+- FFBS: @CarterKohn1994, @Fruehwirth-Schnatter1994
+- Simulation smoother: @DeJongShephard1995
+- Mean correction simulation smoother: @DurbinKoopman2002
+- Sequential simulation smoother: @StricklandTurnerDenhamEtAl2009
+- Equivalence between state space models and ARMA: @Gilbert1993a 
+
 
