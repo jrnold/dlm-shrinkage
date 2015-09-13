@@ -1,8 +1,3 @@
-#' @export discrepancy
-#' @export discrepancy_chisq
-#' @export discrepancy_mse
-NULL
-
 #' Discrepancy functions
 #'
 #' Functions to calculate discrepancy between "true" data and posterior
@@ -19,18 +14,21 @@ NULL
 #' \item{\code{discrepancy_mse}}{Mean squared error}
 #' \item{\code{discrepancy_chisq}}{Chi squared distance}
 #' }
+#' @export
 discrepancy <- function(y, yrep, dist = "chisq") {
   f <- get(sprintf("discrepancy_%s", dist))
   f(y, yrep)
 }
 
-#' @rdname discrepancy 
+#' @rdname discrepancy
+#' @export
 discrepancy_mse <- function(y, yrep) {
   ey <- apply(yrep, 1, mean)
   mean((y - ey)^2)
 }
 
-#' @rdname discrepancy 
+#' @rdname discrepancy
+#' @export
 discrepancy_chisq <- function(y, yrep) {
   ey <- apply(yrep, 1, mean)
   vy <- apply(yrep, 1, var)

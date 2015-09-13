@@ -1,6 +1,3 @@
-#' @export crosszero
-NULL
-
 #' Interval includes zero
 #'
 #' Check whether an interval includes zero.
@@ -11,7 +8,9 @@ NULL
 #' returns \code{TRUE} if 0 is one of the endpoints.
 #' @return \code{logical} vector indicating whether
 #' the intervals [\code{x}, code{y}], include or cross zero.
+#' @export
 crosszero <- function(x, y, include=TRUE) {
+  
   if (include) {
     f <- `<=`
   } else {

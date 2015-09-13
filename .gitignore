@@ -18,3 +18,4 @@ auto
 /doc/build/
 /R/library/
 /R/scripts/dependencies.inc
+.Rproj.user

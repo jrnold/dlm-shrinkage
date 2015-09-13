@@ -1,6 +1,3 @@
-#' @export sim_struc_break
-NULL
-
 #' Simultate from Local Level Model with Structural Breaks
 #'
 #' @param prob \code{numeric} (in [0, 1]) Probability of a structural break.
@@ -25,6 +22,7 @@ NULL
 #' \deqn{a_{t + 1} \sim N(0, \lambda_t H)}
 #' where \eqn{\lambda_t} equals 1 with probabilty \code{prob}, and 0 with
 #' probability \code{1 - prob}.
+#' @export sim_struc_break
 sim_struc_break <- function(prob = 1, H = 1, T = 101, df = Inf, a1 = 0) {
   if (prob %in% c(1, 0)) {
     sbreak <- as.logical(rep(prob, T - 1))

@@ -181,6 +181,36 @@ The changepoint repository <http://www.changepoint.info/>.
 - Simulation smoother: @DeJongShephard1995
 - Mean correction simulation smoother: @DurbinKoopman2002
 - Sequential simulation smoother: @StricklandTurnerDenhamEtAl2009
-- Equivalence between state space models and ARMA: @Gilbert1993a 
+- Equivalence between state space models and ARMA: @Gilbert1993a
+
+## Trend Filtering
+
+- Hills
+- Doppler
+- Blocks
 
 
+## Papers
+
+
+Simulation:
+
+- Examples:
+
+    - mean shift in US quarterly interest rates - 1952--2004
+    - mean, AR, and variance shifts in US CPI
+
+- Use of mean innovation model with shift in mean and betas
+
+Notes on papers
+
+- Economic time series with multiple shifts in inflation, means, interest rates and other nominal time series.
+- @KoopPotter2004, @KoopPotter2004a, @KoopPotter2007a: Multiple change point models
+- Difficult to outperform AR models out of sample, even when more complex models outperform them insample (Stock and Watson 1996):
+- TVP - time varying papermeter models of macroeconomic time series: Marcellino 2008
+- Markov switching models (Hamilton 1989)
+- Multiple change point models (Chib 1998)
+
+## Literature Review
+
+Use Giordani and Kohn (2008) as an example of spike / slab prior 

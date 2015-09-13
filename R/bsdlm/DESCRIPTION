@@ -1,38 +1,16 @@
 Package: bsdlm
 Maintainer: Jeffrey Arnold <jeffrey.arnold@gmail.com>
 Author: Jeffrey Arnold <jeffrey.arnold@gmail.com>
-Version: 0.0.1
+Version: 0.0.2
 License: GPL-3
 Title: Code for Bayesian Shrinkage Dlm
-Description: Code used in paper on Bayesian Shrinkage in DLMs
+Description: Code used in paper on Bayesian Shrinkage in DLMs.
 Depends:
     methods,
 Imports:
-    mcmcdb,
-    mcmcstats,
     dlm,
-    plyr,
-    dlmextras (>= 0.0.1)
+    rstan,
+    dlmextras
 Suggests:
     testthat,
     roxygen2
-Collate:
-    'convergence_parameters-method.R'
-    'crosszero.R'
-    'dhp.R'
-    'misc.R'
-    'rbernoulli.R'
-    'sddlm-package.R'
-    'sim_struc_break.R'
-    'discrepancy.R'
-    'iter_to_dlm.R'
-    'BsDlmMcmcdb-class.R'
-    'BsDlmLocalLevel-class.R'
-    'bsdlm_summary.R'
-    'dlm_stats.R'
-    'BsDlmLocalLevelVw-class.R'
-    'BsDlmLocalLevelHs-class.R'
-    'BsDlmSeatbelts1.R'
-    'BsDlmSeatbelts2.R'
-    'BsDlmSeatbelts3.R'
-    'kappa_to_tau.R'
