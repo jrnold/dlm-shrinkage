@@ -5,12 +5,16 @@ Version: 0.0.2
 License: GPL-3
 Title: Code for Bayesian Shrinkage Dlm
 Description: Code used in paper on Bayesian Shrinkage in DLMs.
+LazyData: true
 Depends:
-    methods,
+    R (>= 2.10),
+    methods
 Imports:
     dlm,
     rstan,
     dlmextras
 Suggests:
+    dplyr,
     testthat,
-    roxygen2
+    roxygen2,
+    zoo
