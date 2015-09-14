@@ -45,7 +45,7 @@ x <- seq(0, 1, length.out = 2048)
 plot(x, bumps_dj94(x), type = "l")
 }
 \references{
-Donoho, David L, and Johnstone, Iain M. (1994) "Ideal spatial adaptation by wavelet shrinkage."
+Donoho, David L, and Johnstone, Iain M. (1994) \dQuote{Ideal spatial adaptation by wavelet shrinkage.}
 \emph{Biometrika} \strong{81.3}, 425-55.
 }
 \seealso{

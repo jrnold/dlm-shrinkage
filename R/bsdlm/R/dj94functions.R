@@ -23,7 +23,7 @@
 #' @param t numeric. See description.
 #' @param h numeric. See description.
 #' @references
-#' Donoho, David L, and Johnstone, Iain M. (1994) "Ideal spatial adaptation by wavelet shrinkage."
+#' Donoho, David L, and Johnstone, Iain M. (1994) \dQuote{Ideal spatial adaptation by wavelet shrinkage.}
 #' \emph{Biometrika} \strong{81.3}, 425-55.
 #' @examples
 #' x <- seq(0, 1, length = 2048)
@@ -75,7 +75,7 @@ blocks_dj94 <- function(x) {
 #' x <- seq(0, 1, length.out = 2048)
 #' plot(x, bumps_dj94(x), type = "l")
 #' @references
-#' Donoho, David L, and Johnstone, Iain M. (1994) "Ideal spatial adaptation by wavelet shrinkage."
+#' Donoho, David L, and Johnstone, Iain M. (1994) \dQuote{Ideal spatial adaptation by wavelet shrinkage.}
 #' \emph{Biometrika} \strong{81.3}, 425-55.
 #' @family DonohoJohnstone1994
 #' @rdname bumps
@@ -112,7 +112,7 @@ bumps_dj94 <- function(x) {
 #' @param b numeric. See description.
 #' @param c numeric. See description.
 #' @references
-#' Donoho, David L, and Johnstone, Iain M. (1994) "Ideal spatial adaptation by wavelet shrinkage."
+#' Donoho, David L, and Johnstone, Iain M. (1994) \dQuote{Ideal spatial adaptation by wavelet shrinkage.}
 #' \emph{Biometrika} \strong{81.3}, 425-55.
 #' @family DonohoJohnstone1994
 #' @examples
@@ -145,7 +145,7 @@ heavisine_dj94 <- function(x) {
 #' @param x numeric. See description.
 #' @param eps numeric. See description.
 #' @references
-#' Donoho, David L, and Johnstone, Iain M. (1994) "Ideal spatial adaptation by wavelet shrinkage."
+#' Donoho, David L, and Johnstone, Iain M. (1994) \dQuote{Ideal spatial adaptation by wavelet shrinkage.}
 #' \emph{Biometrika} \strong{81.3}, 425-55.
 #' @family DonohoJohnstone1994
 #' @examples
