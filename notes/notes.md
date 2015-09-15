@@ -143,12 +143,12 @@ The changepoint repository <http://www.changepoint.info/>.
 
 ## R packages
 
-- **changepoint**: @KillickEckley2014 . Mean, variance, and mean-variance changepoints using: binary segmentation, segment neighborhood, PELT
-- **strucchange**
-- **bcp** Bayesian change-point estimator
+- **changepoint**: [@KillickEckley2014] . Mean, variance, and mean-variance changepoints using: binary segmentation, segment neighborhood, PELT
+- **strucchange**[@ZeileisLeischHornikEtAl2002]
+- **bcp** [@ErdmanEmerson2007] Bayesian change-point estimator
 - **cpm** sequential non-parametric change
 - **sde**
-- MCMCpack functions for changepoints in linear normal, Poisson, ordered probit, and probit models: MCMCbinaryChange, MCMCoprobitChange, MCMCpoissonChange, MCMCregressChange
+- MCMCpack (@MartinQuinnPark2011a) functions for changepoints in linear normal, Poisson, ordered probit, and probit models: MCMCbinaryChange, MCMCoprobitChange, MCMCpoissonChange, MCMCregressChange
 - Hidden Markov Models for ChibAlgorithm: depmixS4
 
 ### Software for Dynamic linear models
@@ -214,3 +214,18 @@ Notes on papers
 ## Literature Review
 
 Use Giordani and Kohn (2008) as an example of spike / slab prior 
+
+- Political science
+
+    - @RatkovicEng2010
+    - @Park2010
+    - @Park2011
+    - @Spirling2007a
+    - @Spirling2007b
+    - @WesternKleykamp2004
+
+- least squares estimation of change point problem: @YauAu1989a, BoysenKempeLiebscherEtAl2009a, @LavielleMoulines2000a, @Lavielle2005a, @Lebarbier2005a
+- Bayesian change-point estimation: @Chib1998, @Fearnhead2006a
+- Total Variation Penalty with LASSO: @HarchaouiLevy-Leduc2010
+- Detecting multiple changepoint with linear cost (PELT): @KillickFearnheadEckley2012
+- Segment neighborhood algorithm (@BaiPerron1998, @BaiPerron2003a)
