@@ -125,7 +125,7 @@ The changepoint repository <http://www.changepoint.info/>.
 ### Shrinkage
 
 - Dirichlet-Laplace Priors: @BhattacharyaPatiPillaiEtAl2014
-- Generalized Double-Pareto: \cite{ArmaganDunsonLee2013a}
+- Generalized Double-Pareto: @ArmaganDunsonLee2013a
 - Horseshoe: [@CarvalhoPolsonScott2010, @CarvalhoPolsonScott2009, @DattaGhosh2012, @BhadraDattaPolsonEtAl2015a, @PasKleijnVaart2014a]
 
     - A simple sampler for the horseshoe estimator: MakalicSchmidt2015a
@@ -147,7 +147,6 @@ The changepoint repository <http://www.changepoint.info/>.
 - **strucchange**[@ZeileisLeischHornikEtAl2002]
 - **bcp** [@ErdmanEmerson2007] Bayesian change-point estimator
 - **cpm** sequential non-parametric change
-- **sde**
 - MCMCpack (@MartinQuinnPark2011a) functions for changepoints in linear normal, Poisson, ordered probit, and probit models: MCMCbinaryChange, MCMCoprobitChange, MCMCpoissonChange, MCMCregressChange
 - Hidden Markov Models for ChibAlgorithm: depmixS4
 
@@ -182,12 +181,6 @@ The changepoint repository <http://www.changepoint.info/>.
 - Mean correction simulation smoother: @DurbinKoopman2002
 - Sequential simulation smoother: @StricklandTurnerDenhamEtAl2009
 - Equivalence between state space models and ARMA: @Gilbert1993a
-
-## Trend Filtering
-
-- Hills
-- Doppler
-- Blocks
 
 
 ## Papers
@@ -229,3 +222,24 @@ Use Giordani and Kohn (2008) as an example of spike / slab prior
 - Total Variation Penalty with LASSO: @HarchaouiLevy-Leduc2010
 - Detecting multiple changepoint with linear cost (PELT): @KillickFearnheadEckley2012
 - Segment neighborhood algorithm (@BaiPerron1998, @BaiPerron2003a)
+
+# Structural Break Ideas
+
+## Auxiliary residuals
+
+Auxiliary residual is dividing the smoothed disturbances with the square root of their corresponding variances. These are similar to a two-tailed t-test.
+
+@CommandeurKoopman2007 p. 93-94, @DurbinKoopman2012, Ch 7.5
+
+See @HarveyKoopman1992, @DeJongPenzer1998.
+
+## Local variance values
+
+Posterior mean of the local variance values can be used to flag possible outliers. @PetrisPetroneCampagnoli2009 p. 179.
+They use Student's t distribution in their example.
+
+## Kalman gain or weights
+
+Use the filtered or smoothed weights of the estimator for observations previous to $t$. See @DurbinKoopmans2012
+
+
