@@ -1,0 +1,43 @@
+---
+title: "Blocks"
+author: "Jeffrey Arnold"
+date: "September 17, 2015"
+output: html_document
+---
+
+
+I compare the three cases considered in @HarchaouiLevy-Leduc2010
+
+1. Low noise: $\sigma = 0.05$
+2. Medium noise: $\sigma = 0.1$
+3. High Noise: $\sigma = 0.5$
+
+These three cases are each sub-sampled to 1,000 points.
+
+The blocks function is included in this project's R package **bsdlm** function `blocks_dj94`:
+```{r}
+library("bsdlm")
+blocks_fxn <- blocks_dj94(seq(0, 1, length.out = 1000))
+
+noise_sd <- c(low = 0.05, medium = 0.1, high = 0.5)
+```
+
+The low-noise case:
+```{r}
+blocks_fxn_low <- blocks_fxn + rnorm(length(blocks_fxn_low), 0, noise_sd["low"])
+```
+The medium-noise case:
+```{r}
+blocks_fxn_med <- blocks_fxn + rnorm(length(blocks_fxn_med), 0, noise_sd["medium"])
+```
+The high-noise case:
+```{r}
+blocks_fxn_med <- blocks_fxn + rnorm(length(blocks_fxn_med), 0, noise_sd["high"])
+```
+
+```{r}
+
+```
+
+
+
