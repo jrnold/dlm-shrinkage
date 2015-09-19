@@ -1,0 +1,467 @@
+---
+title: "Nile River Flows"
+author: "Jeffrey Arnold"
+date: "September 17, 2015"
+output: html_document
+---
+
+```{r results = 'hide', echo = FALSE, message = FALSE}
+knitr::opts_chunk[["set"]](cache = TRUE)
+library("ggplot2")
+library("dplyr")
+library("tidyr")
+library("rstan")
+options(mc.cores = parallel::detectCores())
+```
+
+
+I compare the three cases considered in @HarchaouiLevy-Leduc2010
+
+1. Low noise: $\sigma = 0.05$
+2. Medium noise: $\sigma = 0.1$
+3. High Noise: $\sigma = 0.5$
+
+These three cases are each sub-sampled to 1,000 points.
+
+The blocks function is included in this project's R package **bsdlm** function `blocks_dj94`:
+```{r messages = FALSE}
+STAN_DIR <- "../stan/"
+SEED <- 6714590
+
+data("Nile", package = "datasets")
+nile_df <- data_frame(year = as.numeric(time(Nile)),
+                      flow = as.numeric(Nile))
+
+nile_data <- 
+  list(y = nile_df[["flow"]],
+       miss = as.integer(is.na(nile_df[["flow"]])),
+       n = nrow(nile_df),
+       m0 = mean(nile_df[["flow"]]),
+       C0 = var(nile_df[["flow"]]) * 5,
+       s = sd(nile_df[["flow"]]) * 5
+       )
+
+```
+
+```{r}
+ggplot(nile_df, aes(x = year, y = flow)) + 
+  geom_point()
+```
+
+# Models
+
+## M0: Constant Mean
+
+$$
+\begin{aligned}[t]
+y_t &\sim N(\mu, \sigma^2) \\
+\mu &\sim N(m_0, C_0)
+\end{aligned}
+$$
+
+```{r}
+m0_model <- stan_model(file.path(STAN_DIR, "constant_mean.stan"))
+m0_ret <- sampling(m0_model,
+                   data = nile_data,
+                   seed = SEED)
+
+```
+
+```{r}
+m0_mu <- rstan::extract(m0_ret, "mu")[[1]]
+ggplot() +
+  geom_hline(yintercept = mean(m0_mu)) +
+  geom_ribbon(data = data_frame(year = nile_df[["year"]],
+                                ymin = quantile(m0_mu, 0.025),
+                                ymax = quantile(m0_mu, 0.975)),
+              mapping = aes(x = year, ymin = ymin, ymax = ymax),
+              alpha = 0.3) + 
+  geom_point(data = nile_df, mapping = aes(x = year, y = flow))
+```
+
+## M1: Dummies Model
+
+$$
+\begin{aligned}[t]
+y_t &\sim N(\alpha + X \omega, \sigma^2) \\
+\omega &\sim N(0, s) \\
+\alpha &\sim N(m_0, C_0)
+\end{aligned}
+$$
+
+```{r m1}
+m1_data <- within(nile_data, {
+  w <- sd(nile_df[["flow"]]) * 5
+  X <- matrix(as.integer(nile_df[["year"]] >= 1899))
+  M <- ncol(X) 
+})
+
+m1_model <- stan_model(file.path(STAN_DIR, "changepoint_dummies.stan"))
+m1_ret <- sampling(m1_model,
+                              data = m1_data,
+                              seed = SEED)
+
+```
+
+```{r m1_mu}
+m1_mu <- rstan::extract(m1_ret, "mu")[[1]]
+m1_mu_summary <-
+  nile_df %>%
+  mutate(mean = apply(m1_mu, 2, mean),
+         p025 = apply(m1_mu, 2, quantile, prob = 0.025),
+         p975 = apply(m1_mu, 2, quantile, prob = 0.975))
+
+ggplot(m1_mu_summary, aes(x = year)) + 
+  geom_point(mapping = aes(y = flow)) +
+  geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
+              alpha = 0.3) + 
+  geom_line(mapping = aes(y = mean))
+```
+
+
+## M2: Local Level
+
+$$
+\begin{aligned}[t]
+y_t &\sim N(\mu_t, \sigma^2) \\
+\mu_t &\sim N(\mu_{t-1}, \sigma^2 \tau^2)
+\sigma &\sim C^{+}(0, s) \\
+\tau &\sim C^{+}(0, w) \\
+\mu_0 &\sim N(m_0, C_0)
+\end{aligned}
+$$
+
+```{r m2}
+m2_data <- within(m1_data, {
+  w <- 1
+})
+m2_model <- stan_model(file.path(STAN_DIR, "local_level.stan"))
+m2_ret <- sampling(m2_model,
+                   data = m2_data,
+                   seed = SEED)
+```
+
+```{r m2_mu}
+m2_mu <- drop(rstan::extract(m2_ret, "mu")[[1]])[ , 2:101]
+m2_mu_summary <-
+  nile_df %>%
+  mutate(mean = apply(m2_mu, 2, mean),
+         p025 = apply(m2_mu, 2, quantile, prob = 0.025),
+         p975 = apply(m2_mu, 2, quantile, prob = 0.975))
+
+ggplot(m2_mu_summary, aes(x = year)) + 
+  geom_point(mapping = aes(y = flow)) +
+  geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
+              alpha = 0.3) + 
+  geom_line(mapping = aes(y = mean))
+```
+
+```{r m2_omega}
+m2_omega <- drop(rstan::extract(m2_ret, "omega")[[1]])
+m2_omega_summary <-
+  nile_df %>%
+  mutate(mean = apply(m2_omega, 2, mean),
+         p025 = apply(m2_omega, 2, quantile, prob = 0.025),
+         p975 = apply(m2_omega, 2, quantile, prob = 0.975))
+
+ggplot(m2_omega_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+```{r m2_kalman}
+m2_kalman <- drop(rstan::extract(m2_ret, "kalman")[[1]])
+m2_kalman_summary <-
+  nile_df %>%
+  mutate(mean = apply(m2_kalman, 2, mean),
+         p025 = apply(m2_kalman, 2, quantile, prob = 0.025),
+         p975 = apply(m2_kalman, 2, quantile, prob = 0.975))
+
+ggplot(m2_kalman_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+```{r}
+nile_struct <- StructTS(Nile, type = c("level"))
+```
+
+
+## M3: Cauchy
+
+$$
+\begin{aligned}[t]
+y_t &\sim N(\mu_t, \sigma^2) \\
+\mu_t &\sim N(\mu_{t-1}, \sigma^2 \tau^2 \lambda^2)
+\sigma &\sim C^{+}(0, s) \\
+\tau &\sim C^{+}(0, w) \\
+\lambda^2 &\sim \mathrm{InvGamma}(0.5 * \nu, 0.5 * nu) \\
+\mu_0 &\sim N(m_0, C_0)
+\end{aligned}
+$$
+
+```{r m3}
+m3_data <- within(m1_data, {
+  w <- 1 / length(y)
+  nu <- 1
+})
+m3_model <- stan_model(file.path(STAN_DIR, "changepoint_student_t.stan"))
+m3_ret <- sampling(m3_model,
+                   data = m3_data,
+                   seed = SEED)
+```
+
+```{r m3_mu}
+m3_mu <- drop(rstan::extract(m3_ret, "mu")[[1]])[ , 2:101]
+m3_mu_summary <-
+  nile_df %>%
+  mutate(mean = apply(m3_mu, 2, mean),
+         p025 = apply(m3_mu, 2, quantile, prob = 0.025),
+         p975 = apply(m3_mu, 2, quantile, prob = 0.975))
+
+ggplot(m3_mu_summary, aes(x = year)) + 
+  geom_point(mapping = aes(y = flow)) +
+  geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
+              alpha = 0.3) + 
+  geom_line(mapping = aes(y = mean))
+```
+
+```{r m3_omega}
+m3_omega <- drop(rstan::extract(m3_ret, "omega")[[1]])
+m3_omega_summary <-
+  nile_df %>%
+  mutate(mean = apply(m3_omega, 2, mean),
+         p025 = apply(m3_omega, 2, quantile, prob = 0.025),
+         p975 = apply(m3_omega, 2, quantile, prob = 0.975))
+
+ggplot(m3_omega_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+```{r m3_kalman}
+m3_kalman <- drop(rstan::extract(m3_ret, "kalman")[[1]])
+m3_kalman_summary <-
+  nile_df %>%
+  mutate(mean = apply(m3_kalman, 2, mean),
+         p025 = apply(m3_kalman, 2, quantile, prob = 0.025),
+         p975 = apply(m3_kalman, 2, quantile, prob = 0.975))
+
+ggplot(m3_kalman_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+## M4: Double Exponential (Laplace)
+
+$$
+\begin{aligned}[t]
+y_t &\sim N(\mu_t, \sigma^2) \\
+\mu_t &\sim N(\mu_{t-1}, \sigma^2 \tau^2 \lambda^2)
+\sigma &\sim C^{+}(0, s) \\
+\tau &\sim C^{+}(0, w) \\
+\lambda^2 &\sim \mathrm{Exp}(0.5) \\
+\mu_0 &\sim N(m_0, C_0)
+\end{aligned}
+$$
+
+```{r m4}
+m4_data <- within(m1_data, {
+  w <- 1 / length(y)
+  nu <- 1
+  miss <- as.integer(is.na(y))
+})
+m4_model <- stan_model(file.path(STAN_DIR, "changepoint_double_exponential.stan"))
+m4_ret <- sampling(m4_model,
+                   data = m4_data,
+                   seed = SEED)
+```
+
+```{r m4_mu}
+m4_mu <- drop(rstan::extract(m4_ret, "mu")[[1]])[ , 2:101]
+m4_mu_summary <-
+  nile_df %>%
+  mutate(mean = apply(m4_mu, 2, mean),
+         p025 = apply(m4_mu, 2, quantile, prob = 0.025),
+         p975 = apply(m4_mu, 2, quantile, prob = 0.975))
+
+ggplot(m4_mu_summary, aes(x = year)) + 
+  geom_point(mapping = aes(y = flow)) +
+  geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
+              alpha = 0.3) + 
+  geom_line(mapping = aes(y = mean))
+```
+
+```{r m4_omega}
+m4_omega <- drop(rstan::extract(m4_ret, "omega")[[1]])
+m4_omega_summary <-
+  nile_df %>%
+  mutate(mean = apply(m4_omega, 2, mean),
+         p025 = apply(m4_omega, 2, quantile, prob = 0.025),
+         p975 = apply(m4_omega, 2, quantile, prob = 0.975))
+
+ggplot(m4_omega_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+```{r m4_kalman}
+m4_kalman <- drop(rstan::extract(m4_ret, "kalman")[[1]])
+m4_kalman_summary <-
+  nile_df %>%
+  mutate(mean = apply(m4_kalman, 2, mean),
+         p025 = apply(m4_kalman, 2, quantile, prob = 0.025),
+         p975 = apply(m4_kalman, 2, quantile, prob = 0.975))
+
+ggplot(m4_kalman_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+
+
+## M5: Horseshoe
+
+$$
+\begin{aligned}[t]
+y_t &\sim N(\mu_t, \sigma^2) \\
+\mu_t &\sim N(\mu_{t-1}, \sigma^2 \tau^2 \lambda^2)
+\sigma &\sim C^{+}(0, s) \\
+\tau &\sim C^{+}(0, w) \\
+\lambda &\sim C^+(0, 1) \\
+\mu_0 &\sim N(m_0, C_0)
+\end{aligned}
+$$
+
+```{r m5}
+m5_data <- within(m1_data, {
+  w <- 1 / length(y)
+  miss <- as.integer(is.na(y))
+})
+m5_model <- stan_model(file.path(STAN_DIR, "changepoint_horseshoe.stan"))
+m5_ret <- sampling(m5_model,
+                   data = m5_data,
+                   seed = SEED)
+```
+
+```{r m5_mu}
+m5_mu <- drop(rstan::extract(m5_ret, "mu")[[1]])[ , 2:101]
+m5_mu_summary <-
+  nile_df %>%
+  mutate(mean = apply(m5_mu, 2, mean),
+         p025 = apply(m5_mu, 2, quantile, prob = 0.025),
+         p975 = apply(m5_mu, 2, quantile, prob = 0.975))
+
+ggplot(m5_mu_summary, aes(x = year)) + 
+  geom_point(mapping = aes(y = flow)) +
+  geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
+              alpha = 0.3) + 
+  geom_line(mapping = aes(y = mean))
+```
+
+```{r m5_omega}
+m5_omega <- drop(rstan::extract(m5_ret, "omega")[[1]])
+m5_omega_summary <-
+  nile_df %>%
+  mutate(mean = apply(m5_omega, 2, mean),
+         p025 = apply(m5_omega, 2, quantile, prob = 0.025),
+         p975 = apply(m5_omega, 2, quantile, prob = 0.975))
+
+ggplot(m5_omega_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+```{r m5_kalman}
+m5_kalman <- drop(rstan::extract(m5_ret, "kalman")[[1]])
+m5_kalman_summary <-
+  nile_df %>%
+  mutate(mean = apply(m5_kalman, 2, mean),
+         p025 = apply(m5_kalman, 2, quantile, prob = 0.025),
+         p975 = apply(m5_kalman, 2, quantile, prob = 0.975))
+
+ggplot(m5_kalman_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+
+## M6: Horseshoe+
+
+$$
+\begin{aligned}[t]
+y_t &\sim N(\mu_t, \sigma^2) \\
+\mu_t &\sim N(\mu_{t-1}, \sigma^2 \tau^2 \lambda_t^2)
+\sigma &\sim C^{+}(0, s) \\
+\tau &\sim C^{+}(0, w) \\
+\lambda_t &\sim C^+(0, \eta_t) \\
+\eta_t &\sim C^+(0, 1) \\
+\mu_0 &\sim N(m_0, C_0)
+\end{aligned}
+$$
+
+```{r m6}
+m6_data <- within(m1_data, {
+  w <- 1 / length(y) * 1000
+  miss <- as.integer(is.na(y))
+})
+m6_model <- stan_model(file.path(STAN_DIR, "changepoint_horseshoeplus.stan"))
+m6_ret <- sampling(m6_model,
+                   data = m6_data,
+                   seed = SEED)
+```
+
+```{r m6_mu}
+m6_mu <- drop(rstan::extract(m6_ret, "mu")[[1]])[ , 2:101]
+m6_mu_summary <-
+  nile_df %>%
+  mutate(mean = apply(m6_mu, 2, median),
+         p025 = apply(m6_mu, 2, quantile, prob = 0.025),
+         p975 = apply(m6_mu, 2, quantile, prob = 0.975))
+
+ggplot(m6_mu_summary, aes(x = year)) + 
+  geom_point(mapping = aes(y = flow)) +
+  geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
+              alpha = 0.3) + 
+  geom_line(mapping = aes(y = mean))
+```
+
+```{r m6_omega}
+m6_omega <- drop(rstan::extract(m6_ret, "omega")[[1]])
+m6_omega_summary <-
+  nile_df %>%
+  mutate(mean = apply(m6_omega, 2, mean),
+         p025 = apply(m6_omega, 2, quantile, prob = 0.025),
+         p975 = apply(m6_omega, 2, quantile, prob = 0.975))
+
+ggplot(m6_omega_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+
+```{r m6_lambda}
+m6_lambda <- drop(rstan::extract(m6_ret, "lambda")[[1]])
+m6_lambda_summary <-
+  nile_df %>%
+  mutate(mean = apply(m6_lambda, 2, mean),
+         p025 = apply(m6_lambda, 2, quantile, prob = 0.025),
+         p975 = apply(m6_lambda, 2, quantile, prob = 0.975))
+
+ggplot(m6_lambda_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+```{r m6_kalman}
+m6_kalman <- drop(rstan::extract(m6_ret, "kalman")[[1]])
+m6_kalman_summary <-
+  nile_df %>%
+  mutate(mean = apply(m6_kalman, 2, mean),
+         p025 = apply(m6_kalman, 2, quantile, prob = 0.025),
+         p975 = apply(m6_kalman, 2, quantile, prob = 0.975))
+
+ggplot(m6_kalman_summary, aes(x = year)) +
+  geom_hline(yintercept = 0, colour = "gray") +
+  geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```

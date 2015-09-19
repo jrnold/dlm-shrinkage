@@ -769,14 +769,13 @@ void dlm_discount_lp(int n, int r, int p,
 // Univariate Random Walk -------------------------------
 
 vector[] dlm_local_level_filter(int n,
-                                 vector y, int[] miss,
-                                 vector V, vector W,
-                                 real m0, real C0) {
+                                vector y, int[] miss,
+                                vector V, vector W,
+                                real m0, real C0) {
   // prior of state: p(theta | y_t, ..., y_{t-1})
   real a;
   real R;
   // likelihood of obs: p(y | y_t, ..., y_t-1)
-  vector[p] Fj;
   real f;
   real Q;
   real Q_inv;
@@ -808,17 +807,17 @@ vector[] dlm_local_level_filter(int n,
     } else {
       // PREDICT OBS
       // one step ahead predictive distribion of p(y_t | y_{1:(t-1)})
-      f <- a;
-      Q <- C + W[t];
-      Q_inv[j] <- 1.0 / Q;
+      f <- m;
+      Q <- C + V[t];
+      Q_inv <- 1.0 / Q;
       // forecast error
       e <- y[t] - f;
       // Kalman gain
-      K <- C * Q_inv[j];
+      K <- C * Q_inv;
       // FILTER STATES
       // posterior distribution of p(\theta_t | y_{1:t})
       m <- m + K * e;
-      C <- make_symmetric_matrix(C - pow(K, 2) * Q);
+      C <- C - pow(K, 2) * Q;
     }
     res[t + 1, 1] <- m;
     res[t + 1, 2] <- C;
@@ -830,10 +829,10 @@ vector[] dlm_local_level_filter(int n,
   return res;
 }
 
-vector[] dlm_local_level_loglik(int n,
-                                 vector y, int[] miss,
-                                 vector V, vector W,
-                                 real m0, real C0) {
+vector dlm_local_level_loglik(int n,
+                              vector y, int[] miss,
+                              vector V, vector W,
+                              real m0, real C0) {
   // prior of state: p(theta | y_t, ..., y_{t-1})
   real a;
   real R;
@@ -864,34 +863,50 @@ vector[] dlm_local_level_loglik(int n,
       e <- 0.0;
       Q_inv <- 0.0;
     } else {
-        // PREDICT OBS
-        // one step ahead predictive distribion of p(y_t | y_{1:(t-1)})
-        f <- a
-        Q <- C + W[t];
-        Q_inv[j] <- 1.0 / Q;
-        // forecast error
-        e <- y[t] - f;
-        // Kalman gain
-        K <- C * Q_inv;
-        // FILTER STATES
-        // posterior distribution of p(\theta_t | y_{1:t})
-        m <- m + K * e;
-        C <- make_symmetric_matrix(C - pow(K, 2) *  Q);
-        loglik[t] <- - 0.5 * (log(Q) + pow(e, 2) * Q_inv);
+      // PREDICT OBS
+      // one step ahead predictive distribion of p(y_t | y_{1:(t-1)})
+      f <- m;
+      Q <- C + V[t];
+      Q_inv <- 1.0 / Q;
+      // forecast error
+      e <- y[t] - f;
+      // Kalman gain
+      K <- C * Q_inv;
+      // FILTER STATES
+      // posterior distribution of p(\theta_t | y_{1:t})
+      m <- m + K * e;
+      C <- C - pow(K, 2) *  Q;
+      loglik[t] <- - 0.5 * (log(Q) + pow(e, 2) * Q_inv);
     }
   }
   return loglik;
 }
 
+vector dlm_local_level_filter_loglik(int n, vector[] v, int[] miss) {
+  vector[n] ll;
+  vector[1] err;
+  vector[1] Q_inv;
+  for (i in 1:n) {
+    err <- dlm_get_e(i, 1, 1, v);
+    Q_inv <- dlm_get_Q_inv(i, 1, 1, v);
+    if (int_step(miss[i])) {
+      ll[i] <- 0.0;
+    } else {
+      ll[i] <-  - 0.5 * (- log(Q_inv[1]) + (err[1] ^ 2) * Q_inv[1]);
+    }
+  }
+  return ll;
+}
+
 
 
 real dlm_local_level_log(int n,
-                           vector y, int[] miss,
-                           vector V, vector W,
-                           real m0, real C0) {
+                         vector y, int[] miss,
+                         vector V, vector W,
+                         real m0, real C0) {
   real ll;
   ll <- sum(dlm_local_level_loglik(n, y, miss,
-                                     V, W, m0, C0));
+                                   V, W, m0, C0));
   return ll;
 }
 

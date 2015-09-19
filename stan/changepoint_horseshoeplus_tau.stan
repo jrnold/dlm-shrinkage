@@ -930,17 +930,12 @@ data {
   real m0;
   real<lower = 0.0> C0;
   real<lower = 0.0> s;
-  real<lower = 0.0> w;
-}
-transformed data {
-  real one_over_n;
-  one_over_n <- 1.0 / n;
+  real<lower = 0.0> tau;
 }
 parameters {
   real<lower = 0.0> sigma;
-  real<lower = 0.0> tau;
-  vector<lower = 0.0>[n] lambda2;
-  real<lower = 0.0> nu;  
+  vector<lower = 0.0>[n] lambda;
+  vector<lower = 0.0>[n] eta;
 }
 transformed parameters {
   vector[n] log_lik;
@@ -948,7 +943,7 @@ transformed parameters {
   vector[n] W;
   
   for (i in 1:n) {
-    W[i] <- pow(sigma * tau * lambda2[i], 2);
+    W[i] <- pow(tau, 2) * pow(lambda[i], 2);
   }
   {
     vector[n] V;
@@ -962,9 +957,8 @@ model {
   real ll;
   
   sigma ~ cauchy(0.0, s);
-  tau ~ cauchy(0.0, w);
-  lambda2 ~ inv_gamma(0.5 * nu, 0.5 * nu);
-  nu ~ gamma(2.0, 0.1);
+  lambda ~ cauchy(0.0, eta);
+  eta ~ cauchy(0.0, 1.0);
   increment_log_prob(sum(log_lik));
 }
 generated quantities {
