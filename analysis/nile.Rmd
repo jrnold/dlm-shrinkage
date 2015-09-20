@@ -6,12 +6,20 @@ output: html_document
 ---
 
 ```{r results = 'hide', echo = FALSE, message = FALSE}
-knitr::opts_chunk[["set"]](cache = TRUE)
+knitr::opts_chunk[["set"]](cache = FALSE,
+                           fig.path = "figures/nile-",
+                           dev = 'pdf',
+                           fig.height = 4,
+                           fig.width = 6)
+library("rstan")
 library("ggplot2")
 library("dplyr")
 library("tidyr")
-library("rstan")
 options(mc.cores = parallel::detectCores())
+
+this <- new.env()
+
+theme_local <- theme_minimal
 ```
 
 
@@ -43,9 +51,13 @@ nile_data <-
 
 ```
 
-```{r}
+```{r nile}
 ggplot(nile_df, aes(x = year, y = flow)) + 
-  geom_point()
+  geom_point() + 
+  geom_vline(xintercept = 1899, colour = "red") + 
+  annotate("text", x = 1902, y = 1200, label = "Expected change point", hjust = 0,
+           colour = "red") +
+  theme_local()
 ```
 
 # Models
@@ -69,14 +81,17 @@ m0_ret <- sampling(m0_model,
 
 ```{r}
 m0_mu <- rstan::extract(m0_ret, "mu")[[1]]
-ggplot() +
-  geom_hline(yintercept = mean(m0_mu)) +
-  geom_ribbon(data = data_frame(year = nile_df[["year"]],
-                                ymin = quantile(m0_mu, 0.025),
-                                ymax = quantile(m0_mu, 0.975)),
-              mapping = aes(x = year, ymin = ymin, ymax = ymax),
-              alpha = 0.3) + 
-  geom_point(data = nile_df, mapping = aes(x = year, y = flow))
+m0_mu_summary <-
+  nile_df %>%
+  mutate(mean = mean(m0_mu),
+         p025 = quantile(m0_mu, prob = 0.025),
+         p975 = quantile(m0_mu, prob = 0.975))
+
+ggplot(m0_mu_summary, aes(x = year)) + 
+  geom_point(mapping = aes(y = flow)) +
+  geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
+              alpha = 0.3) +
+  geom_line(mapping = aes(y = mean))
 ```
 
 ## M1: Dummies Model
@@ -114,7 +129,7 @@ m1_mu_summary <-
 ggplot(m1_mu_summary, aes(x = year)) + 
   geom_point(mapping = aes(y = flow)) +
   geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
-              alpha = 0.3) + 
+              alpha = 0.3) +
   geom_line(mapping = aes(y = mean))
 ```
 
@@ -187,7 +202,7 @@ nile_struct <- StructTS(Nile, type = c("level"))
 ```
 
 
-## M3: Cauchy
+## M3: Student's $t$
 
 $$
 \begin{aligned}[t]
@@ -196,6 +211,7 @@ y_t &\sim N(\mu_t, \sigma^2) \\
 \sigma &\sim C^{+}(0, s) \\
 \tau &\sim C^{+}(0, w) \\
 \lambda^2 &\sim \mathrm{InvGamma}(0.5 * \nu, 0.5 * nu) \\
+\nu & \sim \mathrm{Gamma}(2, 0.1) \\
 \mu_0 &\sim N(m_0, C_0)
 \end{aligned}
 $$
@@ -464,4 +480,40 @@ m6_kalman_summary <-
 ggplot(m6_kalman_summary, aes(x = year)) +
   geom_hline(yintercept = 0, colour = "gray") +
   geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean))
+```
+
+## Model Comparison
+
+```{r}
+waic2df <- function(x) {
+  as_data_frame(x[names(x)[! names(x) %in% c("pointwise")]])
+}
+
+list(mutate(waic2df(waic(rstan::extract(m0_ret, "log_lik")[[1]])),
+            model = "Constant"),
+     mutate(waic2df(waic(t(rstan::extract(m1_ret, "log_lik")[[1]]))),
+            model = "Intervention"),
+      mutate(waic2df(waic(rstan::extract(m2_ret, "log_lik")[[1]])),
+            model = "Normal"),
+      mutate(waic2df(waic(rstan::extract(m3_ret, "log_lik")[[1]])),
+            model = "Student t"),
+      mutate(waic2df(waic(rstan::extract(m4_ret, "log_lik")[[1]])),
+            model = "Laplace"),
+      mutate(waic2df(waic(rstan::extract(m5_ret, "log_lik")[[1]])),
+            model = "Horseshoe"),
+      mutate(waic2df(waic(rstan::extract(m6_ret, "log_lik")[[1]])),
+            model = "Horseshoe+")) %>%
+  bind_rows()
+            
+            
+     
+
+
+```
+
+
+## Save Data
+
+```{r}
+saveRDS(as.list(this), file = "nile.rds")
 ```

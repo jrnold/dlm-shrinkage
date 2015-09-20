@@ -219,7 +219,7 @@ functions {
           // posterior distribution of p(\theta_t | y_{1:t})
           m <- m + K * e;
           C <- make_symmetric_matrix(C - K * Q * K ');
-          loglik[t, j] <- - 0.5 * (log(Q) + e ^ 2 * Q_inv);
+          loglik[t, j] <- - 0.5 * (log(2 * pi()) + log(Q) + e ^ 2 * Q_inv);
         }
       }
     }
@@ -440,7 +440,7 @@ functions {
         if (int_step(miss[i, j])) {
           ll[i, j] <- 0.0;
         } else {
-          ll[i, j] <-  - 0.5 * (- log(Q_inv[j]) + (err[j] ^ 2) * Q_inv[j]);
+          ll[i, j] <-  - 0.5 * (log(2 * pi()) - log(Q_inv[j]) + (err[j] ^ 2) * Q_inv[j]);
         }
       }
     }
@@ -731,7 +731,7 @@ functions {
           // posterior distribution of p(\theta_t | y_{1:t})
           m <- m + K * e;
           C <- make_symmetric_matrix(C - K * Q * K ');
-          loglik[t, j] <- - 0.5 * (log(Q) + e ^ 2 * Q_inv);
+          loglik[t, j] <- - 0.5 * (log(2 * pi()) + log(Q) + e ^ 2 * Q_inv);
         }
       }
     }
@@ -878,7 +878,7 @@ functions {
         // posterior distribution of p(\theta_t | y_{1:t})
         m <- m + K * e;
         C <- C - pow(K, 2) *  Q;
-        loglik[t] <- - 0.5 * (log(Q) + pow(e, 2) * Q_inv);
+        loglik[t] <- - 0.5 * (log(2 * pi()) + log(Q) + pow(e, 2) * Q_inv);
       }
     }
     return loglik;
@@ -894,7 +894,7 @@ functions {
       if (int_step(miss[i])) {
         ll[i] <- 0.0;
       } else {
-        ll[i] <-  - 0.5 * (- log(Q_inv[1]) + (err[1] ^ 2) * Q_inv[1]);
+        ll[i] <-  - 0.5 * (log(2 * pi()) - log(Q_inv[1]) + (err[1] ^ 2) * Q_inv[1]);
       }
     }
     return ll;

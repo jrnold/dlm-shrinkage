@@ -36,6 +36,19 @@ C_t &= Var(\theta_t | y_{1:t}) &&= R_t - R_t F_t' Q_t^{-1} F_t R_t \\
 \end{aligned}
 $$
 
+## Log-likelihood
+
+$$
+\begin{aligned}[t]
+L(Y_n) &= - \frac{1}{2} \sum{t = 1}^{n} \left( r \log(2 \pi) + \log\lvert Q_t\rvert + e'_t Q_t^{-1} e_t \right) \\
+       &= - \frac{r p}{2} \log(2 \pi) - \frac{1}{2} \sum{t = 1}^{n} \left(\log\lvert Q_t\rvert + e'_t Q_t^{-1} e_t \right) \\
+       &= - \frac{r p}{2} \log(2 \pi) - \frac{1}{2} \sum{t = 1}^{n} \left(- \log \lvert Q^{-1}_t \rvert + e'_t Q_t^{-1} e_t \right)
+\end{aligned}
+$$
+where the last line follows from the matrix identity $\lvert A \rvert = \frac{1}{\lvert A^{-1} \rvert}$.
+
+This is easily adjusted for the univariate case, and for missing values.
+
 ## Backward Smoother
 
 The FFBS (Petris et al., p. 161-162):

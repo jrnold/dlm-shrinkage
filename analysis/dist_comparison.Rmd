@@ -12,26 +12,75 @@ library("tidyr")
 library("VGAM")
 library("ggplot2")
 
-x <- seq(-3.5, 3.5, by=0.1)
+knitr::opts_chunk[["set"]](dev = 'pdf', fig.path = 'figures/dist-')
 
-hp <- dhp(x)
-hp[is.infinite(hp)] <- NA
-
-dist <- gather(data_frame(x = x,
-                        horseshoe = hp,
-                        normal = dnorm(x),
-                        cauchy = dcauchy(x),
-                        laplace = dlaplace(x)),
-               distribution, y, -x)
-
-gg1 <- (ggplot(dist, aes(x = x, y = y, colour = distribution))
-        + geom_line()
-        + theme_minimal(base_size = 10)
-        + scale_x_continuous("x")
-        + scale_y_continuous("p(x)"))
-
-gg1
 ```
+
+```{r plot_zeros, fig.height = 3, fig.width = 6}
+x <- c(-exp(seq(log(3.5), -10, length.out = 100)),
+        exp(seq(-10, log(3.5), length.out = 100)))
+
+dists_zero <-
+  gather(data_frame(x = x,
+                    Normal = dnorm(x),
+                    Cauchy = dcauchy(x),
+                    Laplace = dlaplace(x),
+                    Horseshoe = dhorseshoe(x),
+                    `Horseshoe+` = dhorseshoeplus(x)),
+         distribution, y, -x)
+
+dists_zero_ <- 
+  lapply(unique(dists_zero[["distribution"]]),
+              function(i) mutate(dists_zero,
+                                 highlight = (distribution == i),
+                                 distribution0 = i)) %>%
+  bind_rows() %>%
+  mutate(y = ifelse(is.infinite(y), NA, y))
+
+(ggplot(dists_zero_, aes(x = x, y = y, colour = highlight, group = distribution))
+        + geom_line()
+        + scale_colour_manual(values = c("TRUE" = "black", "FALSE" = scales::alpha("gray", 0.75)))
+        + scale_x_continuous("x")
+        + scale_y_continuous("p(x)", limits = c(0, 1.75))
+        + facet_wrap(~ distribution0, ncol = 2)
+        + theme_minimal(base_size = 10)
+        + theme(legend.position = "none", panel.grid = element_blank())
+)
+
+```
+
+```{r plot_tails, fig.height = 3, fig.width = 6}
+
+x <- exp(seq(log(3), log(8), length.out = 100))
+
+dists_tail <-
+  gather(data_frame(x = x,
+                    Normal = dnorm(x),
+                    Cauchy = dcauchy(x),
+                    Laplace = dlaplace(x),
+                    Horseshoe = dhorseshoe(x),
+                    `Horseshoe+` = dhorseshoeplus(x)),
+         distribution, y, -x)
+
+dists_tail_ <- 
+  lapply(unique(dists_zero[["distribution"]]),
+              function(i) mutate(dists_tail,
+                                 highlight = (distribution == i),
+                                 distribution0 = i)) %>%
+  bind_rows() %>%
+  mutate(y = ifelse(is.infinite(y), NA, y))
+
+(ggplot(dists_tail_, aes(x = x, y = y, colour = highlight, group = distribution))
+        + geom_line()
+        + scale_colour_manual(values = c("TRUE" = "black", "FALSE" = scales::alpha("gray", 0.75)))
+        + scale_x_continuous("x")
+        + scale_y_continuous("p(x)")
+        + facet_wrap(~ distribution0, ncol = 2)
+        + theme_minimal(base_size = 10)
+        + theme(legend.position = "none", panel.grid = element_blank()))
+
+```
+
 
 
 

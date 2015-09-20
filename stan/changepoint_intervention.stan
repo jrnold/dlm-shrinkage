@@ -11,16 +11,16 @@ data {
 }
 parameters {
   real<lower = 0.0> sigma;
-  real alpha;
+  real mu0;
   vector[M] omega;
 }
 transformed parameters {
   vector[n] mu;
-  mu <- alpha + X * omega;
+  mu <- mu0 + X * omega;
 }
 model {
-  alpha ~ normal(m0, C0);
-  omega ~ normal(0, w);
+  mu0 ~ normal(m0, C0);
+  omega ~ cauchy(0, w);
   sigma ~ cauchy(0, s);
   y ~ normal(mu, sigma);
 }
