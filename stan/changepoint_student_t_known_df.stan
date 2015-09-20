@@ -931,7 +931,7 @@ data {
   real<lower = 0.0> C0;
   real<lower = 0.0> s;
   real<lower = 0.0> w;
-  real<lower = 0.0> nu;  
+  real<lower = 0.0> nu;
 }
 transformed data {
   real one_over_n;
@@ -946,7 +946,7 @@ transformed parameters {
   vector[n] log_lik;
   vector[6] dlm[n + 1];
   vector[n] W;
-  
+
   for (i in 1:n) {
     W[i] <- pow(sigma * tau * lambda2[i], 2);
   }
@@ -960,7 +960,7 @@ transformed parameters {
 }
 model {
   real ll;
-  
+
   sigma ~ cauchy(0.0, s);
   tau ~ cauchy(0.0, w);
   lambda2 ~ inv_gamma(0.5 * nu, 0.5 * nu);
@@ -970,10 +970,11 @@ generated quantities {
   vector[1] mu[n + 1];
   vector[1] omega[n];
   vector[1] kalman[n];
+  vector[n] lambda;
 
   {
     matrix[1, 1] G_tv[n];
-    
+
     G_tv <- rep_array(rep_matrix(1.0, 1, 1), n);
     mu <- dlm_filter_bsample_rng(n, 1, 1, G_tv, dlm);
   }
@@ -983,5 +984,8 @@ generated quantities {
   for (i in 1:n) {
     kalman[i] <- dlm_get_C(i, 1, 1, dlm) * dlm_get_Q_inv(i, 1, 1, dlm);
   }
-  
+  for (i in 1:n) {
+    lambda[i] <- sqrt(lambda2[i]);
+  }
+
 }

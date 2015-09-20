@@ -30,7 +30,7 @@ generated quantities {
   vector[n] err_hat;
   vector[n] log_lik;
   for (i in 1:n) {
-    log_lik[i] <- normal_log(y[i], mu, sigma);
+    log_lik[i] <- normal_log(y[i], mu[i], sigma);
     err[i] <- mu[i] - y[i];
   }
   for (i in 1:n) {
