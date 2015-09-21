@@ -6,22 +6,140 @@ output: html_document
 ---
 
 ```{r results = 'hide', echo = FALSE, message = FALSE}
-knitr::opts_chunk[["set"]](cache = FALSE,
+knitr::opts_chunk[["set"]](cache =TRUE,
                            fig.path = "figures/nile-",
                            dev = 'pdf',
-                           fig.height = 4,
-                           fig.width = 6)
+                           fig.height = 1.66,
+                           fig.width = 3.2,
+                           autodep = TRUE)
 library("rstan")
 library("ggplot2")
 library("dplyr")
 library("tidyr")
+library("loo")
+library("xtable")
 options(mc.cores = parallel::detectCores())
 
 this <- new.env()
 
+tab_path <- "../analysis/tex"
+dir.create(tab_path, showWarnings = FALSE)
+
 theme_local <- theme_minimal
 ```
 
+
+```{r helper_funs}
+omega_summary <- function(x, param = "omega") {
+ omega <- drop(rstan::extract(x, param)[[1]])
+ nile_df %>%
+  mutate(mean = apply(omega, 2, mean),
+         median = apply(omega, 2, median),
+         sd = apply(omega, 2, sd),
+         z = mean / sd,
+         p25 = apply(omega, 2, quantile, prob = 0.25),
+         p75 = apply(omega, 2, quantile, prob = 0.75),
+         p16 = apply(omega, 2, quantile, prob = 0.16),
+         p84 = apply(omega, 2, quantile, prob = 0.84),
+         p025 = apply(omega, 2, quantile, prob = 0.025),
+         p975 = apply(omega, 2, quantile, prob = 0.975)) 
+}
+
+omega_plot <- function(.data) {
+  ggplot(.data, aes(x = year)) +
+    geom_hline(yintercept = 0, colour = "gray") +
+    geom_linerange(mapping = aes(ymin = p025, ymax = p975), colour = "gray") +
+    geom_point(mapping = aes(y = mean)) +
+    theme_local() + 
+    theme(panel.grid = element_blank())
+}
+
+omega_z_plot <- function(.data) {
+  ggplot(.data, aes(x = year, y = z)) +
+    geom_point() +
+    #geom_ribbon(ymin = -2, ymax = 2, alpha = 0.2) + 
+    geom_hline(yintercept = 0) + 
+    theme_minimal()
+}
+
+
+kalman_summary <- function(x, param = "kalman") {
+  kal <- drop(rstan::extract(x, param)[[1]])
+  nile_df %>%
+  mutate(mean = apply(kal, 2, mean),
+         median = apply(kal, 2, median),
+         p25 = apply(kal, 2, quantile, prob = 0.25),
+         p75 = apply(kal, 2, quantile, prob = 0.75),
+         p16 = apply(kal, 2, quantile, prob = 0.16),
+         p84 = apply(kal, 2, quantile, prob = 0.84),
+         p025 = apply(kal, 2, quantile, prob = 0.025),
+         p975 = apply(kal, 2, quantile, prob = 0.975))    
+}
+
+kalman_plot <- function(x) {
+  ggplot(x, aes(x = year)) +
+    geom_hline(yintercept = 0, colour = "gray") +
+    geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean)) +
+    theme_local()
+}
+
+mu_summary <- function(x, param = "mu") {
+  mu <- drop(rstan::extract(x, param)[[1]])
+  if (ncol(mu) == (nrow(nile_df) + 1)) {
+    mu <- mu[ , 2:ncol(mu)]
+  }
+  nile_df %>%
+  mutate(mean = apply(mu, 2, mean),
+         sd = apply(mu, 2, sd),
+         median = apply(mu, 2, median),
+         p25 = apply(mu, 2, quantile, prob = 0.25),
+         p75 = apply(mu, 2, quantile, prob = 0.75),
+         p16 = apply(mu, 2, quantile, prob = 0.16),
+         p84 = apply(mu, 2, quantile, prob = 0.84),
+         p025 = apply(mu, 2, quantile, prob = 0.025),
+         p975 = apply(mu, 2, quantile, prob = 0.975))  
+}
+
+mu_plot <- function(.data) {
+  ggplot(.data, aes(x = year)) + 
+    geom_ribbon(mapping = aes(ymin = p16, ymax = p84),
+                alpha = 0.3) +
+    geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
+                alpha = 0.3) +
+    geom_point(mapping = aes(y = flow), size = 1) +
+    geom_line(mapping = aes(y = mean)) +
+    ylab("") +
+    xlab("") + 
+    theme_local() +
+    theme(panel.grid = element_blank())
+}
+
+lambda_summary <- function(x, param = "lambda") {
+  lambda <- drop(rstan::extract(x, param)[[1]])
+  nile_df %>%
+  mutate(mean = apply(lambda, 2, mean),
+         sd = apply(lambda, 2, sd),
+         median = apply(lambda, 2, median),
+         p25 = apply(lambda, 2, quantile, prob = 0.25),
+         p75 = apply(lambda, 2, quantile, prob = 0.75),
+         p16 = apply(lambda, 2, quantile, prob = 0.16),
+         p84 = apply(lambda, 2, quantile, prob = 0.84),
+         p025 = apply(lambda, 2, quantile, prob = 0.025),
+         p975 = apply(lambda, 2, quantile, prob = 0.975))  
+}
+
+lambda_plot <- function(.data) {
+  ggplot(.data, aes(x = year)) +
+    geom_hline(yintercept = 0, colour = "gray") +
+    geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean)) +
+    theme_local()
+}
+
+dlm_err <- function(x, param = "dlm") {
+  rstan::extract(x, param)[[1]][ , -1, 5]
+}
+
+```
 
 I compare the three cases considered in @HarchaouiLevy-Leduc2010
 
@@ -51,14 +169,17 @@ nile_data <-
 
 ```
 
-```{r nile}
+```{r nile, fig.height = 2.5, fig.width = 6}
 ggplot(nile_df, aes(x = year, y = flow)) + 
   geom_point() + 
   geom_vline(xintercept = 1899, colour = "red") + 
   annotate("text", x = 1902, y = 1200, label = "Expected change point", hjust = 0,
            colour = "red") +
+  xlab("") +
   theme_local()
 ```
+
+
 
 # Models
 
@@ -71,7 +192,7 @@ y_t &\sim N(\mu, \sigma^2) \\
 \end{aligned}
 $$
 
-```{r}
+```{r m0}
 m0_model <- stan_model(file.path(STAN_DIR, "constant_mean.stan"))
 m0_ret <- sampling(m0_model,
                    data = nile_data,
@@ -79,114 +200,23 @@ m0_ret <- sampling(m0_model,
 
 ```
 
-```{r}
+```{r m0_mu}
 m0_mu_ <- rstan::extract(m0_ret, "mu")[[1]]
 m0_mu <-
   nile_df %>%
   mutate(mean = mean(m0_mu_),
          median = median(m0_mu_),
+         sd = sd(m0_mu_),
+         p25 = quantile(m0_mu_, prob = 0.25),
+         p75 = quantile(m0_mu_, prob = 0.75),
+         p16 = quantile(m0_mu_, prob = 0.025),
+         p84 = quantile(m0_mu_, prob = 0.975),
          p025 = quantile(m0_mu_, prob = 0.025),
          p975 = quantile(m0_mu_, prob = 0.975))
 
 mu_plot(m0_mu)
 ```
 
-```{r helper_funs}
-omega_summary <- function(x, param = "omega") {
- omega <- drop(rstan::extract(x, param)[[1]])
- nile_df %>%
-  mutate(mean = apply(omega, 2, mean),
-         median = apply(omega, 2, median),
-         sd = apply(omega, 2, sd),
-         z = mean / sd,
-         p25 = apply(omega, 2, quantile, prob = 0.25),
-         p75 = apply(omega, 2, quantile, prob = 0.75),
-         p025 = apply(omega, 2, quantile, prob = 0.025),
-         p975 = apply(omega, 2, quantile, prob = 0.975)) 
-}
-
-omega_plot <- function(.data) {
-  ggplot(.data, aes(x = year)) +
-    geom_hline(yintercept = 0, colour = "gray") +
-    geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean)) +
-    theme_local()
-}
-
-omega_z_plot <- function(.data) {
-  ggplot(.data, aes(x = year, y = z)) +
-    geom_point() +
-    geom_ribbon(ymin = -2, ymax = 2, alpha = 0.2) + 
-    geom_hline(yintercept = 0) + 
-    theme_minimal()
-}
-
-
-kalman_summary <- function(x, param = "kalman") {
-  kal <- drop(rstan::extract(x, param)[[1]])
-  nile_df %>%
-  mutate(mean = apply(kal, 2, mean),
-         median = apply(kal, 2, median),
-         p25 = apply(kal, 2, quantile, prob = 0.25),
-         p75 = apply(kal, 2, quantile, prob = 0.75),
-         p025 = apply(kal, 2, quantile, prob = 0.025),
-         p975 = apply(kal, 2, quantile, prob = 0.975))    
-}
-
-kalman_plot <- function(x) {
-  ggplot(x, aes(x = year)) +
-    geom_hline(yintercept = 0, colour = "gray") +
-    geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean)) +
-    theme_local()
-}
-
-mu_summary <- function(x, param = "mu") {
-  mu <- drop(rstan::extract(x, param)[[1]])
-  if (ncol(mu) == (nrow(nile_df) + 1)) {
-    mu <- mu[ , 2:ncol(mu)]
-  }
-  nile_df %>%
-  mutate(mean = apply(mu, 2, mean),
-         sd = apply(mu, 2, sd),
-         median = apply(mu, 2, median),
-         p25 = apply(mu, 2, quantile, prob = 0.25),
-         p75 = apply(mu, 2, quantile, prob = 0.75),
-         p025 = apply(mu, 2, quantile, prob = 0.025),
-         p975 = apply(mu, 2, quantile, prob = 0.975))  
-}
-
-mu_plot <- function(.data) {
-  ggplot(.data, aes(x = year)) + 
-    geom_point(mapping = aes(y = flow)) +
-    geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
-                alpha = 0.3) + 
-    geom_line(mapping = aes(y = mean)) +
-    theme_local()
-}
-
-lambda_summary <- function(x, param = "lambda") {
-  lambda <- drop(rstan::extract(x, param)[[1]])
-  nile_df %>%
-  mutate(mean = apply(lambda, 2, mean),
-         sd = apply(lambda, 2, sd),
-         median = apply(lambda, 2, median),
-         p25 = apply(lambda, 2, quantile, prob = 0.25),
-         p75 = apply(lambda, 2, quantile, prob = 0.75),
-         p025 = apply(lambda, 2, quantile, prob = 0.025),
-         p975 = apply(lambda, 2, quantile, prob = 0.975))  
-}
-
-lambda_plot <- function(.data) {
-  ggplot(.data, aes(x = year)) +
-    geom_hline(yintercept = 0, colour = "gray") +
-    geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean)) +
-    theme_local()
-}
-
-dlm_err <- function(x, param = "dlm") {
-  rstan::extract(x, param)[[1]][ , -1, 5]
-}
-
-```
 
 
 ## M1: Dummies Model
@@ -251,7 +281,7 @@ m2_omega <- omega_summary(m2_ret)
 omega_plot(m2_omega)
 ```
 
-```{r m2_omega}
+```{r m2_z_omega}
 omega_z_plot(m2_omega)
 ```
 
@@ -303,7 +333,7 @@ m3_omega <- omega_summary(m3_ret)
 omega_plot(m3_omega)
 ```
 
-```{r m3_omega}
+```{r m3_z_omega}
 omega_z_plot(m3_omega)
 ```
 
@@ -312,7 +342,7 @@ m3_kalman <- kalman_summary(m3_ret)
 kalman_plot(m3_kalman)
 ```
 
-```{r m3_kalman}
+```{r m3_lambda}
 m3_lambda <- lambda_summary(m3_ret)
 lambda_plot(m3_lambda)
 ```
@@ -353,7 +383,7 @@ m4_omega <- omega_summary(m4_ret)
 omega_plot(m4_omega)
 ```
 
-```{r m4_omega}
+```{r m4_z_omega}
 omega_z_plot(m4_omega)
 ```
 
@@ -362,7 +392,7 @@ m4_kalman <- kalman_summary(m4_ret)
 kalman_plot(m4_kalman)
 ```
 
-```{r}
+```{r m4_lambda}
 m4_lambda <- lambda_summary(m4_ret)
 lambda_plot(m4_lambda)
 ```
@@ -404,7 +434,7 @@ m5_omega <- omega_summary(m5_ret)
 omega_plot(m5_omega)
 ```
 
-```{r m5_omega}
+```{r m5_z_omega}
 omega_z_plot(m5_omega)
 ```
 
@@ -413,7 +443,7 @@ m5_kalman <- kalman_summary(m5_ret)
 kalman_plot(m5_kalman)
 ```
 
-```{r}
+```{r m5_lambda}
 m5_lambda <- lambda_summary(m5_ret)
 lambda_plot(m5_lambda)
 ```
@@ -456,7 +486,7 @@ m6_omega <- omega_summary(m6_ret)
 omega_plot(m6_omega)
 ```
 
-```{r m6_omega}
+```{r m6_z_omega}
 omega_z_plot(m6_omega)
 ```
 
@@ -465,7 +495,7 @@ m6_kalman <- kalman_summary(m6_ret)
 kalman_plot(m6_kalman)
 ```
 
-```{r}
+```{r m6_lambda}
 m6_lambda <- lambda_summary(m6_ret)
 lambda_plot(m6_lambda)
 ```
@@ -488,40 +518,108 @@ msae <- function(err) {
 }
 
 waic_loo <- list(mutate(waic2df(rstan::extract(m0_ret, "log_lik")[[1]]),
-            model = "Constant"),
+            model = "\\ModelII{Constant}"),
       mutate(waic2df(rstan::extract(m1_ret, "log_lik")[[1]]),
-            model = "Intervention"),
+            model = "\\ModelII{Intervention}"),
       mutate(waic2df(rstan::extract(m2_ret, "log_lik")[[1]]),
-            model = "Normal"),
+            model = "\\ModelII{Normal}"),
       mutate(waic2df(rstan::extract(m3_ret, "log_lik")[[1]]),
-            model = "Student t"),
+            model = "\\ModelII{StudentT}"),
       mutate(waic2df(rstan::extract(m4_ret, "log_lik")[[1]]),
-            model = "Laplace"),
+            model = "\\ModelII{Laplace}"),
       mutate(waic2df(rstan::extract(m5_ret, "log_lik")[[1]]),
-            model = "Horseshoe"),
+            model = "\\ModelII{Horseshoe}"),
       mutate(waic2df(rstan::extract(m6_ret, "log_lik")[[1]]),
-            model = "Horseshoe+")) %>%
+            model = "\\ModelII{Horseshoe+}")) %>%
   bind_rows()
 
 mse_mae <- list(mutate(msae(rstan::extract(m0_ret, "err")[[1]]),
-                    model = "Constant"),
+                    model = "\\ModelII{Constant}"),
               mutate(msae(rstan::extract(m1_ret, "err")[[1]]),
-                    model = "Intervention"),
+                    model = "\\ModelII{Intervention}"),
               mutate(msae(dlm_err(m2_ret)),
-                    model = "Normal"),
+                    model = "\\ModelII{Normal}"),
               mutate(msae(dlm_err(m3_ret)),
-                    model = "Student t"),
+                    model = "\\ModelII{StudentT}"),
               mutate(msae(dlm_err(m4_ret)),
-                    model = "Laplace"),
+                    model = "\\ModelII{Laplace}"),
               mutate(msae(dlm_err(m5_ret)),
-                    model = "Horseshoe"),
+                    model = "\\ModelII{Horseshoe}"),
               mutate(msae(dlm_err(m6_ret)),
-                    model = "Horseshoe+")) %>%
+                    model = "\\ModelII{Horseshoe+}")) %>%
   bind_rows()
 
 model_comp <- left_join(waic_loo, mse_mae, by = "model")
 
+model_comp %>%
+  select(model, mse, elpd_waic, elpd_loo) %>%
+  rename(`$\\mathrm{RMSE}$` = mse,
+         `$\\mathrm{elpd}_{WAIC}$` = elpd_waic,
+         `$\\mathrm{elpd}_{loo}$` = elpd_loo)  %>%
+  xtable() %>%
+  print(sanitize.text = identity,
+        floating = FALSE,
+        include.rownames = FALSE,
+        type = "latex",
+        file = file.path(tab_path, "nile-tab_model_comp.tex"))
+
 ```
+
+```{r model_comp_mu}
+mu_mse_mae <- function(x, mu_true) {
+  if (length(dim(x)) == 1) {
+    x_mean <- mean(x)
+    mse1 <- sqrt(mean((mu_true - x_mean) ^ 2))
+    mse2 <- mean(sqrt(sapply(mu_true, function(i) mean((i - x) ^ 2))))
+  } else {
+    x <- drop(x)[ , -1]
+    x_mean <- apply(x, 2, mean)
+    mse1 <- sqrt(mean((mu_true - x_mean) ^ 2))
+    mse2_ <- numeric(length(mu_true))
+    for (i in seq_along(mu_true)) {
+      mse2_[i] <- mean((x[ , i] - mu_true[i]) ^ 2)
+    }
+    mse2 <- mean(sqrt(mse2_))
+  }
+  data_frame(mse1 = mse1, mse2 = mse2)
+}
+
+mu_true <- m1_mu[["mean"]]
+
+model_comp_mu <- list(mutate(mu_mse_mae(rstan::extract(m0_ret, "mu")[[1]], mu_true),
+                    model = "\\ModelII{Constant}"),
+                mutate(mu_mse_mae(rstan::extract(m2_ret, "mu")[[1]], mu_true),
+                    model = "\\ModelII{Normal}"),
+                mutate(mu_mse_mae(rstan::extract(m3_ret, "mu")[[1]], mu_true),
+                    model = "\\ModelII{StudentT}"),
+              mutate(mu_mse_mae(rstan::extract(m4_ret, "mu")[[1]], mu_true),
+                    model = "\\ModelII{Laplace}"),
+              mutate(mu_mse_mae(rstan::extract(m5_ret, "mu")[[1]], mu_true),
+                    model = "\\ModelII{Horseshoe}"),
+              mutate(mu_mse_mae(rstan::extract(m6_ret, "mu")[[1]], mu_true),
+                    model = "\\ModelII{Horseshoe+}")) %>%
+  bind_rows()
+
+ggplot(gather(model_comp_mu, stat, value, - model),
+       aes(x = model, y = value)) +
+  geom_point() +
+  facet_wrap(~ stat, nrow = 2) +
+  coord_flip()
+
+model_comp_mu
+
+model_comp_mu %>%
+  select(model, mse1, mse2) %>%
+  rename(`$\\mathrm{MSE}_1(\\mu)$` = mse1, `$\\mathrm{MSE}_2(\\mu)$` = mse2)  %>%
+  xtable() %>%
+  print(sanitize.text = identity,
+        floating = FALSE,
+        include.rownames = FALSE,
+        type = "latex",
+        file = file.path(tab_path, "nile-tab_mu_model_comp.tex"))
+                         
+```
+
 
 
 ## Save Data
