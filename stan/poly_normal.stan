@@ -953,68 +953,77 @@ functions {
 }
 data {
   int<lower = 1> n;
-  vector[n] y;
-  int miss[n];
-  real m0;
-  real<lower = 0.0> C0;
+  int<lower = 1> p; // number of states, i.e. polynomial.
+  vector[1] y[n];
+  int miss[n, 1];
+  vector[p] m0;
+  matrix<lower = 0.0>[p, p] C0;
   real<lower = 0.0> s;
-  real<lower = 0.0> w;
+  vector<lower = 0.0>[p] w;  
 }
 transformed data {
-  real one_over_n;
-  one_over_n <- 1.0 / n;
+  vector[p] g[n];
+  vector[1] b[n];
+  matrix[1, p] F[n];
+  matrix[p, 2] G[n];
+  matrix[p, p] L;
+
+  for (i in 1:n) {
+    F[i] <- rep_matrix(0.0, 1, p);
+    F[i, 1, 1] <- 1.0;
+  }
+  g <- rep_array(rep_vector(0.0, p), n);
+  b <- rep_array(rep_vector(0.0, 1), n);
+  L <- rep_matrix(0.0, p, p);
+  for (i in 1:p) {
+    for (j in i:p) {
+      L[i, j] <- 1.0;
+    }
+  }
+  G <- rep_array(L, n);
+
 }
 parameters {
   real<lower = 0.0> sigma;
-  real<lower = 0.0> tau;
-  vector<lower = 0.0>[n] lambda2;
-  real<lower = 0.0> nu;
+  vector<lower = 0.0>[2] tau;
 }
 transformed parameters {
-  vector[n] log_lik;
-  vector[6] dlm[n + 1];
-  vector[n] W;
+  vector[1] log_lik[n];
+  vector[2 * p + 2 * p * p + 2] dlm[n + 1];
+  matrix[2, 2] W[n];
 
-  for (i in 1:n) {
-    W[i] <- pow(sigma * tau * lambda2[i], 2);
-  }
+  W <- rep_array(L * pow(sigma * tau[1], 2) * L ', n);
   {
-    vector[n] V;
-    V <- rep_vector(pow(sigma, 2), n);
-    dlm <- dlm_local_level_filter(n, y, miss, V, W, m0, C0);
-    log_lik <- dlm_local_level_filter_loglik(n, dlm, miss);
+    vector[1] V[n];
+    V <- rep_array(rep_vector(pow(sigma, 2), 1), n);
+    dlm <- dlm_filter(n, 1, p, y, miss, b, F, V, g, G, W, m0, C0);
+    log_lik <- dlm_filter_loglik(n, 1, p, dlm, miss);
   }
 
 }
 model {
-  real ll;
+  vector[n] ll;
 
   sigma ~ cauchy(0.0, s);
   tau ~ cauchy(0.0, w);
-  lambda2 ~ inv_gamma(0.5 * nu, 0.5 * nu);
-  nu ~ gamma(2.0, 0.1);
-  increment_log_prob(sum(log_lik));
+  for (i in 1:n) {
+    ll[i] <- log_lik[i, 1];
+  }
+  increment_log_prob(sum(ll));
 }
 generated quantities {
-  vector[1] mu[n + 1];
-  vector[1] omega[n];
-  vector[1] kalman[n];
-  vector[n] lambda;
+  vector[p] mu[n + 1];
+  vector[p] omega[n];
+  vector[p] kalman[n];
 
-  {
-    matrix[1, 1] G_tv[n];
-
-    G_tv <- rep_array(rep_matrix(1.0, 1, 1), n);
-    mu <- dlm_filter_bsample_rng(n, 1, 1, G_tv, dlm);
-  }
+ {
+   mu <- dlm_filter_bsample_rng(n, 1, p, G, dlm);
+ }
   for (i in 1:n) {
     omega[i] <- mu[i + 1] - mu[i];
   }
   for (i in 1:n) {
-    kalman[i] <- dlm_get_C(i, 1, 1, dlm) * dlm_get_Q_inv(i, 1, 1, dlm);
-  }
-  for (i in 1:n) {
-    lambda[i] <- sqrt(lambda2[i]);
+    kalman[i] <- dlm_get_C(i, 1, p, dlm) * F[i] ' * dlm_get_Q_inv(i, 1, p, dlm);
   }
 
 }

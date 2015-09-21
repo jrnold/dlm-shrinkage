@@ -16,7 +16,7 @@ matrix to_matrix_wdim(vector v, int r, int c) {
   matrix[r, c] res;
   for (j in 1:c) {
     for (i in 1:r) {
-      res[i, j] <- v[(j - 1) * (r * c) + i];
+      res[i, j] <- v[(j - 1) * r + i];
     }
   }
   return res;
@@ -29,12 +29,16 @@ Kalman Filter
 - int r: number of variables
 - int p: number of states
 - vector[n] y: observations
-- int miss[n]: 1 if y is missing, 0 otherwise
+- int miss[r, n]: 1 if y is missing, 0 otherwise
 - vector[n] b: See definition
-- vector[p] F[n]
+- matrix[p] F[n]
 - vector[p] V[n]
 - vector[p] g[n]
-- vector[n]
+- vector[p, p] G[n]
+- vector[p, p] W[n]
+- vector[p] m0
+- matrix[p, p] C0
+
 
 Returns
 
@@ -79,8 +83,23 @@ vector[] dlm_filter(int n, int r, int p,
   vector[p * p] C_vec;
   vector[p * p] R_vec;
 
+  // print("g = ", g);
+  //   print("G = ", G);
+  //   print("b = ", b);
+  //   print("F = ", F);
+  //   print("V = ", V);
+  //   print("W = ", W);
+  //   print("m0 = ", m0);
+  //   print("C0 = ", C0);
+  //   print("y = ", y);
+  //   print("miss = ", miss);
+
+  
   m <- m0;
   C <- C0;
+  // print("t=", 0, ", m=", m);
+  // print("t=", 0, ", C=", C);
+
   res[1] <- rep_vector(0.0, dlm_filter_return_size(r, p));
   for(i in 1:p) {
     res[1, i] <- m[i];
@@ -96,14 +115,17 @@ vector[] dlm_filter(int n, int r, int p,
     R <- quad_form(C, G[t] ') + W[t];
     m <- a;
     C <- R;
+    // print("t=", t, ", a=", a);
+    // print("t=", t, ", R=", R);
     for (j in 1:r) {
       if (int_step(miss[t, j])) {
         e[j] <- 0.0;
         Q_inv[j] <- 0.0;
       } else {
+        // print("t = ", t, ", predict");
         // PREDICT OBS
         // one step ahead predictive distribion of p(y_t | y_{1:(t-1)})
-        Fj <- F[t, j] ';
+        Fj <- row(F[t], j) ';
         f <- b[t, j] + dot_product(Fj, m);
         Q <- quad_form(C, Fj) + V[t, j];
         Q_inv[j] <- 1.0 / Q;
@@ -111,11 +133,17 @@ vector[] dlm_filter(int n, int r, int p,
         e[j] <- y[t, j] - f;
         // Kalman gain
         K <- C * Fj * Q_inv[j];
+        // print("t = ", t, ", filter");
         // FILTER STATES
         // posterior distribution of p(\theta_t | y_{1:t})
         m <- m + K * e[j];
         C <- make_symmetric_matrix(C - K * Q * K ');
       }
+      // print("t=", t, ", j=", j, ", m=", m);
+      // print("t=", t, ", j=", j, ", C=", C);
+      // print("t=", t, ", j=", j, ", Q_inv=", Q_inv);
+      // print("t=", t, ", j=", j, ", f=", f);
+      // print(" ");
     }
     for(i in 1:p) {
       res[t + 1, i] <- m[i];

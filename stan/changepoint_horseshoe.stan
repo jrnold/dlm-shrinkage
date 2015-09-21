@@ -18,7 +18,7 @@ functions {
     matrix[r, c] res;
     for (j in 1:c) {
       for (i in 1:r) {
-        res[i, j] <- v[(j - 1) * (r * c) + i];
+        res[i, j] <- v[(j - 1) * r + i];
       }
     }
     return res;
@@ -31,12 +31,16 @@ functions {
   - int r: number of variables
   - int p: number of states
   - vector[n] y: observations
-  - int miss[n]: 1 if y is missing, 0 otherwise
+  - int miss[r, n]: 1 if y is missing, 0 otherwise
   - vector[n] b: See definition
-  - vector[p] F[n]
+  - matrix[p] F[n]
   - vector[p] V[n]
   - vector[p] g[n]
-  - vector[n]
+  - vector[p, p] G[n]
+  - vector[p, p] W[n]
+  - vector[p] m0
+  - matrix[p, p] C0
+
 
   Returns
 
@@ -81,8 +85,23 @@ functions {
     vector[p * p] C_vec;
     vector[p * p] R_vec;
 
+    // print("g = ", g);
+    //   print("G = ", G);
+    //   print("b = ", b);
+    //   print("F = ", F);
+    //   print("V = ", V);
+    //   print("W = ", W);
+    //   print("m0 = ", m0);
+    //   print("C0 = ", C0);
+    //   print("y = ", y);
+    //   print("miss = ", miss);
+
+    
     m <- m0;
     C <- C0;
+    // print("t=", 0, ", m=", m);
+    // print("t=", 0, ", C=", C);
+
     res[1] <- rep_vector(0.0, dlm_filter_return_size(r, p));
     for(i in 1:p) {
       res[1, i] <- m[i];
@@ -98,14 +117,17 @@ functions {
       R <- quad_form(C, G[t] ') + W[t];
       m <- a;
       C <- R;
+      // print("t=", t, ", a=", a);
+      // print("t=", t, ", R=", R);
       for (j in 1:r) {
         if (int_step(miss[t, j])) {
           e[j] <- 0.0;
           Q_inv[j] <- 0.0;
         } else {
+          // print("t = ", t, ", predict");
           // PREDICT OBS
           // one step ahead predictive distribion of p(y_t | y_{1:(t-1)})
-          Fj <- F[t, j] ';
+          Fj <- row(F[t], j) ';
           f <- b[t, j] + dot_product(Fj, m);
           Q <- quad_form(C, Fj) + V[t, j];
           Q_inv[j] <- 1.0 / Q;
@@ -113,11 +135,17 @@ functions {
           e[j] <- y[t, j] - f;
           // Kalman gain
           K <- C * Fj * Q_inv[j];
+          // print("t = ", t, ", filter");
           // FILTER STATES
           // posterior distribution of p(\theta_t | y_{1:t})
           m <- m + K * e[j];
           C <- make_symmetric_matrix(C - K * Q * K ');
         }
+        // print("t=", t, ", j=", j, ", m=", m);
+        // print("t=", t, ", j=", j, ", C=", C);
+        // print("t=", t, ", j=", j, ", Q_inv=", Q_inv);
+        // print("t=", t, ", j=", j, ", f=", f);
+        // print(" ");
       }
       for(i in 1:p) {
         res[t + 1, i] <- m[i];
@@ -932,6 +960,13 @@ data {
   real<lower = 0.0> s;
   real<lower = 0.0> w;
 }
+transformed data {
+  matrix[2, 2] L;
+  L[1, 1] <- 1.0;
+  L[1, 2] <- 1.0;
+  L[2, 1] <- 0.0;
+  L[2, 2] <- 1.0;
+}
 parameters {
   real<lower = 0.0> sigma;
   real<lower = 0.0> tau;
@@ -941,7 +976,7 @@ transformed parameters {
   vector[n] log_lik;
   vector[6] dlm[n + 1];
   vector[n] W;
-  
+
   for (i in 1:n) {
     W[i] <- pow(sigma * tau * lambda[i], 2);
   }
@@ -955,7 +990,7 @@ transformed parameters {
 }
 model {
   real ll;
-  
+
   sigma ~ cauchy(0.0, s);
   tau ~ cauchy(0.0, w);
   lambda ~ cauchy(0.0, 1);
@@ -968,7 +1003,7 @@ generated quantities {
 
   {
     matrix[1, 1] G_tv[n];
-    
+
     G_tv <- rep_array(rep_matrix(1.0, 1, 1), n);
     mu <- dlm_filter_bsample_rng(n, 1, 1, G_tv, dlm);
   }
@@ -978,5 +1013,5 @@ generated quantities {
   for (i in 1:n) {
     kalman[i] <- dlm_get_C(i, 1, 1, dlm) * dlm_get_Q_inv(i, 1, 1, dlm);
   }
-  
+
 }

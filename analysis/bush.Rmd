@@ -1,0 +1,186 @@
+---
+title: "George W. Bush Approval Ratings"
+author: "Jeffrey Arnold"
+date: "September 17, 2015"
+output: html_document
+---
+
+```{r results = 'hide', echo = FALSE, message = FALSE}
+knitr::opts_chunk[["set"]](cache =TRUE,
+                           fig.path = "figures/nile-",
+                           dev = 'pdf',
+                           fig.height = 1.66,
+                           fig.width = 3.2,
+                           autodep = TRUE)
+library("rstan")
+library("ggplot2")
+library("dplyr")
+library("tidyr")
+library("loo")
+library("xtable")
+library("bsdlm")
+options(mc.cores = parallel::detectCores())
+
+this <- new.env()
+
+tab_path <- "../analysis/tex"
+dir.create(tab_path, showWarnings = FALSE)
+
+STAN_DIR <- "../stan/"
+SEED <- 6714590
+
+theme_local <- theme_minimal
+```
+
+
+```{r helper_funs}
+omega_summary <- function(x, param = "omega") {
+ omega <- drop(rstan::extract(x, param)[[1]])
+ nile_df %>%
+  mutate(mean = apply(omega, 2, mean),
+         median = apply(omega, 2, median),
+         sd = apply(omega, 2, sd),
+         z = mean / sd,
+         p25 = apply(omega, 2, quantile, prob = 0.25),
+         p75 = apply(omega, 2, quantile, prob = 0.75),
+         p16 = apply(omega, 2, quantile, prob = 0.16),
+         p84 = apply(omega, 2, quantile, prob = 0.84),
+         p025 = apply(omega, 2, quantile, prob = 0.025),
+         p975 = apply(omega, 2, quantile, prob = 0.975)) 
+}
+
+omega_plot <- function(.data) {
+  ggplot(.data, aes(x = year)) +
+    geom_hline(yintercept = 0, colour = "gray") +
+    geom_linerange(mapping = aes(ymin = p025, ymax = p975), colour = "gray") +
+    geom_point(mapping = aes(y = mean)) +
+    theme_local() + 
+    theme(panel.grid = element_blank())
+}
+
+omega_z_plot <- function(.data) {
+  ggplot(.data, aes(x = year, y = z)) +
+    geom_point() +
+    #geom_ribbon(ymin = -2, ymax = 2, alpha = 0.2) + 
+    geom_hline(yintercept = 0) + 
+    theme_minimal()
+}
+
+
+kalman_summary <- function(x, param = "kalman") {
+  kal <- drop(rstan::extract(x, param)[[1]])
+  nile_df %>%
+  mutate(mean = apply(kal, 2, mean),
+         median = apply(kal, 2, median),
+         p25 = apply(kal, 2, quantile, prob = 0.25),
+         p75 = apply(kal, 2, quantile, prob = 0.75),
+         p16 = apply(kal, 2, quantile, prob = 0.16),
+         p84 = apply(kal, 2, quantile, prob = 0.84),
+         p025 = apply(kal, 2, quantile, prob = 0.025),
+         p975 = apply(kal, 2, quantile, prob = 0.975))    
+}
+
+kalman_plot <- function(x) {
+  ggplot(x, aes(x = year)) +
+    geom_hline(yintercept = 0, colour = "gray") +
+    geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean)) +
+    theme_local()
+}
+
+mu_summary <- function(x, param = "mu") {
+  mu <- drop(rstan::extract(x, param)[[1]])
+  if (ncol(mu) == (nrow(nile_df) + 1)) {
+    mu <- mu[ , 2:ncol(mu)]
+  }
+  nile_df %>%
+  mutate(mean = apply(mu, 2, mean),
+         sd = apply(mu, 2, sd),
+         median = apply(mu, 2, median),
+         p25 = apply(mu, 2, quantile, prob = 0.25),
+         p75 = apply(mu, 2, quantile, prob = 0.75),
+         p16 = apply(mu, 2, quantile, prob = 0.16),
+         p84 = apply(mu, 2, quantile, prob = 0.84),
+         p025 = apply(mu, 2, quantile, prob = 0.025),
+         p975 = apply(mu, 2, quantile, prob = 0.975))  
+}
+
+mu_plot <- function(.data) {
+  ggplot(.data, aes(x = year)) + 
+    geom_ribbon(mapping = aes(ymin = p16, ymax = p84),
+                alpha = 0.3) +
+    geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
+                alpha = 0.3) +
+    geom_point(mapping = aes(y = flow), size = 1) +
+    geom_line(mapping = aes(y = mean)) +
+    ylab("") +
+    xlab("") + 
+    theme_local() +
+    theme(panel.grid = element_blank())
+}
+
+lambda_summary <- function(x, param = "lambda") {
+  lambda <- drop(rstan::extract(x, param)[[1]])
+  nile_df %>%
+  mutate(mean = apply(lambda, 2, mean),
+         sd = apply(lambda, 2, sd),
+         median = apply(lambda, 2, median),
+         p25 = apply(lambda, 2, quantile, prob = 0.25),
+         p75 = apply(lambda, 2, quantile, prob = 0.75),
+         p16 = apply(lambda, 2, quantile, prob = 0.16),
+         p84 = apply(lambda, 2, quantile, prob = 0.84),
+         p025 = apply(lambda, 2, quantile, prob = 0.025),
+         p975 = apply(lambda, 2, quantile, prob = 0.975))  
+}
+
+lambda_plot <- function(.data) {
+  ggplot(.data, aes(x = year)) +
+    geom_hline(yintercept = 0, colour = "gray") +
+    geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean)) +
+    theme_local()
+}
+
+dlm_err <- function(x, param = "dlm") {
+  rstan::extract(x, param)[[1]][ , -1, 5]
+}
+
+```
+
+```{r}
+data("BushApproval", package = "bsdlm")
+```
+
+```{r fig.height = 3, fig.width = 6}
+ggplot(BushApproval, aes(x = end_date, y = approve)) +
+  geom_point() +
+  annotate("text", x = as.Date("2001-9-11"), y = 70, label = "9/11", colour = "red") +
+  annotate("text", x = as.Date("2003-6-01"), y = 75, label = "Iraq War start", colour = "red") +
+  theme_local() +
+  xlab("") +
+  ylab("% Approve")
+```
+
+```{r}
+m1_data <-
+  within(list(), {
+    y <- matrix(BushApproval$approve[1:10])
+    n <- length(y)
+    p <- 2
+    miss <- matrix(as.integer(is.na(y)))
+    m0 <- c(BushApproval$approve[1], 0)
+    C0 <- matrix(c(2, 1, 1, 1), 2, 2) * rep(var(BushApproval$approve[1:10]) * 2, 2)
+    s <- sqrt(0.5 * (1 - 0.5) / 1000) # standard error of poll of size 1000
+    w <- rep(1, 2)
+  })
+m1 <- stan_model(file.path(STAN_DIR, "poly_normal.stan"))
+
+m1_ret <- sampling(m1, data = m1_data, chains = 1, iter = 1)
+```
+
+
+
+
+## Save Data
+
+```{r}
+saveRDS(as.list(this), file = "bush.rds")
+```

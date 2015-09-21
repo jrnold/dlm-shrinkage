@@ -953,68 +953,77 @@ functions {
 }
 data {
   int<lower = 1> n;
-  vector[n] y;
+  int<lower = 1> p; // number of states, i.e. polynomial.
+  vector[1] y[n];
   int miss[n];
   real m0;
   real<lower = 0.0> C0;
   real<lower = 0.0> s;
-  real<lower = 0.0> w;
+  vector<lower = 0.0>[2] w;
 }
 transformed data {
-  real one_over_n;
-  one_over_n <- 1.0 / n;
+  vector[1] g[n];
+  vector[1] b[n];
+  matrix[2, 1] F[n];
+  matrix[2, 2] G[n];
+  matrix[2, 2] L;
+
+  for (i in 1:n) {
+    F <- rep_matrix(0.0, 1, p);
+    F[1, 1, i] <- 1.0;
+  }
+  g <- rep_array(rep_vector(0.0, 1), n);
+  b <- rep_array(rep_vector(0.0, 1), n);
+  G <- rep_array(L, n);
+
 }
 parameters {
   real<lower = 0.0> sigma;
-  real<lower = 0.0> tau;
-  vector<lower = 0.0>[n] lambda2;
-  real<lower = 0.0> nu;
+  vector<lower = 0.0>[2] tau;
+  vector<lower = 0.0>[2] lambda[n];
 }
 transformed parameters {
-  vector[n] log_lik;
-  vector[6] dlm[n + 1];
-  vector[n] W;
+  vector[1] log_lik[n];
+  vector[dlm_filter_return_size(1, p)] dlm[n + 1];
+  vector[2] W[n];
 
   for (i in 1:n) {
-    W[i] <- pow(sigma * tau * lambda2[i], 2);
+    W[i] <- L * pow(sigma * tau[1] * lambda[i], 2) * L ' ;
   }
   {
     vector[n] V;
     V <- rep_vector(pow(sigma, 2), n);
-    dlm <- dlm_local_level_filter(n, y, miss, V, W, m0, C0);
-    log_lik <- dlm_local_level_filter_loglik(n, dlm, miss);
+    dlm <- dlm_filter(n, 1, p, y, miss, b, F, V, g, G, W, m0, C0);
+    log_lik <- dlm_loglik(n, 1, p, dlm, miss);
   }
 
 }
 model {
-  real ll;
+  vector[n] ll;
 
   sigma ~ cauchy(0.0, s);
-  tau ~ cauchy(0.0, w);
-  lambda2 ~ inv_gamma(0.5 * nu, 0.5 * nu);
-  nu ~ gamma(2.0, 0.1);
-  increment_log_prob(sum(log_lik));
+  for (i in 1:n) {
+      tau[i] ~ cauchy(0.0, w);
+      lambda[i] ~ cauchy(0.0, 1);
+  }
+  for (i in 1:n) {
+    ll[i] <- log_lik[1];
+  }
+  increment_log_prob(sum(ll));
 }
 generated quantities {
-  vector[1] mu[n + 1];
-  vector[1] omega[n];
-  vector[1] kalman[n];
-  vector[n] lambda;
+  vector[p] mu[n + 1];
+  vector[p] omega[n];
+  vector[p] kalman[n];
 
-  {
-    matrix[1, 1] G_tv[n];
-
-    G_tv <- rep_array(rep_matrix(1.0, 1, 1), n);
-    mu <- dlm_filter_bsample_rng(n, 1, 1, G_tv, dlm);
-  }
+ {
+   mu <- dlm_filter_bsample_rng(n, 1, p, G, dlm);
+ }
   for (i in 1:n) {
     omega[i] <- mu[i + 1] - mu[i];
   }
   for (i in 1:n) {
-    kalman[i] <- dlm_get_C(i, 1, 1, dlm) * dlm_get_Q_inv(i, 1, 1, dlm);
-  }
-  for (i in 1:n) {
-    lambda[i] <- sqrt(lambda2[i]);
+    kalman[i] <- dlm_get_C(i, 1, p, dlm) * F[i] * dlm_get_Q_inv(i, 1, p, dlm);
   }
 
 }
