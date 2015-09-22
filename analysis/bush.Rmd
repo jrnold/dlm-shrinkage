@@ -5,11 +5,11 @@ date: "September 17, 2015"
 output: html_document
 ---
 
-```{r results = 'hide', echo = FALSE, message = FALSE}
+```{r header, results = 'hide', echo = FALSE, message = FALSE}
 knitr::opts_chunk[["set"]](cache =TRUE,
                            fig.path = "figures/bush-",
                            dev = 'pdf',
-                           fig.height = 2, fig.width = 3,
+                           fig.height = 4, fig.width = 6,
                            autodep = TRUE)
 library("rstan")
 library("ggplot2")
@@ -50,11 +50,13 @@ omega_summary <- function(x, param = "omega", k = 1) {
 }
 
 omega_plot <- function(.data, k = 1) {
-  dat <- bind_cols(filter(.data, dim == k), BushApproval)
-  ggplot(dat, aes(x = date)) +
+  dat <- bind_cols(filter(.data, dim == k),
+                   select(BushApproval, end_date))
+  ggplot(dat, aes(x = end_date)) +
     geom_hline(yintercept = 0, colour = "gray") +
-    geom_linerange(mapping = aes(ymin = p025, ymax = p975), colour = "gray") +
-    geom_point(mapping = aes(y = mean)) +
+    #geom_linerange(mapping = aes(ymin = p025, ymax = p975), colour = "gray") +
+    #geom_point(mapping = aes(y = mean)) +
+    geom_line(mapping = aes(y = mean)) +
     theme_local() + 
     theme(panel.grid = element_blank())
 }
@@ -97,7 +99,7 @@ dlm_err <- function(x, param = "dlm") {
 
 ```
 
-```{r}
+```{r BushApproval}
 data("BushApproval", package = "bsdlm")
 ```
 
@@ -152,7 +154,7 @@ m2 <- stan_model(file.path(STAN_DIR, "poly_horseshoe.stan"))
 ```
 
 
-```{r mu_ret}
+```{r m2_ret}
 m2_data <-
   within(m1_data, {
     w <- rep(1 / n, 2)
@@ -167,8 +169,18 @@ summary(m2_ret, par = c("sigma", "tau"))
 ```{r m2_mu}
 m2_mu <- mu_summary(m2_ret)
 mu_plot(m2_mu)
-
 ```
+
+```{r m2_omega_1}
+m2_omega <- omega_summary(m2_ret)
+omega_plot(m2_omega, k = 1)
+```
+
+```{r m2_omega_2}
+omega_plot(m2_omega, k = 2)
+```
+
+
 
 ## Normal with interventions
 
@@ -188,8 +200,18 @@ m3_ret <- sampling(m3, data = m3_data, seed = SEED)
 ```{r m3_mu}
 m3_mu <- mu_summary(m3_ret)
 mu_plot(m3_mu)
-
 ```
+
+```{r m3_omega_1}
+m3_omega <- omega_summary(m3_ret)
+omega_plot(m3_omega, k = 1)
+```
+
+```{r m3_omega_2}
+omega_plot(m3_omega, k = 2)
+```
+
+
 
 ## Horseshoe+
 
@@ -198,10 +220,10 @@ m4 <- stan_model(file.path(STAN_DIR, "poly_horseshoeplus.stan"))
 ```
 
 
-```{r mu_ret}
+```{r mu4_ret}
 m4_data <-
   within(m1_data, {
-    w <- rep(1 / n, 2)
+    w <- c(1/n, 1/ n)
   })
 m4_ret <- sampling(m4, data = m4_data, seed = SEED)
 ```
@@ -213,12 +235,22 @@ summary(m4_ret, par = c("sigma", "tau"))
 ```{r m4_mu}
 m4_mu <- mu_summary(m4_ret)
 mu_plot(m4_mu)
-
 ```
+
+```{r m4_omega_1}
+m4_omega <- omega_summary(m4_ret)
+omega_plot(m4_omega, k = 1)
+```
+
+```{r m4_omega_2}
+omega_plot(m4_omega, k = 2)
+```
+
+
 
 ## Model Comparison
 
-```{r}
+```{r model_comp}
 waic2df <- function(x) {
   x_waic <- waic(x)
   x_loo <- loo(x)
