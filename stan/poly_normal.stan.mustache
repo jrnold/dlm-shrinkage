@@ -43,7 +43,13 @@ transformed parameters {
   vector[2 * p + 2 * p * p + 2] dlm[n + 1];
   matrix[2, 2] W[n];
 
-  W <- rep_array(L * pow(sigma * tau[1], 2) * L ', n);
+  {
+    vector[p] WW;
+    for (i in 1:p) {
+      WW[i] <- pow(sigma * tau[i], 2);
+    }
+    W <- rep_array(diag_post_multiply(L, WW) * L ', n);
+  }
   {
     vector[1] V[n];
     V <- rep_array(rep_vector(pow(sigma, 2), 1), n);
@@ -71,7 +77,7 @@ generated quantities {
    mu <- dlm_filter_bsample_rng(n, 1, p, G, dlm);
  }
   for (i in 1:n) {
-    omega[i] <- mu[i + 1] - mu[i];
+    omega[i] <- mu[i + 1] - G[i] * mu[i];
   }
   for (i in 1:n) {
     kalman[i] <- dlm_get_C(i, 1, p, dlm) * F[i] ' * dlm_get_Q_inv(i, 1, p, dlm);

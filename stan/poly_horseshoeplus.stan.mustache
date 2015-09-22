@@ -38,6 +38,7 @@ parameters {
   real<lower = 0.0> sigma;
   vector<lower = 0.0>[2] tau;
   vector<lower = 0.0>[2] lambda[n];
+  vector<lower = 0.0>[2] eta[n];  
 }
 transformed parameters {
   vector[1] log_lik[n];
@@ -65,7 +66,8 @@ model {
   sigma ~ cauchy(0.0, s);
   tau ~ cauchy(0.0, w);
   for (i in 1:n) {
-    lambda[i] ~ cauchy(0, 1);
+    lambda[i] ~ cauchy(0, eta[i]);
+    eta[i] ~ cauchy(0, 1);
   }
   for (i in 1:n) {
     ll[i] <- log_lik[i, 1];

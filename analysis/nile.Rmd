@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r results = 'hide', echo = FALSE, message = FALSE}
-knitr::opts_chunk[["set"]](cache =TRUE,
+knitr::opts_chunk[["set"]](cache = FALSE,
                            fig.path = "figures/nile-",
                            dev = 'pdf',
                            fig.height = 1.66,

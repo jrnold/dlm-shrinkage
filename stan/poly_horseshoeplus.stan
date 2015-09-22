@@ -986,18 +986,20 @@ transformed data {
 parameters {
   real<lower = 0.0> sigma;
   vector<lower = 0.0>[2] tau;
+  vector<lower = 0.0>[2] lambda[n];
+  vector<lower = 0.0>[2] eta[n];  
 }
 transformed parameters {
   vector[1] log_lik[n];
   vector[2 * p + 2 * p * p + 2] dlm[n + 1];
-  matrix[2, 2] W[n];
+  matrix[p, p] W[n];
 
-  {
+  for (i in 1:n) {
     vector[p] WW;
-    for (i in 1:p) {
-      WW[i] <- pow(sigma * tau[i], 2);
+    for (j in 1:p) {
+      WW[j] <- pow(sigma * tau[j] * lambda[i, j], 2);
     }
-    W <- rep_array(diag_post_multiply(L, WW) * L ', n);
+    W[i] <- diag_post_multiply(L, WW) * L';
   }
   {
     vector[1] V[n];
@@ -1012,6 +1014,10 @@ model {
 
   sigma ~ cauchy(0.0, s);
   tau ~ cauchy(0.0, w);
+  for (i in 1:n) {
+    lambda[i] ~ cauchy(0, eta[i]);
+    eta[i] ~ cauchy(0, 1);
+  }
   for (i in 1:n) {
     ll[i] <- log_lik[i, 1];
   }

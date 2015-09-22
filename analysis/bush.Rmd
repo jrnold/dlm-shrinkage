@@ -7,10 +7,9 @@ output: html_document
 
 ```{r results = 'hide', echo = FALSE, message = FALSE}
 knitr::opts_chunk[["set"]](cache =TRUE,
-                           fig.path = "figures/nile-",
+                           fig.path = "figures/bush-",
                            dev = 'pdf',
-                           fig.height = 1.66,
-                           fig.width = 3.2,
+                           fig.height = 2, fig.width = 3,
                            autodep = TRUE)
 library("rstan")
 library("ggplot2")
@@ -19,6 +18,7 @@ library("tidyr")
 library("loo")
 library("xtable")
 library("bsdlm")
+library("reshape2")
 options(mc.cores = parallel::detectCores())
 
 this <- new.env()
@@ -27,30 +27,31 @@ tab_path <- "../analysis/tex"
 dir.create(tab_path, showWarnings = FALSE)
 
 STAN_DIR <- "../stan/"
-SEED <- 6714590
+SEED <- 2236
 
 theme_local <- theme_minimal
 ```
 
 
 ```{r helper_funs}
-omega_summary <- function(x, param = "omega") {
- omega <- drop(rstan::extract(x, param)[[1]])
- nile_df %>%
-  mutate(mean = apply(omega, 2, mean),
-         median = apply(omega, 2, median),
-         sd = apply(omega, 2, sd),
-         z = mean / sd,
-         p25 = apply(omega, 2, quantile, prob = 0.25),
-         p75 = apply(omega, 2, quantile, prob = 0.75),
-         p16 = apply(omega, 2, quantile, prob = 0.16),
-         p84 = apply(omega, 2, quantile, prob = 0.84),
-         p025 = apply(omega, 2, quantile, prob = 0.025),
-         p975 = apply(omega, 2, quantile, prob = 0.975)) 
+omega_summary <- function(x, param = "omega", k = 1) {
+  melt(rstan::extract(x, param)[[1]], 
+             varnames = c("iter", "time", "dim")) %>%
+    group_by(dim, time) %>%
+    summarize(mean = mean(value),
+              sd = sd(value),
+              p025 = quantile(value, 0.025),
+              p16 = quantile(value, 0.16),
+              p25 = quantile(value, 0.25),
+              median = median(value),
+              p75 = quantile(value, 0.75),
+              p84 = quantile(value, 0.84),
+              p975 = quantile(value, 0.975))
 }
 
-omega_plot <- function(.data) {
-  ggplot(.data, aes(x = year)) +
+omega_plot <- function(.data, k = 1) {
+  dat <- bind_cols(filter(.data, dim == k), BushApproval)
+  ggplot(dat, aes(x = date)) +
     geom_hline(yintercept = 0, colour = "gray") +
     geom_linerange(mapping = aes(ymin = p025, ymax = p975), colour = "gray") +
     geom_point(mapping = aes(y = mean)) +
@@ -58,89 +59,40 @@ omega_plot <- function(.data) {
     theme(panel.grid = element_blank())
 }
 
-omega_z_plot <- function(.data) {
-  ggplot(.data, aes(x = year, y = z)) +
-    geom_point() +
-    #geom_ribbon(ymin = -2, ymax = 2, alpha = 0.2) + 
-    geom_hline(yintercept = 0) + 
-    theme_minimal()
-}
-
-
-kalman_summary <- function(x, param = "kalman") {
-  kal <- drop(rstan::extract(x, param)[[1]])
-  nile_df %>%
-  mutate(mean = apply(kal, 2, mean),
-         median = apply(kal, 2, median),
-         p25 = apply(kal, 2, quantile, prob = 0.25),
-         p75 = apply(kal, 2, quantile, prob = 0.75),
-         p16 = apply(kal, 2, quantile, prob = 0.16),
-         p84 = apply(kal, 2, quantile, prob = 0.84),
-         p025 = apply(kal, 2, quantile, prob = 0.025),
-         p975 = apply(kal, 2, quantile, prob = 0.975))    
-}
-
-kalman_plot <- function(x) {
-  ggplot(x, aes(x = year)) +
-    geom_hline(yintercept = 0, colour = "gray") +
-    geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean)) +
-    theme_local()
-}
-
 mu_summary <- function(x, param = "mu") {
-  mu <- drop(rstan::extract(x, param)[[1]])
-  if (ncol(mu) == (nrow(nile_df) + 1)) {
-    mu <- mu[ , 2:ncol(mu)]
-  }
-  nile_df %>%
-  mutate(mean = apply(mu, 2, mean),
-         sd = apply(mu, 2, sd),
-         median = apply(mu, 2, median),
-         p25 = apply(mu, 2, quantile, prob = 0.25),
-         p75 = apply(mu, 2, quantile, prob = 0.75),
-         p16 = apply(mu, 2, quantile, prob = 0.16),
-         p84 = apply(mu, 2, quantile, prob = 0.84),
-         p025 = apply(mu, 2, quantile, prob = 0.025),
-         p975 = apply(mu, 2, quantile, prob = 0.975))  
+  melt(rstan::extract(x, param)[[1]], 
+             varnames = c("iter", "time", "dim")) %>%
+    group_by(dim, time) %>%
+    summarize(mean = mean(value),
+              sd = sd(value),
+              p025 = quantile(value, 0.025),
+              p16 = quantile(value, 0.16),
+              p25 = quantile(value, 0.25),
+              median = median(value),
+              p75 = quantile(value, 0.75),
+              p84 = quantile(value, 0.84),
+              p975 = quantile(value, 0.975))
 }
 
 mu_plot <- function(.data) {
-  ggplot(.data, aes(x = year)) + 
+  dat <- filter(.data, dim == 1, time > 1) %>%
+              bind_cols(BushApproval)
+  ggplot(dat, aes(x = end_date)) + 
     geom_ribbon(mapping = aes(ymin = p16, ymax = p84),
                 alpha = 0.3) +
     geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
                 alpha = 0.3) +
-    geom_point(mapping = aes(y = flow), size = 1) +
+    geom_point(mapping = aes(y = approve), size = 1) +
     geom_line(mapping = aes(y = mean)) +
     ylab("") +
     xlab("") + 
     theme_local() +
     theme(panel.grid = element_blank())
-}
 
-lambda_summary <- function(x, param = "lambda") {
-  lambda <- drop(rstan::extract(x, param)[[1]])
-  nile_df %>%
-  mutate(mean = apply(lambda, 2, mean),
-         sd = apply(lambda, 2, sd),
-         median = apply(lambda, 2, median),
-         p25 = apply(lambda, 2, quantile, prob = 0.25),
-         p75 = apply(lambda, 2, quantile, prob = 0.75),
-         p16 = apply(lambda, 2, quantile, prob = 0.16),
-         p84 = apply(lambda, 2, quantile, prob = 0.84),
-         p025 = apply(lambda, 2, quantile, prob = 0.025),
-         p975 = apply(lambda, 2, quantile, prob = 0.975))  
-}
-
-lambda_plot <- function(.data) {
-  ggplot(.data, aes(x = year)) +
-    geom_hline(yintercept = 0, colour = "gray") +
-    geom_pointrange(mapping = aes(ymin = p025, ymax = p975, y = mean)) +
-    theme_local()
 }
 
 dlm_err <- function(x, param = "dlm") {
-  rstan::extract(x, param)[[1]][ , -1, 5]
+  rstan::extract(x, param)[[1]][ , -1, 13]
 }
 
 ```
@@ -149,38 +101,178 @@ dlm_err <- function(x, param = "dlm") {
 data("BushApproval", package = "bsdlm")
 ```
 
-```{r fig.height = 3, fig.width = 6}
+```{r approval, fig.height = 3, fig.width = 6}
 ggplot(BushApproval, aes(x = end_date, y = approve)) +
   geom_point() +
-  annotate("text", x = as.Date("2001-9-11"), y = 70, label = "9/11", colour = "red") +
-  annotate("text", x = as.Date("2003-6-01"), y = 75, label = "Iraq War start", colour = "red") +
+  annotate("text", x = as.Date("2001-9-11"), y = 70, label = "9/11", colour = "red", hjust = 0.9) +
+  annotate("text", x = as.Date("2003-3-22"), y = 75, label = "Iraq War start", colour = "red", hjust = 0) +
   theme_local() +
   xlab("") +
   ylab("% Approve")
 ```
 
-```{r}
+## Normal
+
+```{r m1}
+m1 <- stan_model(file.path(STAN_DIR, "poly_normal.stan"))
+```
+
+```{r m1_ret}
 m1_data <-
   within(list(), {
-    y <- matrix(BushApproval$approve[1:10])
+    y <- matrix(BushApproval$approve)
     n <- length(y)
     p <- 2
     miss <- matrix(as.integer(is.na(y)))
     m0 <- c(BushApproval$approve[1], 0)
     C0 <- matrix(c(2, 1, 1, 1), 2, 2) * rep(var(BushApproval$approve[1:10]) * 2, 2)
-    s <- sqrt(0.5 * (1 - 0.5) / 1000) # standard error of poll of size 1000
+    s <- sqrt(0.5 * (1 - 0.5) / 500) # standard error of poll of size 500
     w <- rep(1, 2)
   })
-m1 <- stan_model(file.path(STAN_DIR, "poly_normal.stan"))
 
-m1_ret <- sampling(m1, data = m1_data, chains = 1, iter = 1)
+m1_ret <- sampling(m1, data = m1_data, seed = SEED)
 ```
 
+```{r m1_mu}
+m1_mu <- mu_summary(m1_ret)
+mu_plot(m1_mu)
+
+```
+
+```{r m1_omega}
+m1_omega <- rstan::extract(m1_ret, "omega")[[1]]
+plot(apply(m1_omega, 2:3, mean)[ , 1], type = "l")
+plot(apply(m1_omega, 2:3, mean)[ , 2], type = "l")
+```
+
+## Horseshoe
+
+```{r m2}
+m2 <- stan_model(file.path(STAN_DIR, "poly_horseshoe.stan"))
+```
+
+
+```{r mu_ret}
+m2_data <-
+  within(m1_data, {
+    w <- rep(1 / n, 2)
+  })
+m2_ret <- sampling(m2, data = m2_data, seed = SEED)
+```
+
+```{r m2_ret_summary}
+summary(m2_ret, par = c("sigma", "tau"))
+```
+
+```{r m2_mu}
+m2_mu <- mu_summary(m2_ret)
+mu_plot(m2_mu)
+
+```
+
+## Normal with interventions
+
+```{r m3}
+m3 <- stan_model(file.path(STAN_DIR, "poly_normal_intervention.stan"))
+```
+
+```{r m3_ret}
+m3_data <-
+  within(m1_data, {
+    intervention <- c(23, 86)
+    n_intervention <- length(intervention)
+  })
+m3_ret <- sampling(m3, data = m3_data, seed = SEED)
+```
+
+```{r m3_mu}
+m3_mu <- mu_summary(m3_ret)
+mu_plot(m3_mu)
+
+```
+
+## Horseshoe+
+
+```{r m4}
+m4 <- stan_model(file.path(STAN_DIR, "poly_horseshoeplus.stan"))
+```
+
+
+```{r mu_ret}
+m4_data <-
+  within(m1_data, {
+    w <- rep(1 / n, 2)
+  })
+m4_ret <- sampling(m4, data = m4_data, seed = SEED)
+```
+
+```{r m4_ret_summary}
+summary(m4_ret, par = c("sigma", "tau"))
+```
+
+```{r m4_mu}
+m4_mu <- mu_summary(m4_ret)
+mu_plot(m4_mu)
+
+```
+
+## Model Comparison
+
+```{r}
+waic2df <- function(x) {
+  x_waic <- waic(x)
+  x_loo <- loo(x)
+  bind_cols(as_data_frame(x_waic[! names(x_waic) %in% c("pointwise")]),
+            as_data_frame(x_loo[! names(x_loo) %in% c("pointwise", "pareto_k")]))
+}
+
+msae <- function(err) {
+  mse <- sqrt(mean((apply(err, 2, mean))^2))
+  mae <- mean(abs(apply(err, 2, mean)))
+  data_frame(mse = mse, mae = mae)
+}
+
+waic_loo <-
+  list(mutate(waic2df(drop(rstan::extract(m1_ret, "log_lik")[[1]])),
+              model = "\\ModelII{Normal}"),
+       mutate(waic2df(drop(rstan::extract(m3_ret, "log_lik")[[1]])),
+              model = "\\ModelII{Intervention}"),
+       mutate(waic2df(drop(rstan::extract(m2_ret, "log_lik")[[1]])),
+              model = "\\ModelII{Horseshoe}"),
+       mutate(waic2df(drop(rstan::extract(m4_ret, "log_lik")[[1]])),
+              model = "\\ModelII{Horseshoe+}")) %>%
+  bind_rows()
+
+mse_mae <-
+  list(mutate(msae(dlm_err(m1_ret)),
+              model = "\\ModelII{Normal}"),
+       mutate(msae(dlm_err(m3_ret)),
+              model = "\\ModelII{Intervention}"),
+       mutate(msae(dlm_err(m2_ret)),
+              model = "\\ModelII{Horseshoe}"),
+       mutate(msae(dlm_err(m4_ret)),
+              model = "\\ModelII{Horseshoe+}")) %>%
+  bind_rows()
+
+model_comp <- left_join(waic_loo, mse_mae, by = "model")
+
+model_comp %>%
+  select(model, mse, elpd_waic, elpd_loo) %>%
+  rename(`$\\mathrm{RMSE}$` = mse,
+         `$\\mathrm{elpd}_{WAIC}$` = elpd_waic,
+         `$\\mathrm{elpd}_{loo}$` = elpd_loo)  %>%
+  xtable() %>%
+  print(sanitize.text = identity,
+        floating = FALSE,
+        include.rownames = FALSE,
+        type = "latex",
+        file = file.path(tab_path, "bush-tab_model_comp.tex"))
+```
 
 
 
 ## Save Data
 
-```{r}
+```{r save}
 saveRDS(as.list(this), file = "bush.rds")
 ```

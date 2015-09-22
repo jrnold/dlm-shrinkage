@@ -956,13 +956,15 @@ data {
   int<lower = 1> p; // number of states, i.e. polynomial.
   vector[1] y[n];
   int miss[n, 1];
+  // number of interventions, and their times
+  int n_intervention;
+  int intervention[n_intervention];
   vector[p] m0;
   matrix<lower = 0.0>[p, p] C0;
   real<lower = 0.0> s;
-  vector<lower = 0.0>[p] w;  
+  vector<lower = 0.0>[p] w;
 }
 transformed data {
-  vector[p] g[n];
   vector[1] b[n];
   matrix[1, p] F[n];
   matrix[p, 2] G[n];
@@ -972,7 +974,6 @@ transformed data {
     F[i] <- rep_matrix(0.0, 1, p);
     F[i, 1, 1] <- 1.0;
   }
-  g <- rep_array(rep_vector(0.0, p), n);
   b <- rep_array(rep_vector(0.0, 1), n);
   L <- rep_matrix(0.0, p, p);
   for (i in 1:p) {
@@ -981,17 +982,17 @@ transformed data {
     }
   }
   G <- rep_array(L, n);
-
 }
 parameters {
   real<lower = 0.0> sigma;
   vector<lower = 0.0>[2] tau;
+  vector[n_intervention] beta;
 }
 transformed parameters {
   vector[1] log_lik[n];
   vector[2 * p + 2 * p * p + 2] dlm[n + 1];
   matrix[2, 2] W[n];
-
+  
   {
     vector[p] WW;
     for (i in 1:p) {
@@ -1001,6 +1002,11 @@ transformed parameters {
   }
   {
     vector[1] V[n];
+    vector[p] g[n];
+    g <- rep_array(rep_vector(0.0, p), n);
+    for (i in 1:n_intervention) {
+      g[intervention[i], 1] <- beta[i];
+    }
     V <- rep_array(rep_vector(pow(sigma, 2), 1), n);
     dlm <- dlm_filter(n, 1, p, y, miss, b, F, V, g, G, W, m0, C0);
     log_lik <- dlm_filter_loglik(n, 1, p, dlm, miss);
