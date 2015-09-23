@@ -17,27 +17,139 @@ These three cases are each sub-sampled to 1,000 points.
 The blocks function is included in this project's R package **bsdlm** function `blocks_dj94`:
 ```{r}
 library("bsdlm")
-blocks_fxn <- blocks_dj94(seq(0, 1, length.out = 1000))
+library("rstan")
+library("dplyr")
+library("tidyr")
+library("ggplot2")
 
-noise_sd <- c(low = 0.05, medium = 0.1, high = 0.5)
+STAN_DIR <- "../stan/"
+SEED <- 6714590
+
+sample_blocks <- function(sd = 0, n = 1000) {
+  x <- seq(0, 1, length.out = 1000)
+  y <- y_true <- blocks_dj94(x)
+  if (sd > 0) {
+    y <- y + rnorm(n, 0, sd)
+  }
+  data_frame(x = x, y = y, y_true = y_true)
+}
+
+
+noise_sd <- c(low = 0.05, medium = 0.1, high = 0.5, vhigh = 1, vvhigh = 2)
+
+theme_local <- theme_minimal
 ```
 
+```{r}
+
+mu_summary <- function(blocks, x, param = "mu") {
+  mu <- drop(rstan::extract(x, param)[[1]])[ , -1]
+  blocks %>%
+  mutate(mean = apply(mu, 2, mean),
+         sd = apply(mu, 2, sd),
+         median = apply(mu, 2, median),
+         p25 = apply(mu, 2, quantile, prob = 0.25),
+         p75 = apply(mu, 2, quantile, prob = 0.75),
+         p16 = apply(mu, 2, quantile, prob = 0.16),
+         p84 = apply(mu, 2, quantile, prob = 0.84),
+         p025 = apply(mu, 2, quantile, prob = 0.025),
+         p975 = apply(mu, 2, quantile, prob = 0.975))
+}
+
+mu_plot <- function(.data) {
+  ggplot(.data, aes(x = x)) + 
+    geom_ribbon(mapping = aes(ymin = p16, ymax = p84),
+                alpha = 0.3) +
+    geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
+                alpha = 0.3) +
+    geom_point(mapping = aes(y = y), size = 1) +
+    geom_line(mapping = aes(y = mean)) +
+    ylab("") +
+    xlab("") + 
+    theme_local() +
+    theme(panel.grid = element_blank())
+}
+
+```
+
+The no-noise case:
+```{r}
+blocks_fxn_zero <- sample_blocks(0)
+var(blocks_fxn_zero$y)
+```
 The low-noise case:
 ```{r}
-blocks_fxn_low <- blocks_fxn + rnorm(length(blocks_fxn_low), 0, noise_sd["low"])
+blocks_fxn_low <- sample_blocks(noise_sd["low"])
 ```
 The medium-noise case:
 ```{r}
-blocks_fxn_med <- blocks_fxn + rnorm(length(blocks_fxn_med), 0, noise_sd["medium"])
+blocks_fxn_med <- sample_blocks(noise_sd["medium"])
 ```
 The high-noise case:
 ```{r}
-blocks_fxn_med <- blocks_fxn + rnorm(length(blocks_fxn_med), 0, noise_sd["high"])
+blocks_fxn_high <- sample_blocks(noise_sd["high"])
+```
+The very-high-noise case:
+```{r}
+blocks_fxn_vhigh <- sample_blocks(noise_sd["vhigh"])
 ```
 
 ```{r}
+blocks_fxn_vhigh <- sample_blocks(1)
+```
 
+```{r}
+blocks_fxn_vvhigh <- sample_blocks(2)
+```
+
+```{r}
+blocks_fxn_vvvhigh <- sample_blocks(4)
+```
+
+```{r m1}
+m1_model <- stan_model(file.path(STAN_DIR, "local_level.stan"))
+```
+
+```{r m1}
+m1_data <- 
+  within(list(), {
+      y <- blocks_fxn_vvvhigh$y
+       miss <- as.integer(is.na(y))
+       n <- length(y)
+       m0 = y[1]
+       C0 = var(y) * 3
+       s = sd(y) * 3
+       w = sd(y) * 3
+  })
+
+m1_ret <- sampling(m1_model,
+                   data = m1_data,
+                   seed = SEED, chains = 1)
+```
+
+```{r}
+m1_mu <- mu_summary(blocks_fxn_vvvhigh, m1_ret)
+mu_plot(m1_mu)
 ```
 
 
 
+
+
+```{r m0}
+m2_model <- stan_model(file.path(STAN_DIR, "changepoint_horseshoeplus.stan"))
+m2_data <- 
+  within(m1_data, {
+       w = 1 / n
+  })
+
+m2_ret <- sampling(m2_model,
+                   data = m2_data,
+                   seed = SEED, chains = 1)
+
+```
+
+```{r}
+m2_mu <- mu_summary(blocks_fxn_vvvhigh, m2_ret)
+mu_plot(m2_mu)
+```

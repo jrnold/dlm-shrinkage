@@ -15,7 +15,7 @@ parameters {
   real<lower = 0.0> sigma;
   vector<lower = 0.0>[n] lambda;
   vector<lower = 0.0>[n] eta; 
-  real<lower = 0.0, upper = 1.0> tau;
+  real<lower = 0.0> tau;
 }
 transformed parameters {
   vector[n] log_lik;

@@ -549,23 +549,6 @@ mse_mae <- list(mutate(msae(rstan::extract(m0_ret, "err")[[1]]),
                     model = "\\ModelII{Horseshoe+}")) %>%
   bind_rows()
 
-model_comp <- left_join(waic_loo, mse_mae, by = "model")
-
-model_comp %>%
-  select(model, mse, elpd_waic, elpd_loo) %>%
-  rename(`$\\mathrm{RMSE}$` = mse,
-         `$\\mathrm{elpd}_{WAIC}$` = elpd_waic,
-         `$\\mathrm{elpd}_{loo}$` = elpd_loo)  %>%
-  xtable() %>%
-  print(sanitize.text = identity,
-        floating = FALSE,
-        include.rownames = FALSE,
-        type = "latex",
-        file = file.path(tab_path, "nile-tab_model_comp.tex"))
-
-```
-
-```{r model_comp_mu}
 mu_mse_mae <- function(x, mu_true) {
   if (length(dim(x)) == 1) {
     x_mean <- mean(x)
@@ -581,16 +564,17 @@ mu_mse_mae <- function(x, mu_true) {
     }
     mse2 <- mean(sqrt(mse2_))
   }
-  data_frame(mse1 = mse1, mse2 = mse2)
+  data_frame(mse_mu_1 = mse1, mse_mu_2 = mse2)
 }
 
 mu_true <- m1_mu[["mean"]]
 
-model_comp_mu <- list(mutate(mu_mse_mae(rstan::extract(m0_ret, "mu")[[1]], mu_true),
+model_comp_mu <-
+  list(mutate(mu_mse_mae(rstan::extract(m0_ret, "mu")[[1]], mu_true),
                     model = "\\ModelII{Constant}"),
-                mutate(mu_mse_mae(rstan::extract(m2_ret, "mu")[[1]], mu_true),
+              mutate(mu_mse_mae(rstan::extract(m2_ret, "mu")[[1]], mu_true),
                     model = "\\ModelII{Normal}"),
-                mutate(mu_mse_mae(rstan::extract(m3_ret, "mu")[[1]], mu_true),
+              mutate(mu_mse_mae(rstan::extract(m3_ret, "mu")[[1]], mu_true),
                     model = "\\ModelII{StudentT}"),
               mutate(mu_mse_mae(rstan::extract(m4_ret, "mu")[[1]], mu_true),
                     model = "\\ModelII{Laplace}"),
@@ -600,24 +584,23 @@ model_comp_mu <- list(mutate(mu_mse_mae(rstan::extract(m0_ret, "mu")[[1]], mu_tr
                     model = "\\ModelII{Horseshoe+}")) %>%
   bind_rows()
 
-ggplot(gather(model_comp_mu, stat, value, - model),
-       aes(x = model, y = value)) +
-  geom_point() +
-  facet_wrap(~ stat, nrow = 2) +
-  coord_flip()
+model_comp <-
+  left_join(waic_loo, mse_mae, by = "model") %>%
+  left_join(model_comp_mu, by = "model")
 
-model_comp_mu
-
-model_comp_mu %>%
-  select(model, mse1, mse2) %>%
-  rename(`$\\mathrm{MSE}_1(\\mu)$` = mse1, `$\\mathrm{MSE}_2(\\mu)$` = mse2)  %>%
+model_comp %>%
+  select(model, mse, elpd_waic, elpd_loo, mse_mu_1) %>%
+  rename(`$\\mathrm{RMSE(y)}$` = mse,
+         `$\\mathrm{elpd}_{WAIC}$` = elpd_waic,
+         `$\\mathrm{elpd}_{loo}$` = elpd_loo,
+         `$\\mathrm{RMSE}(\\mu)$` = mse_mu_1)  %>%
   xtable() %>%
   print(sanitize.text = identity,
         floating = FALSE,
         include.rownames = FALSE,
         type = "latex",
-        file = file.path(tab_path, "nile-tab_mu_model_comp.tex"))
-                         
+        file = file.path(tab_path, "nile-tab_model_comp.tex"))
+
 ```
 
 
