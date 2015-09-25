@@ -11,13 +11,6 @@ data {
   real<lower = 0.0> s;
   real<lower = 0.0> w;
 }
-transformed data {
-  matrix[2, 2] L;
-  L[1, 1] <- 1.0;
-  L[1, 2] <- 1.0;
-  L[2, 1] <- 0.0;
-  L[2, 2] <- 1.0;
-}
 parameters {
   real<lower = 0.0> sigma;
   real<lower = 0.0> tau;

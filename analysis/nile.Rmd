@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r results = 'hide', echo = FALSE, message = FALSE}
-knitr::opts_chunk[["set"]](cache = FALSE,
+knitr::opts_chunk[["set"]](cache = TRUE,
                            fig.path = "figures/nile-",
                            dev = 'pdf',
                            fig.height = 1.66,
@@ -50,7 +50,9 @@ omega_plot <- function(.data) {
     geom_hline(yintercept = 0, colour = "gray") +
     geom_linerange(mapping = aes(ymin = p025, ymax = p975), colour = "gray") +
     geom_point(mapping = aes(y = mean)) +
-    theme_local() + 
+    theme_local() +
+    xlab("") +
+    ylab(expression(omega)) +
     theme(panel.grid = element_blank())
 }
 
@@ -102,8 +104,8 @@ mu_summary <- function(x, param = "mu") {
 
 mu_plot <- function(.data) {
   ggplot(.data, aes(x = year)) + 
-    geom_ribbon(mapping = aes(ymin = p16, ymax = p84),
-                alpha = 0.3) +
+#     geom_ribbon(mapping = aes(ymin = p16, ymax = p84),
+#                 alpha = 0.3) +
     geom_ribbon(mapping = aes(ymin = p025, ymax = p975),
                 alpha = 0.3) +
     geom_point(mapping = aes(y = flow), size = 1) +
@@ -297,6 +299,10 @@ summary(m2_ret, par = c("sigma", "tau"))
 StructTS(Nile, type = c("level"))
 ```
 
+```{r m2_tau}
+summary(m2_ret, c("tau", "sigma"))[[1]]
+```
+
 
 ## M3: Student's $t$
 
@@ -312,12 +318,17 @@ y_t &\sim N(\mu_t, \sigma^2) \\
 \end{aligned}
 $$
 
-```{r m3}
+
+```{r m3, cache=tools::md5sum(file.path(STAN_DIR, "changepoint_student_t.stan"))}
+m3_model <- stan_model(file.path(STAN_DIR, "changepoint_student_t.stan"))
+```
+
+
+```{r m3_ret}
 m3_data <- within(m1_data, {
   w <- 1 / length(y)
-  nu <- 1
 })
-m3_model <- stan_model(file.path(STAN_DIR, "changepoint_student_t.stan"))
+
 m3_ret <- sampling(m3_model,
                    data = m3_data,
                    seed = SEED)
@@ -345,6 +356,10 @@ kalman_plot(m3_kalman)
 ```{r m3_lambda}
 m3_lambda <- lambda_summary(m3_ret)
 lambda_plot(m3_lambda)
+```
+
+```{r m3_tau}
+summary(m3_ret, c("tau", "sigma", "nu"))[[1]]
 ```
 
 
@@ -397,6 +412,9 @@ m4_lambda <- lambda_summary(m4_ret)
 lambda_plot(m4_lambda)
 ```
 
+```{r m4_tau}
+summary(m4_ret, par = c("tau", "sigma"))[[1]]
+```
 
 
 
@@ -448,6 +466,9 @@ m5_lambda <- lambda_summary(m5_ret)
 lambda_plot(m5_lambda)
 ```
 
+```{r m5_tau}
+summary(m5_ret, par = c("tau", "sigma"))[[1]]
+```
 
 
 ## M6: Horseshoe+
@@ -498,6 +519,10 @@ kalman_plot(m6_kalman)
 ```{r m6_lambda}
 m6_lambda <- lambda_summary(m6_ret)
 lambda_plot(m6_lambda)
+```
+
+```{r m6_tau}
+summary(m6_ret, par = c("tau", "sigma"))[[1]]
 ```
 
 

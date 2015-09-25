@@ -86,7 +86,7 @@ mu_plot <- function(.data) {
                 alpha = 0.3) +
     geom_point(mapping = aes(y = approve), size = 1) +
     geom_line(mapping = aes(y = mean)) +
-    ylab("") +
+    ylab("% Approve") +
     xlab("") + 
     theme_local() +
     theme(panel.grid = element_blank())
